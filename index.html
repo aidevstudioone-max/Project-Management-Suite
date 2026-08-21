@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Management Suite — Live Demo</title>
+<style>
+  :root{
+    --bg:#f4f5f9; --card:#ffffff; --border:#e3e5ec; --text:#1d2030; --muted:#6b7080;
+    --accent:#4f46e5; --accent-hover:#4338ca; --accent-soft:#eef0fe;
+    --dark:#171a2b; --dark2:#2a2f6a;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);}
+
+  .hero{background:linear-gradient(135deg,var(--dark),var(--dark2));color:#fff;padding:64px 20px 80px;text-align:center;}
+  .logo-badge{width:56px;height:56px;border-radius:14px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:24px;margin:0 auto 18px;}
+  .hero h1{font-size:34px;margin:0 0 12px;}
+  .hero p{font-size:16px;color:#c7c9db;max-width:560px;margin:0 auto 30px;line-height:1.6;}
+  .btn{padding:14px 30px;border-radius:9px;border:none;font-size:15px;font-weight:600;background:var(--accent);color:#fff;cursor:pointer;text-decoration:none;display:inline-block;}
+  .btn:hover{background:var(--accent-hover);}
+
+  .wrap{max-width:880px;margin:0 auto;padding:0 20px;}
+  .section{padding:56px 0;}
+  .section h2{font-size:24px;text-align:center;margin:0 0 8px;}
+  .section .lede{text-align:center;color:var(--muted);max-width:560px;margin:0 auto 36px;font-size:14.5px;line-height:1.6;}
+
+  .demo-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:32px;max-width:520px;margin:0 auto;text-align:center;}
+  .demo-card .tag{display:inline-block;background:var(--accent-soft);color:var(--accent);font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:4px 10px;border-radius:20px;margin-bottom:14px;}
+  .demo-card h3{font-size:20px;margin:0 0 8px;}
+  .demo-card p{color:var(--muted);font-size:13.5px;line-height:1.6;margin:0 0 18px;}
+  .demo-card ul{text-align:left;margin:0 0 22px;padding-left:18px;color:var(--text);font-size:13.5px;line-height:1.9;display:inline-block;}
+  .demo-card .login-hint{background:#f5f6fa;border-radius:8px;padding:10px 12px;font-size:12px;color:var(--muted);margin-bottom:20px;}
+  .demo-card .login-hint b{color:var(--text);}
+
+  .feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;}
+  .feature{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 20px;transition:transform .18s ease,box-shadow .18s ease;}
+  .feature:hover{transform:translateY(-6px);box-shadow:0 12px 24px rgba(23,26,43,.12);border-color:var(--accent);}
+  .feature .ic{font-size:22px;margin-bottom:8px;}
+  .feature h4{margin:0 0 5px;font-size:14.5px;}
+  .feature p{margin:0;color:var(--muted);font-size:12.5px;line-height:1.5;}
+
+  footer{text-align:center;padding:30px 20px 50px;color:var(--muted);font-size:12.5px;}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="logo-badge">P</div>
+  <h1>Project Management Suite</h1>
+  <p>Every request on your account — tracked, assigned, and resolved in one place. This is the exact system your account runs on: a live demo, not a mockup.</p>
+</div>
+
+<div class="wrap">
+  <div class="section">
+    <h2>Full visibility into your account</h2>
+    <p class="lede">Once you're onboarded, this is where you raise requests, follow their progress, and talk directly to the person handling them — no more chasing status over email or chat.</p>
+    <div class="demo-card">
+      <span class="tag">Client Portal</span>
+      <h3>See it in action</h3>
+      <p>A sample account, pre-loaded with real-looking requests, so you can click through exactly what your team will use.</p>
+      <ul>
+        <li>Raise a request with category &amp; priority</li>
+        <li>Track status: New → Assigned → In Progress → Resolved</li>
+        <li>Reply directly on a request's conversation thread</li>
+        <li>Get notified the moment something changes</li>
+      </ul>
+      <div class="login-hint">Demo logins (password <b>demo123</b>) are listed right on the sign-in screen.</div>
+      <a class="btn" href="https://claude.ai/code/artifact/6c7393c8-b62a-4db6-8bec-e26665f2c156" target="_blank" rel="noopener">View the Live Demo →</a>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>What's tracked on your account</h2>
+    <p class="lede">A handful of the things this keeps visible to you at every stage.</p>
+    <div class="feature-grid">
+      <div class="feature"><div class="ic">🎫</div><h4>Every request logged</h4><p>Nothing raised on your account gets lost — each one is tracked from open to resolved.</p></div>
+      <div class="feature"><div class="ic">🔀</div><h4>Routed automatically</h4><p>Your request reaches the right specialist right away, no manual hand-offs.</p></div>
+      <div class="feature"><div class="ic">💬</div><h4>Direct conversation</h4><p>Message the person working on your request and see their replies in the same thread.</p></div>
+      <div class="feature"><div class="ic">🔔</div><h4>Live updates</h4><p>Know the moment your request is picked up, in progress, or resolved.</p></div>
+      <div class="feature"><div class="ic">📁</div><h4>Full history</h4><p>Every request you've ever raised, in one place, any time you need to look back.</p></div>
+      <div class="feature"><div class="ic">👤</div><h4>Your account profile</h4><p>Your details and priorities on file, so nothing has to be explained twice.</p></div>
+    </div>
+  </div>
+</div>
+
+<footer>Demo environment — the account and requests shown here are for demonstration purposes only.<br>© 2026 ठिkaana. All rights reserved.</footer>
+
+</body>
+</html>

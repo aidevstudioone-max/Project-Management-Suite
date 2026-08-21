@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Portal (Demo) — Project Management Suite</title>
+<style>
+  :root{
+    color-scheme: light;
+    --bg:#f4f5f9; --card:#ffffff; --border:#e3e5ec; --text:#1d2030; --muted:#6b7080;
+    --sidebar:#171a2b; --sidebar-text:#c7c9db; --sidebar-active:#2a2f4a;
+    --accent:#4f46e5; --accent-hover:#4338ca; --accent-soft:#eef0fe;
+    --danger:#e0393e; --danger-soft:#fdeaea; --success:#16a34a; --success-soft:#e9f8ee;
+    --warn:#b26a00; --warn-soft:#fef3e0;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);}
+  button{font-family:inherit;cursor:pointer;color:var(--text);}
+  input,select,textarea{font-family:inherit;color:var(--text);}
+
+  #demo-banner{background:#1d2030;color:#fff;font-size:12.5px;padding:7px 16px;text-align:center;}
+  #demo-banner b{color:#ffcf70;}
+
+  #login-screen{min-height:calc(100vh - 34px);display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#171a2b,#2a2f6a);}
+  .login-box{background:var(--card);padding:40px 36px;border-radius:16px;width:380px;box-shadow:0 20px 50px rgba(0,0,0,.35);text-align:center;}
+  .logo-badge{width:56px;height:56px;border-radius:14px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:24px;margin:0 auto 14px;}
+  .login-box h1{font-size:20px;margin:0 0 4px;}
+  .login-box p.sub{color:var(--muted);font-size:13px;margin:0 0 22px;}
+  .login-box input{width:100%;padding:11px 12px;margin-bottom:12px;border:1px solid var(--border);border-radius:8px;font-size:14px;}
+  .login-box button{width:100%;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;margin-top:6px;}
+  .login-box button:hover{background:var(--accent-hover);}
+  #login-error{color:var(--danger);font-size:12.5px;min-height:18px;margin-top:2px;}
+  .demo-hint{background:var(--accent-soft);color:var(--accent);border-radius:8px;padding:9px 12px;font-size:11.5px;margin-top:10px;text-align:left;line-height:1.6;max-height:150px;overflow-y:auto;}
+  .demo-hint b{display:block;margin:6px 0 2px;}
+  .demo-hint b:first-child{margin-top:0;}
+
+  #app{display:none;min-height:100vh;}
+  .shell{display:flex;min-height:calc(100vh - 34px);}
+  .sidebar{width:222px;background:var(--sidebar);color:var(--sidebar-text);flex-shrink:0;display:flex;flex-direction:column;padding:16px 12px;}
+  .sidebar .brand{display:flex;align-items:center;gap:10px;padding:6px 8px 16px;}
+  .sidebar .brand .logo-badge{width:34px;height:34px;font-size:16px;border-radius:9px;margin:0;}
+  .sidebar .brand b{color:#fff;font-size:15px;}
+  .sidebar .brand span{display:block;font-size:10.5px;color:#9497b3;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;color:var(--sidebar-text);font-size:13.3px;cursor:pointer;margin-bottom:2px;user-select:none;}
+  .nav-item:hover{background:#20233c;}
+  .nav-item.active{background:var(--sidebar-active);color:#fff;font-weight:600;}
+  .nav-item .ic{width:18px;text-align:center;}
+
+  .sidebar-org{background:#20233c;border-radius:8px;padding:9px 10px;margin-bottom:10px;font-size:12px;}
+  .sidebar-org b{display:block;color:#fff;font-size:13px;}
+
+  .sidebar-footer{margin-top:auto;padding-top:8px;border-top:1px solid #262a44;}
+  .sidebar-footer button{width:100%;padding:8px;background:#262a44;color:#fff;border:none;border-radius:7px;font-size:12.5px;}
+  .sidebar-footer button:hover{background:#31355a;}
+
+  .main{flex:1;padding:26px 32px;overflow-y:auto;}
+  .topbar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px;flex-wrap:wrap;gap:10px;}
+  .topbar h2{margin:0 0 2px;font-size:21px;}
+  .topbar p{margin:0;color:var(--muted);font-size:13px;}
+  .btn{padding:9px 16px;border-radius:8px;border:none;font-size:13.5px;font-weight:600;background:var(--accent);color:#fff;}
+  .btn:hover{background:var(--accent-hover);}
+  .btn.secondary{background:var(--card);color:var(--text);border:1px solid var(--border);}
+  .btn.secondary:hover{background:#f0f1f6;}
+  .btn.small{padding:5px 10px;font-size:12px;border-radius:6px;}
+
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:22px;}
+  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:15px 17px;transition:transform .15s ease,box-shadow .15s ease;}
+  .stat-card .label{font-size:11.5px;color:var(--muted);margin-bottom:6px;}
+  .stat-card .value{font-size:21px;font-weight:700;}
+  .stat-card .value.small{font-size:16px;}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:18px;}
+  .card h3{margin:0 0 14px;font-size:14.5px;}
+  .two-col{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;}
+  @media (max-width:900px){ .two-col{grid-template-columns:1fr;} }
+
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{text-align:left;color:var(--muted);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.03em;padding:8px 10px;border-bottom:1px solid var(--border);}
+  td{padding:10px 10px;border-bottom:1px solid #eef0f5;vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+  tr.clickable:hover{background:#f7f8fc;cursor:pointer;}
+  .empty-row{text-align:center;color:var(--muted);padding:30px !important;}
+  .pill{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;}
+  .pill.gray{background:#eef0f5;color:#555a72;}
+  .pill.green{background:var(--success-soft);color:var(--success);}
+  .pill.red{background:var(--danger-soft);color:var(--danger);}
+  .pill.blue{background:var(--accent-soft);color:var(--accent);}
+  .pill.yellow{background:#fef6e0;color:#a5720b;}
+  .pill.orange{background:var(--warn-soft);color:var(--warn);}
+  .mono{font-family:ui-monospace,Consolas,monospace;}
+  .row-actions{display:flex;gap:6px;}
+  .icon-btn{border:1px solid var(--border);background:#fff;border-radius:6px;padding:5px 8px;font-size:12px;}
+  .icon-btn:hover{background:#f0f1f6;}
+
+  .avatar{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+  .team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;}
+
+  .comment{display:flex;gap:10px;margin-bottom:14px;}
+  .comment .bubble{background:#f5f6fa;border-radius:10px;padding:9px 12px;flex:1;}
+  .comment.mine .bubble{background:var(--accent-soft);}
+  .comment .meta{font-size:11.5px;color:var(--muted);margin-bottom:3px;}
+  .comment .meta b{color:var(--text);}
+  .comment .text{font-size:13px;line-height:1.5;white-space:pre-wrap;}
+
+  .history-item{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid #f0f1f5;font-size:12.5px;}
+  .history-item:last-child{border-bottom:none;}
+  .history-item .time{color:var(--muted);white-space:nowrap;min-width:120px;}
+
+  .priority-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:18px;}
+  .priority-card{border-radius:var(--radius);padding:16px;text-align:center;cursor:pointer;border:1px solid transparent;transition:transform .15s ease;}
+  .priority-card .num{font-size:26px;font-weight:800;}
+  .priority-card .lbl{font-size:12px;font-weight:600;margin-top:2px;}
+  .priority-card:hover{border-color:currentColor;transform:translateY(-2px);}
+  .priority-card.Urgent{background:var(--danger-soft);color:var(--danger);}
+  .priority-card.High{background:var(--warn-soft);color:var(--warn);}
+  .priority-card.Medium{background:var(--accent-soft);color:var(--accent);}
+  .priority-card.Low{background:#eef0f5;color:#555a72;}
+  .priority-card.active{outline:2px solid currentColor;}
+
+  .overlay{position:fixed;inset:0;background:rgba(15,17,32,.5);display:none;align-items:center;justify-content:center;z-index:50;padding:20px;}
+  .overlay.open{display:flex;}
+  .modal{background:#fff;border-radius:14px;width:100%;max-width:560px;max-height:88vh;overflow-y:auto;padding:24px 26px;}
+  .modal h3{margin:0 0 16px;font-size:16px;}
+  .field{margin-bottom:13px;}
+  .field label{display:block;font-size:12.5px;font-weight:600;color:#464a5c;margin-bottom:5px;}
+  .field input,.field select,.field textarea{width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:7px;font-size:13.5px;}
+  .field textarea{resize:vertical;min-height:60px;}
+  .field-row{display:flex;gap:10px;}
+  .field-row .field{flex:1;}
+  .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;}
+  .priority-choice{display:flex;gap:8px;}
+  .priority-choice label{flex:1;text-align:center;padding:9px 4px;border:1px solid var(--border);border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--muted);}
+  .priority-choice input{display:none;}
+  .priority-choice label:has(input:checked){border-color:var(--accent);background:var(--accent-soft);color:var(--accent);}
+
+  .back-link{font-size:12.5px;color:var(--accent);cursor:pointer;margin-bottom:10px;display:inline-block;}
+  .status-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--success);margin-right:6px;}
+
+  ::placeholder{color:#a7abbd;}
+
+  .presence-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px;position:relative;top:-1px;}
+  .presence-dot.glow{animation:presencePulse 2s infinite;}
+  @keyframes presencePulse{0%{box-shadow:0 0 0 0 rgba(22,163,74,.55);}70%{box-shadow:0 0 0 7px rgba(22,163,74,0);}100%{box-shadow:0 0 0 0 rgba(22,163,74,0);}}
+  .presence-select{background:#171a2b;color:#fff;border:1px solid #33375a;border-radius:6px;padding:5px 6px;font-size:11.5px;width:100%;}
+
+  #package-landing{display:none;background:var(--bg);min-height:100vh;}
+  .other-pkg-card{cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease;}
+  .other-pkg-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(24,30,60,.08);border-color:var(--accent);}
+
+  @keyframes fadeInUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+  .fade-in{animation:fadeInUp .35s ease-out both;}
+  @media (prefers-reduced-motion: reduce){ .fade-in{animation:none;} }
+</style>
+</head>
+<body>
+
+<div id="demo-banner">DEMO MODE — a live preview of the Client Portal, using fictional client accounts. Demo logins are shown on the sign-in screen.</div>
+
+<div id="package-landing"></div>
+
+<div id="login-screen">
+  <div class="login-box">
+    <div class="logo-badge">P</div>
+    <h1>Client Portal</h1>
+    <p class="sub">Sign in to your PM Suite account</p>
+    <input type="text" id="login-email" placeholder="Email">
+    <input type="password" id="login-pass" placeholder="Password">
+    <div id="login-error"></div>
+    <button onclick="attemptLogin()">Sign In</button>
+    <div class="demo-hint" id="demo-hint"></div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="shell">
+    <div class="sidebar" id="sidebar"></div>
+    <div class="main">
+      <div id="global-back-bar" style="display:none;"><span class="back-link" onclick="history.back()">&larr; Back</span></div>
+      <div id="main-content"></div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal" id="modal-body"></div>
+</div>
+
+<script>
+/* ================= CONFIG ================= */
+const BRAND = "PM Suite";
+const DEMO_PASSWORD = "demo123";
+
+const SEED_EMPLOYEES = [
+  { id:"ankit", name:"Ankit Prakash", email:"ankit@pmsuite.example.com", title:"Founder", type:"technical" },
+  { id:"chandan", name:"Chandan Jha", email:"chandan@pmsuite.example.com", title:"Chief Technology Officer", type:"technical" },
+  { id:"bhuvanesh", name:"Bhuvanesh Meethal", email:"bhuvanesh@pmsuite.example.com", title:"Director – Client Relations", type:"nontechnical" },
+  { id:"irfan", name:"Irfan Azmi", email:"irfan@pmsuite.example.com", title:"Director – Customer Success", type:"nontechnical" }
+];
+const EMPLOYEES = SEED_EMPLOYEES.slice();
+
+const PACKAGE_CATALOG = [
+  { id:"starter", name:"Website Only", price:35000, services:["Website Development","Hosting"] },
+  { id:"growth", name:"Website + Maintenance", price:52000, services:["Website Development","Hosting","Monthly Maintenance"] },
+  { id:"seo", name:"Website Development + SEO", price:75000, services:["Website Development","Hosting","Domain Management","Monthly Maintenance","Technical Support","SEO"] },
+  { id:"support", name:"Website + Maintenance + Support", price:68000, services:["Website Development","Hosting","Domain Management","Monthly Maintenance","Technical Support"] },
+  { id:"scale", name:"Full Growth Package", price:120000, services:["Website Development","Hosting","Domain Management","Monthly Maintenance","Technical Support","SEO","AI Automation Add-on","Priority Support"] }
+];
+const DEFAULT_ROLES = ["Owner","Manager","Marketing Manager","IT Manager","Admin","Finance","Client User"];
+const PRESENCE_OPTIONS = ["Active","On Break","Offline"];
+function presenceColor(p){ return {Active:"#16a34a","On Break":"#d97706",Offline:"#9aa0b4"}[p] || "#9aa0b4"; }
+function presenceDot(p){ return `<span class="presence-dot ${p==="Active"?"glow":""}" style="background:${presenceColor(p||"Offline")};"></span>`; }
+function getRoleOptions(){ const custom = loadKey("customRoles")||[]; return [...DEFAULT_ROLES, ...custom.filter(r=>!DEFAULT_ROLES.includes(r))]; }
+function addCustomRole(role){ if(!role) return; const custom = loadKey("customRoles")||[]; if(!getRoleOptions().includes(role)){ custom.push(role); saveKey("customRoles", custom); } }
+
+const TICKET_CATEGORIES = ["Technical Issue","Website Issue","Content Update","Design Change","Domain / Hosting","Email","General Request","Other"];
+const TECHNICAL_CATEGORIES = ["Technical Issue","Website Issue","Domain / Hosting","Email"];
+const TICKET_PRIORITIES = ["Low","Medium","High","Urgent"];
+const TICKET_STATUSES = ["New","Assigned","In Progress","Waiting for Client","Resolved","Closed"];
+
+const SEED_VERSION = "1";
+
+function loadKey(k){ try{ return JSON.parse(localStorage.getItem("pmsdemo_"+k)) || null; }catch(e){ return null; } }
+function saveKey(k, v){ localStorage.setItem("pmsdemo_"+k, JSON.stringify(v)); }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
+function fmtMoney(n){ return "₹" + Number(n||0).toLocaleString("en-IN",{maximumFractionDigits:2}); }
+function fmtDate(d){ if(!d) return "—"; const dt=new Date(d+"T00:00:00"); if(isNaN(dt)) return d; return dt.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}); }
+function fmtDateTime(iso){ if(!iso) return "—"; const dt=new Date(iso); return dt.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}) + " " + dt.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"}); }
+function escapeHtml(s){ return String(s==null?"":s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function employeeName(id){ const e=EMPLOYEES.find(x=>x.id===id); return e?e.name:(id||"—"); }
+function initials(name){ return (name||"?").split(" ").map(w=>w[0]).slice(0,2).join("").toUpperCase(); }
+function priorityPill(p){ return {Low:"gray",Medium:"blue",High:"orange",Urgent:"red"}[p]||"gray"; }
+function statusPill(s){ return {New:"blue","Assigned":"yellow","In Progress":"orange","Waiting for Client":"gray",Resolved:"green",Closed:"gray"}[s]||"gray"; }
+
+/* ---------------- Seed data (fresh install only) ---------------- */
+function seedIfEmpty(){
+  if(loadKey("clients") && localStorage.getItem("pmsdemo_seedVersion")===SEED_VERSION) return;
+  localStorage.setItem("pmsdemo_seedVersion", SEED_VERSION);
+
+  const clients = [
+    { id:"c-pavmantra", name:"Golden Crust Bakery", company:"Golden Crust Bakery Pvt Ltd", website:"goldencrustbakery.example.com", email:"hello@goldencrustbakery.example.com", phone:"+91 98200 11221", status:"Active", onboardingDate:"2026-03-10", notes:"Bakery brand site — menu, story, ordering enquiries.",
+      package:{ name:"Website Development + SEO", price:75000, services:["Website Development","Hosting","Domain Management","Monthly Maintenance","Technical Support","SEO"] },
+      websiteStatus:{ url:"goldencrustbakery.example.com", status:"Online", hosting:"Active", domain:"Active", ssl:"Valid", maintenance:"Up to date", lastChecked:"2026-08-20T09:00:00" } },
+    { id:"c-apoorva", name:"Metro Auto Parts", company:"Metro Auto Parts Pvt Ltd", website:"metroautoparts.example.com", email:"sales@metroautoparts.example.com", phone:"+91 98110 44552", status:"Active", onboardingDate:"2026-02-18", notes:"Auto parts supplier — catalogue, coverage area, enquiries.",
+      package:{ name:"Website + Maintenance", price:52000, services:["Website Development","Hosting","Monthly Maintenance"] },
+      websiteStatus:{ url:"metroautoparts.example.com", status:"Online", hosting:"Active", domain:"Active", ssl:"Valid", maintenance:"Up to date", lastChecked:"2026-08-20T09:00:00" } },
+    { id:"c-hangout", name:"Cafe Bloom", company:"Cafe Bloom & Restaurant", website:"cafebloom.example.com", email:"contact@cafebloom.example.com", phone:"+91 90040 77332", status:"Active", onboardingDate:"2026-04-02", notes:"Cafe & restaurant site — menu, location, dine-in info.",
+      package:{ name:"Website Only", price:38000, services:["Website Development","Hosting"] },
+      websiteStatus:{ url:"cafebloom.example.com", status:"Online", hosting:"Active", domain:"Active", ssl:"Valid", maintenance:"Up to date", lastChecked:"2026-08-19T18:00:00" } },
+    { id:"c-srima", name:"Wellcare Diagnostics", company:"Wellcare Diagnostic & Medical Centre", website:"wellcarediagnostics.example.com", email:"info@wellcarediagnostics.example.com", phone:"+91 97110 22990", status:"Active", onboardingDate:"2026-01-25", notes:"Diagnostic centre & pharmacy — test listings, reports, pharmacy.",
+      package:{ name:"Website + Maintenance + Support", price:68000, services:["Website Development","Hosting","Domain Management","Monthly Maintenance","Technical Support"] },
+      websiteStatus:{ url:"wellcarediagnostics.example.com", status:"Online", hosting:"Active", domain:"Renewing Soon", ssl:"Valid", maintenance:"Up to date", lastChecked:"2026-08-20T07:30:00" } },
+    { id:"c-sriram", name:"Silver Leaf Gifts", company:"Silver Leaf Gift Emporium", website:"silverleafgifts.example.com", email:"store@silverleafgifts.example.com", phone:"+91 94350 66210", status:"Active", onboardingDate:"2026-05-14", notes:"Gift & home décor retailer — collections, store story.",
+      package:{ name:"Website Only", price:31000, services:["Website Development","Hosting"] },
+      websiteStatus:{ url:"silverleafgifts.example.com", status:"Online", hosting:"Active", domain:"Active", ssl:"Valid", maintenance:"Up to date", lastChecked:"2026-08-19T12:00:00" } },
+    { id:"c-shibpur", name:"Riverside Public School", company:"Riverside Public High School", website:"riversideschool.example.edu", email:"office@riversideschool.example.edu", phone:"+91 98300 55127", status:"Active", onboardingDate:"2026-03-28", notes:"School information site — facilities & contact.",
+      package:{ name:"Website + Maintenance", price:40000, services:["Website Development","Hosting","Monthly Maintenance"] },
+      websiteStatus:{ url:"riversideschool.example.edu", status:"Online", hosting:"Active", domain:"Active", ssl:"Valid", maintenance:"Up to date", lastChecked:"2026-08-20T08:00:00" } }
+  ];
+  saveKey("clients", clients);
+
+  const clientUsers = [
+    { id:"cu-1", clientId:"c-pavmantra", name:"Karan Mehta", email:"karan@goldencrustbakery.example.com", role:"Owner", isAdmin:true, active:true, presence:"Active" },
+    { id:"cu-2", clientId:"c-pavmantra", name:"Divya Kapoor", email:"divya@goldencrustbakery.example.com", role:"Marketing Manager", isAdmin:false, active:true, presence:"On Break" },
+    { id:"cu-3", clientId:"c-apoorva", name:"Sanjay Oberoi", email:"sanjay@metroautoparts.example.com", role:"Owner", isAdmin:true, active:true, presence:"Active" },
+    { id:"cu-4", clientId:"c-hangout", name:"Neha Sharma", email:"neha@cafebloom.example.com", role:"Manager", isAdmin:true, active:true, presence:"Active" },
+    { id:"cu-5", clientId:"c-srima", name:"Dr. Ritu Malhotra", email:"ritu@wellcarediagnostics.example.com", role:"Owner", isAdmin:true, active:true, presence:"Offline" },
+    { id:"cu-6", clientId:"c-srima", name:"Arjun Malhotra", email:"arjun@wellcarediagnostics.example.com", role:"Admin", isAdmin:false, active:true, presence:"Active" },
+    { id:"cu-7", clientId:"c-sriram", name:"Pooja Anand", email:"pooja@silverleafgifts.example.com", role:"Owner", isAdmin:true, active:true, presence:"Active" },
+    { id:"cu-8", clientId:"c-shibpur", name:"Simran Kaur", email:"simran@riversideschool.example.edu", role:"Admin / IT Coordinator", isAdmin:true, active:true, presence:"Active" }
+  ];
+  saveKey("clientUsers", clientUsers);
+
+  const now = Date.now(); const daysAgo = n => new Date(now - n*86400000).toISOString();
+  function mkHistory(entries){ return entries.map(e=>({ text:e[0], at:e[1] })); }
+
+  const tickets = [
+    { id:"t-1001", clientId:"c-pavmantra", createdBy:"cu-1", subject:"Online ordering form not submitting", description:"Customers report the enquiry form on the ordering page spins forever and never confirms.", category:"Technical Issue", priority:"Urgent", status:"In Progress", assignedTo:"chandan", createdAt:daysAgo(2), assignedAt:daysAgo(2), pageUrl:"goldencrustbakery.example.com/order",
+      comments:[
+        {author:"Karan Mehta", role:"client", text:"Website contact form is not working.", at:daysAgo(2)},
+        {author:"Chandan Jha", role:"internal", text:"We are checking the issue.", at:daysAgo(1.5)},
+        {author:"Karan Mehta", role:"client", text:"Okay, thank you.", at:daysAgo(1.4)}
+      ],
+      history: mkHistory([["Golden Crust Bakery created the ticket.", daysAgo(2)],["Ticket auto-assigned to Chandan Jha.", daysAgo(2)],["Chandan Jha changed status to In Progress.", daysAgo(1.6)],["Chandan Jha added a comment.", daysAgo(1.5)]]) },
+    { id:"t-1002", clientId:"c-apoorva", createdBy:"cu-3", subject:"Update catalogue with new brake pad range", description:"We've added 12 new SKUs, need the catalogue page updated with prices.", category:"Content Update", priority:"Medium", status:"Waiting for Client", assignedTo:"bhuvanesh", createdAt:daysAgo(5), assignedAt:daysAgo(5), pageUrl:"metroautoparts.example.com/catalogue",
+      comments:[
+        {author:"Sanjay Oberoi", role:"client", text:"Sharing the new price list by email shortly.", at:daysAgo(5)},
+        {author:"Bhuvanesh Meethal", role:"internal", text:"Got it — waiting on the file, will update within a day of receiving it.", at:daysAgo(4.6)}
+      ],
+      history: mkHistory([["Metro Auto Parts created the ticket.", daysAgo(5)],["Ticket auto-assigned to Bhuvanesh Meethal.", daysAgo(5)],["Bhuvanesh Meethal changed status to Waiting for Client.", daysAgo(4.6)]]) },
+    { id:"t-1003", clientId:"c-hangout", createdBy:"cu-4", subject:"Change weekend timings on homepage", description:"We're now open till 11pm on Fri/Sat, homepage still shows 10pm.", category:"Content Update", priority:"Low", status:"Resolved", assignedTo:"irfan", createdAt:daysAgo(9), assignedAt:daysAgo(9), resolvedAt:daysAgo(8), pageUrl:"cafebloom.example.com",
+      comments:[
+        {author:"Neha Sharma", role:"client", text:"Can we get weekend hours updated?", at:daysAgo(9)},
+        {author:"Irfan Azmi", role:"internal", text:"Updated — please check and confirm.", at:daysAgo(8)},
+        {author:"Neha Sharma", role:"client", text:"Looks perfect, thanks!", at:daysAgo(7.8)}
+      ],
+      history: mkHistory([["Cafe Bloom created the ticket.", daysAgo(9)],["Ticket auto-assigned to Irfan Azmi.", daysAgo(9)],["Irfan Azmi changed status to Resolved.", daysAgo(8)]]) },
+    { id:"t-1004", clientId:"c-srima", createdBy:"cu-5", subject:"Domain renewal reminder — expiring in 10 days", description:"Got an email saying our domain expires soon, please handle renewal.", category:"Domain / Hosting", priority:"High", status:"Assigned", assignedTo:"ankit", createdAt:daysAgo(1), assignedAt:daysAgo(1), pageUrl:"wellcarediagnostics.example.com",
+      comments:[{author:"Dr. Ritu Malhotra", role:"client", text:"Please make sure this doesn't lapse, it's urgent for us.", at:daysAgo(1)}],
+      history: mkHistory([["Wellcare Diagnostics created the ticket.", daysAgo(1)],["Ticket auto-assigned to Ankit Prakash.", daysAgo(1)]]) },
+    { id:"t-1005", clientId:"c-sriram", createdBy:"cu-7", subject:"Add new Diwali collection photos", description:"Need 20 new product photos added to the collections page before the festive season.", category:"Design Change", priority:"Medium", status:"New", assignedTo:"bhuvanesh", createdAt:daysAgo(0.3), assignedAt:daysAgo(0.3), pageUrl:"silverleafgifts.example.com/collections",
+      comments:[], history: mkHistory([["Silver Leaf Gifts created the ticket.", daysAgo(0.3)],["Ticket auto-assigned to Bhuvanesh Meethal.", daysAgo(0.3)]]) },
+    { id:"t-1006", clientId:"c-shibpur", createdBy:"cu-8", subject:"Contact page email not receiving enquiries", description:"Parents say they've submitted the enquiry form but school office has not received a single email in 2 weeks.", category:"Email", priority:"Urgent", status:"Closed", assignedTo:"chandan", createdAt:daysAgo(14), assignedAt:daysAgo(14), resolvedAt:daysAgo(13), pageUrl:"riversideschool.example.edu/contact",
+      comments:[
+        {author:"Simran Kaur", role:"client", text:"No enquiry emails coming through, please check urgently.", at:daysAgo(14)},
+        {author:"Chandan Jha", role:"internal", text:"Found it — form was pointing to an old email address. Fixed and tested.", at:daysAgo(13.2)},
+        {author:"Simran Kaur", role:"client", text:"Confirmed, receiving them now. Thank you!", at:daysAgo(13)}
+      ],
+      history: mkHistory([["Riverside Public School created the ticket.", daysAgo(14)],["Ticket auto-assigned to Chandan Jha.", daysAgo(14)],["Chandan Jha changed status to Resolved.", daysAgo(13.2)],["Ticket changed to Closed.", daysAgo(13)]]) },
+    { id:"t-1007", clientId:"c-pavmantra", createdBy:"cu-2", subject:"Add Instagram feed to homepage", description:"Would like our latest Instagram posts to show up on the homepage automatically.", category:"General Request", priority:"Low", status:"New", assignedTo:"irfan", createdAt:daysAgo(0.1), assignedAt:daysAgo(0.1), pageUrl:"goldencrustbakery.example.com",
+      comments:[], history: mkHistory([["Golden Crust Bakery created the ticket.", daysAgo(0.1)],["Ticket auto-assigned to Irfan Azmi.", daysAgo(0.1)]]) }
+  ];
+  saveKey("tickets", tickets);
+
+  const audit = [];
+  clients.forEach(c=>{
+    audit.push({ id:uid(), action:"Client Onboarded", module:"Clients", clientId:c.id, summary:`${c.name} onboarded`, performedBy:"System", at:c.onboardingDate+"T10:00:00" });
+    audit.push({ id:uid(), action:"Package Added", module:"Packages", clientId:c.id, summary:`${c.package.name} — ${fmtMoney(c.package.price)}`, performedBy:"System", at:c.onboardingDate+"T10:05:00" });
+  });
+  clientUsers.filter(u=>u.isAdmin).forEach(u=>{
+    audit.push({ id:uid(), action:"Client Admin Set", module:"Client Users", clientId:u.clientId, summary:`${u.name} added as Client Admin`, performedBy:"System", at:daysAgo(25) });
+  });
+  saveKey("audit", audit.sort((a,b)=>(a.at||"").localeCompare(b.at||"")));
+}
+
+/* ---------------- Audit & history helpers ---------------- */
+function logAudit(action, module, summary, clientId, prevVal, newVal, actorUserId, relatedUserId){
+  const logs = loadKey("audit") || [];
+  logs.unshift({ id: uid(), action, module, clientId: clientId||null, summary, performedBy: currentActorName(), actorUserId: actorUserId||null, relatedUserId: relatedUserId||actorUserId||null, prevVal: prevVal||"", newVal: newVal||"", at: new Date().toISOString() });
+  saveKey("audit", logs.slice(0, 400));
+}
+function pushTicketHistory(ticket, text){ ticket.history = ticket.history || []; ticket.history.push({ text, at: new Date().toISOString() }); }
+function nextAssignee(category){
+  const isTech = TECHNICAL_CATEGORIES.includes(category);
+  const pool = EMPLOYEES.filter(e => e.type === (isTech ? "technical" : "nontechnical")).map(e=>e.id);
+  const rrKey = "pmsdemo_rr_" + (isTech?"tech":"nontech");
+  let idx = parseInt(sessionStorage.getItem(rrKey) || "0", 10);
+  const chosen = pool[idx % pool.length];
+  sessionStorage.setItem(rrKey, String(idx+1));
+  return chosen;
+}
+
+/* ================= AUTH / SESSION ================= */
+function getSession(){ try{ return JSON.parse(sessionStorage.getItem("pmsdemo_session")); }catch(e){ return null; } }
+function setSession(s){ sessionStorage.setItem("pmsdemo_session", JSON.stringify(s)); }
+function currentActorName(){ const u=currentClientUser(); return u?u.name:"System"; }
+function currentClientUser(){ const s=getSession(); if(!s) return null; return (loadKey("clientUsers")||[]).find(u=>u.id===s.userId); }
+function currentClientRecord(){ const u=currentClientUser(); if(!u) return null; return (loadKey("clients")||[]).find(c=>c.id===u.clientId); }
+function myClientTickets(){ const client = currentClientRecord(); return (loadKey("tickets")||[]).filter(t=>t.clientId===client.id); }
+
+function populateDemoHint(){
+  const users = loadKey("clientUsers")||[];
+  document.getElementById("demo-hint").innerHTML =
+    `<b>Demo logins (password demo123)</b>` +
+    users.map(u=>`${escapeHtml(u.email)} — ${escapeHtml(u.name)}${u.isAdmin?" (Admin)":""}`).join("<br>");
+}
+
+function attemptLogin(){
+  const email = document.getElementById("login-email").value.trim().toLowerCase();
+  const pass = document.getElementById("login-pass").value;
+  const user = (loadKey("clientUsers")||[]).find(u=>u.email.toLowerCase()===email);
+  if(user && pass === DEMO_PASSWORD){
+    if(!user.active){ document.getElementById("login-error").textContent = "This account has been deactivated. Contact your Client Admin."; return; }
+    setSession({ userId: user.id });
+    showApp(); return;
+  }
+  document.getElementById("login-error").textContent = "Incorrect email or password.";
+}
+document.getElementById("login-pass").addEventListener("keydown", e => { if(e.key==="Enter") attemptLogin(); });
+document.getElementById("login-email").addEventListener("keydown", e => { if(e.key==="Enter") attemptLogin(); });
+
+function logout(){
+  sessionStorage.removeItem("pmsdemo_session");
+  document.getElementById("app").style.display = "none";
+  document.getElementById("login-screen").style.display = "flex";
+  document.getElementById("login-email").value=""; document.getElementById("login-pass").value="";
+}
+function showApp(){
+  seedIfEmpty();
+  document.getElementById("login-screen").style.display = "none";
+  document.getElementById("app").style.display = "block";
+  buildSidebar();
+  goToTab("cdashboard");
+}
+
+/* ================= SIDEBAR ================= */
+function buildSidebar(){
+  const user = currentClientUser(), client = currentClientRecord();
+  const sidebar = document.getElementById("sidebar");
+  sidebar.innerHTML = `
+    <div class="brand"><div class="logo-badge">P</div><div><b>PM Suite</b><span>Client Portal</span></div></div>
+    <div class="sidebar-org">
+      <b>${escapeHtml(client.name)}</b>${presenceDot(user.presence)}Signed in as ${escapeHtml(user.name)}${user.isAdmin?" (Admin)":""}
+      <div style="margin-top:8px;"><label style="font-size:10px;color:#9497b3;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:4px;">Your Status</label>
+        <select class="presence-select" onchange="setMyPresence(this.value)">${PRESENCE_OPTIONS.map(p=>`<option value="${p}" ${p===user.presence?"selected":""}>${p}</option>`).join("")}</select>
+      </div>
+    </div>
+    <div class="nav-item" data-tab="cdashboard" onclick="goToTab('cdashboard')"><span class="ic">&#9679;</span> Dashboard</div>
+    <div class="nav-item" data-tab="cwebsite" onclick="goToTab('cwebsite')"><span class="ic">&#127760;</span> Website</div>
+    <div class="nav-item" data-tab="crequests" onclick="goToTab('crequests')"><span class="ic">&#128203;</span> My Requests</div>
+    <div class="nav-item" data-tab="craise" onclick="goToTab('craise')"><span class="ic">&#10133;</span> Raise Request</div>
+    <div class="nav-item" data-tab="cpackage" onclick="goToTab('cpackage')"><span class="ic">&#128230;</span> Package</div>
+    ${user.isAdmin?`<div class="nav-item" data-tab="cusers" onclick="goToTab('cusers')"><span class="ic">&#128101;</span> Users</div>`:""}
+    <div class="nav-item" data-tab="chistory" onclick="goToTab('chistory')"><span class="ic">&#128337;</span> History</div>
+    <div class="nav-item" data-tab="cprofile" onclick="goToTab('cprofile')"><span class="ic">&#128100;</span> Profile</div>
+    <div class="sidebar-footer"><button onclick="logout()">Log Out</button></div>
+  `;
+}
+function setMyPresence(val){
+  const users = loadKey("clientUsers")||[]; const u = users.find(x=>x.id===currentClientUser().id);
+  u.presence = val; saveKey("clientUsers", users);
+  buildSidebar();
+}
+
+/* ================= TAB ROUTER ================= */
+let currentTab = "cdashboard";
+let currentTicketId = null, currentPriorityFilter = null, dashViewAsUserId = null;
+
+let isRestoringHistory = false;
+function pushHistoryState(){
+  if(isRestoringHistory) return;
+  if(!getSession()) return;
+  const state = { tab: currentTab, ticketId: currentTicketId, dashViewAsUserId };
+  try{ history.pushState(state, ""); }catch(e){}
+}
+window.addEventListener("popstate", (e) => {
+  if(!getSession()) return;
+  isRestoringHistory = true;
+  const st = e.state || { tab: "cdashboard" };
+  currentTab = st.tab; currentTicketId = st.ticketId||null; dashViewAsUserId = st.dashViewAsUserId||null;
+  document.querySelectorAll(".nav-item").forEach(n => n.classList.toggle("active", n.dataset.tab===currentTab));
+  render();
+  isRestoringHistory = false;
+});
+
+function goToTab(tab){
+  currentTab = tab; currentTicketId=null; currentPriorityFilter=null;
+  document.querySelectorAll(".nav-item").forEach(n => n.classList.toggle("active", n.dataset.tab===tab));
+  render();
+  pushHistoryState();
+}
+function render(){
+  const renderers = { cdashboard:renderClientDashboard, cwebsite:renderClientWebsite, crequests:renderClientRequests, craise:renderClientRaise, cpackage:renderClientPackage, cusers:renderClientUsers, chistory:renderClientHistory, cprofile:renderClientOwnProfile };
+  (renderers[currentTab]||renderClientDashboard)();
+  animateIn("#main-content");
+  const backBar = document.getElementById("global-back-bar");
+  if(backBar) backBar.style.display = (currentTab==="cdashboard") ? "none" : "block";
+}
+function prefersReducedMotion(){ return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches; }
+function animateIn(sel){
+  if(prefersReducedMotion()) return;
+  const el = document.querySelector(sel);
+  if(!el) return;
+  el.classList.remove("fade-in"); void el.offsetWidth; el.classList.add("fade-in");
+}
+function openModal(html){
+  document.getElementById("modal-body").innerHTML = html;
+  document.getElementById("overlay").classList.add("open");
+}
+function closeModal(){ document.getElementById("overlay").classList.remove("open"); document.getElementById("modal-body").innerHTML=""; }
+document.getElementById("overlay").addEventListener("click", e => { if(e.target.id==="overlay") closeModal(); });
+
+/* ================= DASHBOARD ================= */
+function renderClientDashboard(){
+  const client = currentClientRecord(), user = currentClientUser();
+  const w = client.websiteStatus;
+
+  if(!user.isAdmin){
+    const peers = (loadKey("clientUsers")||[]).filter(u=>u.clientId===client.id);
+    const viewingId = dashViewAsUserId || user.id;
+    const viewing = peers.find(p=>p.id===viewingId) || user;
+    const tickets = (loadKey("tickets")||[]).filter(t=>t.clientId===client.id && t.createdBy===viewing.id);
+    const open = tickets.filter(t=>!["Resolved","Closed"].includes(t.status));
+    const closed = tickets.filter(t=>["Resolved","Closed"].includes(t.status));
+    const recent = tickets.slice().sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||""));
+    document.getElementById("main-content").innerHTML = `
+      <div class="topbar"><div><h2>Welcome, ${escapeHtml(user.name.split(" ")[0])}</h2><p>${escapeHtml(client.name)} · ${escapeHtml(user.role)}</p></div><button class="btn" onclick="goToTab('craise')">+ Raise Request</button></div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="label">Website Status</div><div class="value small"><span class="status-dot" style="background:${w.status==='Online'?'var(--success)':'var(--danger)'}"></span>${escapeHtml(w.status)}</div></div>
+        <div class="stat-card"><div class="label">Open Requests</div><div class="value">${open.length}</div></div>
+        <div class="stat-card"><div class="label">Resolved / Closed</div><div class="value">${closed.length}</div></div>
+        <div class="stat-card"><div class="label">Package</div><div class="value small">${escapeHtml(client.package.name)}</div></div>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+          <h3 style="margin:0;">Requests raised by ${viewing.id===user.id?"you":escapeHtml(viewing.name)}</h3>
+          <div>
+            <label style="font-size:11.5px;color:var(--muted);margin-right:6px;">View colleague:</label>
+            <select onchange="dashViewAsUserId=this.value;render();">
+              ${peers.map(p=>`<option value="${p.id}" ${p.id===viewingId?"selected":""}>${p.id===user.id?"Me":escapeHtml(p.name)}${p.isAdmin?" (Admin)":""}</option>`).join("")}
+            </select>
+          </div>
+        </div>
+        <table><thead><tr><th>Subject</th><th>Priority</th><th>Status</th><th>Updated</th></tr></thead><tbody>
+          ${recent.length ? recent.map(t=>`<tr class="clickable" onclick="openClientTicketDetail('${t.id}')"><td><b>${escapeHtml(t.subject)}</b></td><td><span class="pill ${priorityPill(t.priority)}">${t.priority}</span></td><td><span class="pill ${statusPill(t.status)}">${t.status}</span></td><td>${fmtDateTime(t.assignedAt)}</td></tr>`).join("") : `<tr><td colspan="4" class="empty-row">No requests raised yet.</td></tr>`}
+        </tbody></table>
+      </div>
+    `;
+    return;
+  }
+
+  const tickets = myClientTickets();
+  const open = tickets.filter(t=>!["Resolved","Closed"].includes(t.status));
+  const closed = tickets.filter(t=>["Resolved","Closed"].includes(t.status));
+  const recent = tickets.slice().sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||"")).slice(0,5);
+  document.getElementById("main-content").innerHTML = `
+    <div class="topbar"><div><h2>Welcome, ${escapeHtml(user.name.split(" ")[0])}</h2><p>${escapeHtml(client.name)} · ${escapeHtml(user.role)}</p></div><button class="btn" onclick="goToTab('craise')">+ Raise Request</button></div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="label">Website Status</div><div class="value small"><span class="status-dot" style="background:${w.status==='Online'?'var(--success)':'var(--danger)'}"></span>${escapeHtml(w.status)}</div></div>
+      <div class="stat-card"><div class="label">Open Requests</div><div class="value">${open.length}</div></div>
+      <div class="stat-card"><div class="label">Resolved / Closed</div><div class="value">${closed.length}</div></div>
+      <div class="stat-card"><div class="label">Package</div><div class="value small">${escapeHtml(client.package.name)}</div></div>
+    </div>
+    <div class="card"><h3>Recent Requests (whole account)</h3>
+      <table><thead><tr><th>Subject</th><th>Priority</th><th>Status</th><th>Updated</th></tr></thead><tbody>
+        ${recent.length ? recent.map(t=>`<tr class="clickable" onclick="openClientTicketDetail('${t.id}')"><td><b>${escapeHtml(t.subject)}</b></td><td><span class="pill ${priorityPill(t.priority)}">${t.priority}</span></td><td><span class="pill ${statusPill(t.status)}">${t.status}</span></td><td>${fmtDateTime(t.assignedAt)}</td></tr>`).join("") : `<tr><td colspan="4" class="empty-row">No requests yet.</td></tr>`}
+      </tbody></table>
+    </div>
+  `;
+}
+
+/* ================= WEBSITE ================= */
+function renderClientWebsite(){
+  const client = currentClientRecord(); const w = client.websiteStatus;
+  document.getElementById("main-content").innerHTML = `
+    <div class="topbar"><div><h2>Website</h2><p>Live status for ${escapeHtml(client.website)}</p></div></div>
+    <div class="card" style="max-width:480px;">
+      <div style="font-size:16px;margin-bottom:16px;"><span class="status-dot" style="background:${w.status==='Online'?'var(--success)':'var(--danger)'}"></span><b>${escapeHtml(w.url)}</b><br><span class="pill ${w.status==='Online'?'green':'red'}" style="margin-top:6px;">${escapeHtml(w.status)}</span></div>
+      <div style="font-size:13px;line-height:2.1;">
+        Hosting: <span class="pill ${w.hosting==='Active'?'green':'yellow'}">${escapeHtml(w.hosting)}</span><br>
+        Domain: <span class="pill ${w.domain==='Active'?'green':'yellow'}">${escapeHtml(w.domain)}</span><br>
+        SSL Certificate: <span class="pill ${w.ssl==='Valid'?'green':'red'}">${escapeHtml(w.ssl)}</span><br>
+        Maintenance: ${escapeHtml(w.maintenance)}<br>
+        Last checked: ${fmtDateTime(w.lastChecked)}
+      </div>
+    </div>
+  `;
+}
+
+/* ================= MY REQUESTS ================= */
+function renderClientRequests(){
+  if(currentTicketId){ renderClientTicketDetail(currentTicketId); return; }
+  let tickets = myClientTickets().slice();
+  const open = tickets.filter(t=>!["Resolved","Closed"].includes(t.status));
+  const counts = {}; TICKET_PRIORITIES.forEach(p=>counts[p]=open.filter(t=>t.priority===p).length);
+  let filtered = tickets.slice().sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||""));
+  if(currentPriorityFilter) filtered = filtered.filter(t=>t.priority===currentPriorityFilter);
+
+  document.getElementById("main-content").innerHTML = `
+    <div class="topbar"><div><h2>My Requests</h2><p>Everything you've raised with us</p></div><button class="btn" onclick="goToTab('craise')">+ Raise Request</button></div>
+    <div class="priority-grid">${TICKET_PRIORITIES.map(p=>`<div class="priority-card ${p} ${currentPriorityFilter===p?"active":""}" onclick="currentPriorityFilter=currentPriorityFilter==='${p}'?null:'${p}';render();"><div class="num">${counts[p]}</div><div class="lbl">${p}</div></div>`).join("")}</div>
+    <div class="card" style="padding:0;overflow-x:auto;">
+      <table><thead><tr><th>ID</th><th>Subject</th><th>Category</th><th>Priority</th><th>Status</th><th>Handled By</th></tr></thead>
+      <tbody>${filtered.length ? filtered.map(t=>`<tr class="clickable" onclick="openClientTicketDetail('${t.id}')"><td class="mono">${t.id}</td><td><b>${escapeHtml(t.subject)}</b></td><td>${escapeHtml(t.category)}</td><td><span class="pill ${priorityPill(t.priority)}">${t.priority}</span></td><td><span class="pill ${statusPill(t.status)}">${t.status}</span></td><td>${employeeName(t.assignedTo)}</td></tr>`).join("") : `<tr><td colspan="6" class="empty-row">No requests${currentPriorityFilter?" at this priority":""} yet.</td></tr>`}</tbody></table>
+    </div>
+  `;
+}
+function openClientTicketDetail(id){ currentTicketId = id; currentTab = "crequests"; document.querySelectorAll(".nav-item").forEach(n => n.classList.toggle("active", n.dataset.tab==="crequests")); render(); pushHistoryState(); }
+function renderClientTicketDetail(id){
+  const t = (loadKey("tickets")||[]).find(x=>x.id===id);
+  document.getElementById("main-content").innerHTML = `
+    <div class="topbar"><div><h2>${escapeHtml(t.subject)}</h2><p class="mono">${t.id} · opened ${fmtDateTime(t.createdAt)}</p></div><div style="display:flex;gap:8px;"><span class="pill ${priorityPill(t.priority)}">${t.priority}</span><span class="pill ${statusPill(t.status)}">${t.status}</span></div></div>
+    <div class="two-col">
+      <div>
+        <div class="card"><h3>Description</h3><p style="font-size:13.5px;line-height:1.6;margin:0;">${escapeHtml(t.description)}</p></div>
+        <div class="card"><h3>Conversation</h3>
+          <div>${t.comments.length ? t.comments.map(c=>`<div class="comment ${c.role==='client'?'mine':''}"><div class="avatar">${initials(c.author)}</div><div class="bubble"><div class="meta"><b>${escapeHtml(c.author)}</b> · ${c.role==='client'?'You':BRAND} · ${fmtDateTime(c.at)}</div><div class="text">${escapeHtml(c.text)}</div></div></div>`).join("") : `<p style="color:var(--muted);font-size:13px;">No messages yet.</p>`}</div>
+          <div class="field" style="margin-top:14px;"><label>Add a comment</label><textarea id="reply-text"></textarea></div>
+          <button class="btn small" onclick="postReplyClient('${t.id}')">Send</button>
+        </div>
+      </div>
+      <div>
+        <div class="card"><h3>Handled By</h3><div style="display:flex;align-items:center;gap:9px;"><div class="avatar">${initials(employeeName(t.assignedTo))}</div><div style="font-size:13.5px;font-weight:600;">${employeeName(t.assignedTo)}</div></div></div>
+        <div class="card"><h3>Details</h3><div style="font-size:12.5px;color:var(--muted);line-height:1.8;">Category: ${escapeHtml(t.category)}<br>${t.pageUrl?("Page: "+escapeHtml(t.pageUrl)+"<br>"):""}Raised: ${fmtDateTime(t.createdAt)}<br>${t.resolvedAt?("Resolved: "+fmtDateTime(t.resolvedAt)):""}</div></div>
+      </div>
+    </div>
+  `;
+}
+function postReplyClient(ticketId){
+  const text = document.getElementById("reply-text").value.trim(); if(!text) return;
+  const tickets = loadKey("tickets")||[]; const t = tickets.find(x=>x.id===ticketId); const user = currentClientUser();
+  t.comments.push({ author:user.name, role:"client", text, at:new Date().toISOString() });
+  pushTicketHistory(t, `${user.name} added a comment.`);
+  if(t.status==="Waiting for Client") t.status="In Progress";
+  saveKey("tickets", tickets);
+  logAudit("Comment Added","Tickets",`Client replied on ${ticketId}`, t.clientId, null, null, user.id);
+  renderClientTicketDetail(ticketId);
+}
+
+/* ================= RAISE REQUEST ================= */
+function renderClientRaise(){
+  document.getElementById("main-content").innerHTML = `
+    <div class="topbar"><div><h2>Raise Request</h2><p>Tell us what's going on — we'll route it to the right person</p></div></div>
+    <div class="card" style="max-width:640px;">
+      <div class="field"><label>Subject *</label><input type="text" id="f-subject" placeholder="Short summary of the issue"></div>
+      <div class="field-row"><div class="field"><label>Category</label><select id="f-category">${TICKET_CATEGORIES.map(c=>`<option>${c}</option>`).join("")}</select></div><div class="field"><label>Website / Page URL</label><input type="text" id="f-pageurl" placeholder="optional"></div></div>
+      <div class="field"><label>Priority</label><div class="priority-choice">${TICKET_PRIORITIES.map(p=>`<label><input type="radio" name="priority" value="${p}" ${p==="Medium"?"checked":""}><span>${p}</span></label>`).join("")}</div></div>
+      <div class="field"><label>Description *</label><textarea id="f-description" placeholder="Describe the issue in detail..."></textarea></div>
+      <div class="field"><label>Attachment</label><input type="file" id="f-attachment"><div style="font-size:11.5px;color:var(--muted);margin-top:4px;">Demo only — files aren't actually uploaded yet.</div></div>
+      <div class="field"><label>Additional Comments</label><textarea id="f-comments" placeholder="optional"></textarea></div>
+      <button class="btn" onclick="submitClientTicket()">Submit Request</button>
+    </div>
+  `;
+}
+function submitClientTicket(){
+  const subject = document.getElementById("f-subject").value.trim(); const description = document.getElementById("f-description").value.trim();
+  if(!subject || !description){ alert("Subject and description are required."); return; }
+  const category = document.getElementById("f-category").value;
+  const assignedTo = nextAssignee(category);
+  const user = currentClientUser(), client = currentClientRecord();
+  const tickets = loadKey("tickets")||[];
+  const id = "t-"+(1000+tickets.length+1);
+  const extra = document.getElementById("f-comments").value.trim();
+  const comments = extra ? [{author:user.name, role:"client", text:extra, at:new Date().toISOString()}] : [];
+  const record = { id, clientId: client.id, createdBy: user.id, subject, description, category, priority: document.querySelector('input[name="priority"]:checked').value, status:"Assigned", assignedTo, createdAt:new Date().toISOString(), assignedAt:new Date().toISOString(), pageUrl: document.getElementById("f-pageurl").value.trim(), comments, history:[{text:`${client.name} created the ticket.`, at:new Date().toISOString()},{text:`Ticket auto-assigned to ${employeeName(assignedTo)}.`, at:new Date().toISOString()}] };
+  tickets.push(record); saveKey("tickets", tickets);
+  logAudit("Ticket Created","Tickets", `${id}: "${subject}" from ${client.name}`, client.id, null, null, user.id);
+  goToTab("crequests");
+  alert(`Request submitted as ${id}. It's been routed to ${employeeName(assignedTo)}.`);
+}
+
+/* ================= PACKAGE ================= */
+function renderClientPackage(){
+  const client = currentClientRecord(), user = currentClientUser();
+  const others = PACKAGE_CATALOG.filter(p=>p.name !== client.package.name);
+  document.getElementById("main-content").innerHTML = `
+    <div class="topbar"><div><h2>Package</h2><p>Your current plan with ${BRAND}</p></div></div>
+    <div class="card" style="max-width:480px;">
+      <div style="font-size:16px;font-weight:700;margin-bottom:4px;">${escapeHtml(client.package.name)}</div>
+      <div style="font-size:22px;font-weight:800;color:var(--accent);margin-bottom:12px;">${fmtMoney(client.package.price)}</div>
+      <div style="font-size:12.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Services Included</div>
+      <ul style="margin:0;padding-left:18px;font-size:13.5px;line-height:1.9;">${(client.package.services||[]).map(s=>`<li>${escapeHtml(s)}</li>`).join("")}</ul>
+      <p style="font-size:11.5px;color:var(--muted);margin-top:14px;">Only ${BRAND} can change package details. Contact your account team for upgrades.</p>
+    </div>
+    ${user.isAdmin ? `
+    <div class="card">
+      <h3>Other Available Packages</h3>
+      <p style="font-size:12px;color:var(--muted);margin:0 0 14px;">Opens in a new tab with full details, plus options to buy or talk to us.</p>
+      <div class="team-grid">
+        ${others.map(p=>`<div class="other-pkg-card" onclick="window.open(location.pathname+'?viewPackage=${p.id}&forClient=${client.id}','_blank')">
+          <div style="font-weight:700;font-size:14px;">${escapeHtml(p.name)}</div>
+          <div style="font-size:18px;font-weight:800;color:var(--accent);margin:4px 0 8px;">${fmtMoney(p.price)}</div>
+          <div style="font-size:11.5px;color:var(--muted);">${p.services.length} services included ↗</div>
+        </div>`).join("")}
+      </div>
+    </div>` : ""}
+  `;
+}
+
+/* ================= USERS ================= */
+function renderClientUsers(){
+  const client = currentClientRecord(), me = currentClientUser();
+  if(!me.isAdmin){ document.getElementById("main-content").innerHTML = `<div class="card"><p class="empty-row">Only your Client Admin can manage users.</p></div>`; return; }
+  const users = (loadKey("clientUsers")||[]).filter(u=>u.clientId===client.id);
+  document.getElementById("main-content").innerHTML = `
+    <div class="topbar"><div><h2>Users</h2><p>Manage who from ${escapeHtml(client.name)} can access ${BRAND}</p></div><button class="btn" onclick="openClientUserForm()">+ Add User</button></div>
+    <div class="card" style="padding:0;overflow-x:auto;">
+      <table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Presence</th><th></th></tr></thead>
+      <tbody>${users.map(u=>`<tr><td><b>${escapeHtml(u.name)}</b>${u.isAdmin?` <span class="pill blue">Client Admin</span>`:""}</td><td>${escapeHtml(u.email)}</td><td>${escapeHtml(u.role)}</td><td><span class="pill ${u.active?"green":"red"}">${u.active?"Active":"Deactivated"}</span></td><td>${presenceDot(u.presence)}${escapeHtml(u.presence||"Offline")}</td><td class="row-actions">${u.id===me.id?"<span style=\"color:var(--muted);font-size:12px;\">You</span>":`<button class="icon-btn" onclick="openClientUserForm('${u.id}')">Edit</button><button class="icon-btn" onclick="toggleClientUserActive('${u.id}')">${u.active?"Deactivate":"Activate"}</button><button class="icon-btn" onclick="deleteClientUser('${u.id}')">Remove</button>`}</td></tr>`).join("")}</tbody></table>
+    </div>
+    <div class="card"><p style="font-size:12.5px;color:var(--muted);margin:0;">There must always be exactly one Client Admin. Removing yourself as admin isn't available in this demo — contact ${BRAND} to transfer admin rights.</p></div>
+  `;
+}
+function roleSelectHtml(currentRole){
+  const opts = getRoleOptions();
+  const isCustom = currentRole && !opts.includes(currentRole);
+  return `
+    <select id="f-role-select" onchange="document.getElementById('f-role-custom').style.display=this.value==='__custom__'?'block':'none';">
+      ${opts.map(r=>`<option value="${escapeHtml(r)}" ${r===currentRole?"selected":""}>${escapeHtml(r)}</option>`).join("")}
+      <option value="__custom__" ${isCustom?"selected":""}>+ Add new role...</option>
+    </select>
+    <input type="text" id="f-role-custom" placeholder="Type new role name" value="${isCustom?escapeHtml(currentRole):""}" style="display:${isCustom?"block":"none"};margin-top:6px;">
+  `;
+}
+function openClientUserForm(id){
+  const users = loadKey("clientUsers")||[]; const item = id ? users.find(u=>u.id===id) : {};
+  openModal(`
+    <h3>${id?"Edit":"Add"} User</h3>
+    <div class="field"><label>Name *</label><input type="text" id="f-name" value="${escapeHtml(item.name||"")}"></div>
+    <div class="field"><label>Email *</label><input type="text" id="f-email" value="${escapeHtml(item.email||"")}" ${id?"readonly style=\"background:#f4f5f9;\"":""}></div>
+    <div class="field"><label>Role</label>${roleSelectHtml(item.role||"")}</div>
+    <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveClientUser('${id||""}')">Save</button></div>
+  `);
+}
+function resolveRoleFromForm(){
+  let role = document.getElementById("f-role-select").value;
+  if(role==="__custom__"){ role = document.getElementById("f-role-custom").value.trim() || "Client User"; addCustomRole(role); }
+  return role;
+}
+function saveClientUser(id){
+  const name = document.getElementById("f-name").value.trim();
+  if(!name){ alert("Name is required."); return; }
+  const client = currentClientRecord();
+  const users = loadKey("clientUsers")||[];
+  const role = resolveRoleFromForm();
+  if(id){
+    const u = users.find(x=>x.id===id);
+    u.name = name; u.role = role;
+    saveKey("clientUsers", users);
+    logAudit("Client User Updated","Client Users", `${name}'s details updated`, client.id, null, null, currentClientUser().id);
+  } else {
+    const email = document.getElementById("f-email").value.trim();
+    if(!email){ alert("Email is required."); return; }
+    const record = { id: uid(), clientId: client.id, name, email, role, isAdmin:false, active:true, presence:"Active" };
+    users.push(record); saveKey("clientUsers", users);
+    logAudit("Client User Added","Client Users", `${name} added to ${client.name} (password: demo123)`, client.id, null, null, currentClientUser().id);
+  }
+  closeModal(); renderClientUsers();
+}
+function toggleClientUserActive(id){
+  const users = loadKey("clientUsers")||[]; const u = users.find(x=>x.id===id); u.active = !u.active; saveKey("clientUsers", users);
+  logAudit(u.active?"User Activated":"User Deactivated","Client Users", u.name, u.clientId, null, null, currentClientUser().id);
+  renderClientUsers();
+}
+function deleteClientUser(id){
+  const users = loadKey("clientUsers")||[]; const u = users.find(x=>x.id===id);
+  if(u.isAdmin){ alert("You can't remove the Client Admin. Transfer admin rights first."); return; }
+  if(!confirm(`Remove ${u.name} from this account?`)) return;
+  saveKey("clientUsers", users.filter(x=>x.id!==id));
+  logAudit("User Removed","Client Users", u.name, u.clientId, null, null, currentClientUser().id);
+  renderClientUsers();
+}
+
+/* ================= HISTORY ================= */
+function renderClientHistory(){
+  const client = currentClientRecord(), me = currentClientUser();
+  let history = (loadKey("audit")||[]).filter(a=>a.clientId===client.id);
+  if(!me.isAdmin){ history = history.filter(a => a.actorUserId===me.id || a.relatedUserId===me.id); }
+  history = history.sort((a,b)=>(b.at||"").localeCompare(a.at||""));
+  document.getElementById("main-content").innerHTML = `
+    <div class="topbar"><div><h2>History</h2><p>${me.isAdmin?"Full activity on your account":"Activity related to you"}</p></div></div>
+    <div class="card">${history.length ? history.map(h=>`<div class="history-item"><div class="time">${fmtDateTime(h.at)}</div><div>${escapeHtml(h.summary)}</div></div>`).join("") : `<p class="empty-row">No history yet.</p>`}</div>
+  `;
+}
+
+/* ================= PROFILE ================= */
+function renderClientOwnProfile(){
+  const user = currentClientUser(), client = currentClientRecord();
+  const team = (loadKey("clientUsers")||[]).filter(u=>u.clientId===client.id && u.id!==user.id);
+  document.getElementById("main-content").innerHTML = `
+    <div class="topbar"><div><h2>Profile</h2><p>Your account details</p></div></div>
+    <div class="card" style="max-width:480px;">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;"><div class="avatar" style="width:52px;height:52px;font-size:18px;">${initials(user.name)}</div><div><div style="font-weight:700;font-size:16px;">${escapeHtml(user.name)}${presenceDot(user.presence)}</div><div style="color:var(--muted);font-size:13px;">${escapeHtml(user.role)}${user.isAdmin?" · Client Admin":""}</div></div></div>
+      <div style="font-size:13.5px;line-height:2.1;">Email: ${escapeHtml(user.email)}<br>Organization: ${escapeHtml(client.name)}<br>Company: ${escapeHtml(client.company)}</div>
+    </div>
+    ${user.isAdmin ? `<div class="card" style="max-width:480px;"><h3>Your Team</h3>${team.length ? team.map(u=>`<div style="display:flex;align-items:center;gap:9px;padding:7px 0;"><div class="avatar">${initials(u.name)}</div><div style="flex:1;"><div style="font-size:13px;font-weight:600;">${escapeHtml(u.name)}${presenceDot(u.presence)}</div><div style="font-size:11.5px;color:var(--muted);">${escapeHtml(u.role)} · ${u.active?"Active":"Deactivated"}</div></div></div>`).join("") : `<p style="color:var(--muted);font-size:13px;margin:0;">No other users yet.</p>`}</div>` : ""}
+  `;
+}
+
+/* ---------------- Standalone package landing page (opened in a new tab) ---------------- */
+function renderPackageLandingPage(pkgId, forClientId){
+  document.getElementById("login-screen").style.display = "none";
+  document.getElementById("app").style.display = "none";
+  document.getElementById("demo-banner").style.display = "none";
+  const pkg = PACKAGE_CATALOG.find(p=>p.id===pkgId);
+  const client = (loadKey("clients")||[]).find(c=>c.id===forClientId);
+  const el = document.getElementById("package-landing");
+  el.style.display = "block";
+  if(!pkg){ el.innerHTML = `<div style="padding:60px;text-align:center;">Package not found.</div>`; return; }
+  el.innerHTML = `
+    <div style="max-width:560px;margin:0 auto;padding:60px 20px;">
+      <span class="back-link" onclick="window.location.href=location.pathname">&larr; Back to your account</span>
+      <div class="logo-badge" style="margin-bottom:16px;">P</div>
+      <h1 style="font-size:24px;margin:0 0 4px;">${escapeHtml(pkg.name)}</h1>
+      <p style="color:var(--muted);margin:0 0 20px;">${client?("For "+escapeHtml(client.name)+" · "):""}${BRAND}</p>
+      <div class="card">
+        <div style="font-size:30px;font-weight:800;color:var(--accent);margin-bottom:14px;">${fmtMoney(pkg.price)}</div>
+        <div style="font-size:12.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">What's Included</div>
+        <ul style="margin:0 0 20px;padding-left:18px;font-size:14px;line-height:2;">${pkg.services.map(s=>`<li>${escapeHtml(s)}</li>`).join("")}</ul>
+        <button class="btn" style="width:100%;margin-bottom:10px;" onclick="mockBuyPackage('${pkg.id}','${forClientId||""}')">Buy This Package</button>
+        <div style="display:flex;gap:10px;">
+          <a class="btn secondary small" style="flex:1;text-align:center;text-decoration:none;box-sizing:border-box;" href="mailto:bhuvanesh@pmsuite.example.com?subject=${encodeURIComponent("Interested in "+pkg.name)}">Connect with Bhuvanesh</a>
+          <a class="btn secondary small" style="flex:1;text-align:center;text-decoration:none;box-sizing:border-box;" href="mailto:irfan@pmsuite.example.com?subject=${encodeURIComponent("Interested in "+pkg.name)}">Connect with Irfan</a>
+        </div>
+      </div>
+      <p style="font-size:11.5px;color:var(--muted);margin-top:16px;">Use the link above, or just close this tab, to return to your account anytime.</p>
+    </div>
+  `;
+  animateIn("#package-landing");
+}
+function mockBuyPackage(pkgId, clientId){
+  const pkg = PACKAGE_CATALOG.find(p=>p.id===pkgId);
+  logAudit("Package Interest","Packages", `Interested in upgrading to ${pkg.name}`, clientId||null);
+  alert("Thanks! This is a demo — in the live version this would start checkout. Our team will reach out to confirm.");
+}
+
+/* ---------------- Init / routing ---------------- */
+seedIfEmpty();
+populateDemoHint();
+const _urlParams = new URLSearchParams(window.location.search);
+if(_urlParams.get("viewPackage")){
+  renderPackageLandingPage(_urlParams.get("viewPackage"), _urlParams.get("forClient"));
+} else if(getSession()){
+  showApp();
+}
+</script>
+</body>
+</html>
