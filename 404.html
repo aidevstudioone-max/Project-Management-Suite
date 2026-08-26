@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Project Management Suite</title>
+<script>
+  /* GitHub Pages has no server-side routing — this file is what Pages serves for any
+     path it doesn't recognize (e.g. /Project-Management-Suite/demo). It stashes the
+     requested path and hands off to portal.html, which restores it via replaceState. */
+  try{ sessionStorage.setItem("pms_redirect", location.pathname + location.search + location.hash); }catch(e){}
+  var seg = (location.pathname.split("/").filter(Boolean)[1] || "").toLowerCase();
+  var target = (seg === "thikaana_ops") ? "thikaana-ops.html" : "portal.html";
+  location.replace("/Project-Management-Suite/" + target);
+</script>
+</head>
+<body></body>
+</html>

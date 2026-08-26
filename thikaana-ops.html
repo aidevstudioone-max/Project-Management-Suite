@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ठिkaana Ops</title>
+<style>
+  :root{
+    --bg:#f4f5f9; --card:#ffffff; --border:#e3e5ec; --text:#1d2030; --muted:#6b7080;
+    --sidebar:#171a2b; --sidebar-text:#c7c9db; --sidebar-active:#2a2f4a;
+    --accent:#4f46e5; --accent-hover:#4338ca; --accent-soft:#eef0fe;
+    --danger:#e0393e; --danger-soft:#fdeaea; --success:#16a34a; --success-soft:#e9f8ee;
+    --warn:#b26a00; --warn-soft:#fef3e0;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);}
+  button{font-family:inherit;cursor:pointer;}
+  input,select,textarea{font-family:inherit;}
+
+  #demo-banner{background:#1d2030;color:#fff;font-size:12.5px;padding:7px 16px;text-align:center;}
+  #demo-banner b{color:#ffcf70;}
+
+  #login-screen{min-height:calc(100vh - 34px);display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#171a2b,#2a2f6a);}
+  .login-box{background:var(--card);padding:40px 36px;border-radius:16px;width:380px;box-shadow:0 20px 50px rgba(0,0,0,.35);text-align:center;}
+  .logo-badge{width:56px;height:56px;border-radius:14px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:24px;margin:0 auto 14px;}
+  .login-box h1{font-size:20px;margin:0 0 4px;}
+  .login-box p.sub{color:var(--muted);font-size:13px;margin:0 0 22px;}
+  .login-box input{width:100%;padding:11px 12px;margin-bottom:12px;border:1px solid var(--border);border-radius:8px;font-size:14px;}
+  .login-box button{width:100%;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;margin-top:6px;}
+  .login-box button:hover{background:var(--accent-hover);}
+  #login-error{color:var(--danger);font-size:12.5px;min-height:18px;margin-top:2px;}
+  .demo-hint{background:var(--accent-soft);color:var(--accent);border-radius:8px;padding:9px 12px;font-size:11.5px;margin-top:10px;text-align:left;line-height:1.6;max-height:150px;overflow-y:auto;}
+  .demo-hint b{display:block;margin:6px 0 2px;}
+  .demo-hint b:first-child{margin-top:0;}
+
+  #app{display:none;min-height:100vh;}
+  .shell{display:flex;min-height:calc(100vh - 34px);}
+  .sidebar{width:222px;background:var(--sidebar);color:var(--sidebar-text);flex-shrink:0;display:flex;flex-direction:column;padding:16px 12px;}
+  .sidebar .brand{display:flex;align-items:center;gap:10px;padding:6px 8px 16px;}
+  .sidebar .brand .logo-badge{width:34px;height:34px;font-size:16px;border-radius:9px;margin:0;}
+  .sidebar .brand b{color:#fff;font-size:15px;}
+  .sidebar .brand span{display:block;font-size:10.5px;color:#9497b3;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;color:var(--sidebar-text);font-size:13.3px;cursor:pointer;margin-bottom:2px;user-select:none;}
+  .nav-item:hover{background:#20233c;}
+  .nav-item.active{background:var(--sidebar-active);color:#fff;font-weight:600;}
+  .nav-item .ic{width:18px;text-align:center;}
+  .nav-item .count{margin-left:auto;background:var(--danger);color:#fff;font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:20px;}
+  .nav-sub{padding-left:26px;}
+  .nav-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:#666a86;padding:14px 12px 4px;}
+
+  .acting-as{background:#20233c;border-radius:8px;padding:9px 10px;margin-bottom:10px;}
+  .acting-as label{display:block;font-size:10px;color:#9497b3;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+  .acting-as select{width:100%;background:#171a2b;color:#fff;border:1px solid #33375a;border-radius:6px;padding:6px 7px;font-size:12.5px;}
+
+  .sidebar-org{background:#20233c;border-radius:8px;padding:9px 10px;margin-bottom:10px;font-size:12px;}
+  .sidebar-org b{display:block;color:#fff;font-size:13px;}
+
+  .sidebar-footer{margin-top:auto;padding-top:8px;border-top:1px solid #262a44;}
+  .sidebar-footer button{width:100%;padding:8px;background:#262a44;color:#fff;border:none;border-radius:7px;font-size:12.5px;}
+  .sidebar-footer button:hover{background:#31355a;}
+
+  .main{flex:1;padding:26px 32px;overflow-y:auto;}
+  .topbar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px;flex-wrap:wrap;gap:10px;}
+  .topbar h2{margin:0 0 2px;font-size:21px;}
+  .topbar p{margin:0;color:var(--muted);font-size:13px;}
+  .btn{padding:9px 16px;border-radius:8px;border:none;font-size:13.5px;font-weight:600;background:var(--accent);color:#fff;}
+  .btn:hover{background:var(--accent-hover);}
+  .btn.secondary{background:var(--card);color:var(--text);border:1px solid var(--border);}
+  .btn.secondary:hover{background:#f0f1f6;}
+  .btn.danger{background:var(--danger-soft);color:var(--danger);}
+  .btn.small{padding:5px 10px;font-size:12px;border-radius:6px;}
+
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:22px;}
+  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:15px 17px;}
+  .stat-card.clickable{cursor:pointer;}
+  .stat-card.clickable:hover{border-color:var(--accent);}
+  .stat-card .label{font-size:11.5px;color:var(--muted);margin-bottom:6px;}
+  .stat-card .value{font-size:21px;font-weight:700;}
+  .stat-card .value.small{font-size:16px;}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:18px;}
+  .card h3{margin:0 0 14px;font-size:14.5px;}
+  .two-col{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;}
+  @media (max-width:900px){ .two-col{grid-template-columns:1fr;} }
+
+  .toolbar{display:flex;gap:10px;margin-bottom:16px;align-items:center;flex-wrap:wrap;}
+  .toolbar input[type=text],.toolbar input[type=search],.toolbar select{padding:8px 10px;border:1px solid var(--border);border-radius:7px;font-size:13px;background:#fff;}
+  .toolbar .grow{flex:1;}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{text-align:left;color:var(--muted);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.03em;padding:8px 10px;border-bottom:1px solid var(--border);}
+  td{padding:10px 10px;border-bottom:1px solid #eef0f5;vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+  tr.clickable:hover{background:#f7f8fc;cursor:pointer;}
+  .empty-row{text-align:center;color:var(--muted);padding:30px !important;}
+  .pill{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;}
+  .pill.gray{background:#eef0f5;color:#555a72;}
+  .pill.green{background:var(--success-soft);color:var(--success);}
+  .pill.red{background:var(--danger-soft);color:var(--danger);}
+  .pill.blue{background:var(--accent-soft);color:var(--accent);}
+  .pill.yellow{background:#fef6e0;color:#a5720b;}
+  .pill.orange{background:var(--warn-soft);color:var(--warn);}
+  .mono{font-family:ui-monospace,Consolas,monospace;}
+  .row-actions{display:flex;gap:6px;}
+  .icon-btn{border:1px solid var(--border);background:#fff;border-radius:6px;padding:5px 8px;font-size:12px;}
+  .icon-btn:hover{background:#f0f1f6;}
+  .pw-cell{display:flex;align-items:center;gap:6px;}
+
+  .avatar{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+  .team-card{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;}
+  .team-card .avatar{width:44px;height:44px;font-size:16px;}
+  .team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;}
+
+  .comment{display:flex;gap:10px;margin-bottom:14px;}
+  .comment .avatar{width:28px;height:28px;font-size:11px;}
+  .comment .bubble{background:#f5f6fa;border-radius:10px;padding:9px 12px;flex:1;}
+  .comment.mine .bubble{background:var(--accent-soft);}
+  .comment .meta{font-size:11.5px;color:var(--muted);margin-bottom:3px;}
+  .comment .meta b{color:var(--text);}
+  .comment .text{font-size:13px;line-height:1.5;white-space:pre-wrap;}
+
+  .history-item{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid #f0f1f5;font-size:12.5px;}
+  .history-item:last-child{border-bottom:none;}
+  .history-item .time{color:var(--muted);white-space:nowrap;min-width:120px;}
+
+  .tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:18px;flex-wrap:wrap;}
+  .tab-btn{padding:9px 14px;font-size:13px;font-weight:600;color:var(--muted);background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;}
+  .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
+  .tab-btn:hover{color:var(--text);}
+
+  .priority-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:18px;}
+  .priority-card{border-radius:var(--radius);padding:16px;text-align:center;cursor:pointer;border:1px solid transparent;}
+  .priority-card .num{font-size:26px;font-weight:800;}
+  .priority-card .lbl{font-size:12px;font-weight:600;margin-top:2px;}
+  .priority-card:hover{border-color:currentColor;}
+  .priority-card.Urgent{background:var(--danger-soft);color:var(--danger);}
+  .priority-card.High{background:var(--warn-soft);color:var(--warn);}
+  .priority-card.Medium{background:var(--accent-soft);color:var(--accent);}
+  .priority-card.Low{background:#eef0f5;color:#555a72;}
+  .priority-card.active{outline:2px solid currentColor;}
+
+  .overlay{position:fixed;inset:0;background:rgba(15,17,32,.5);display:none;align-items:center;justify-content:center;z-index:50;padding:20px;}
+  .overlay.open{display:flex;}
+  .modal{background:#fff;border-radius:14px;width:100%;max-width:560px;max-height:88vh;overflow-y:auto;padding:24px 26px;}
+  .modal.wide{max-width:720px;}
+  .modal h3{margin:0 0 16px;font-size:16px;}
+  .field{margin-bottom:13px;}
+  .field label{display:block;font-size:12.5px;font-weight:600;color:#464a5c;margin-bottom:5px;}
+  .field input,.field select,.field textarea{width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:7px;font-size:13.5px;}
+  .field textarea{resize:vertical;min-height:60px;}
+  .field-row{display:flex;gap:10px;}
+  .field-row .field{flex:1;}
+  .checkbox-group{display:flex;flex-wrap:wrap;gap:10px;}
+  .checkbox-group label{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:400;color:var(--text);border:1px solid var(--border);padding:6px 10px;border-radius:7px;}
+  .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;}
+  .action-item-row{display:flex;gap:6px;margin-bottom:8px;align-items:center;}
+  .action-item-row input[type=text]{flex:2;}
+  .action-item-row input[type=date]{flex:1.2;}
+  .action-item-row select{flex:1;}
+  .action-item-row .icon-btn{flex:0;}
+  .priority-choice{display:flex;gap:8px;}
+  .priority-choice label{flex:1;text-align:center;padding:9px 4px;border:1px solid var(--border);border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--muted);}
+  .priority-choice input{display:none;}
+  .priority-choice label:has(input:checked){border-color:var(--accent);background:var(--accent-soft);color:var(--accent);}
+  .perm-list{display:flex;flex-direction:column;gap:6px;}
+  .perm-list label{display:flex;align-items:center;gap:8px;font-size:13px;}
+
+  .back-link{font-size:12.5px;color:var(--accent);cursor:pointer;margin-bottom:10px;display:inline-block;}
+  .profile-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;flex-wrap:wrap;gap:12px;}
+  .profile-stats{display:flex;gap:22px;flex-wrap:wrap;margin-top:10px;}
+  .profile-stats div{font-size:12.5px;color:var(--muted);}
+  .profile-stats b{display:block;color:var(--text);font-size:17px;font-weight:700;}
+  .status-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--success);margin-right:6px;}
+
+  ::placeholder{color:#a7abbd;}
+
+  /* ---- v2 additions: presence, status boxes, clickable stats, animations ---- */
+  .presence-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px;position:relative;top:-1px;}
+  .presence-dot.glow{animation:presencePulse 2s infinite;}
+  @keyframes presencePulse{0%{box-shadow:0 0 0 0 rgba(22,163,74,.55);}70%{box-shadow:0 0 0 7px rgba(22,163,74,0);}100%{box-shadow:0 0 0 0 rgba(22,163,74,0);}}
+  .presence-select{background:#171a2b;color:#fff;border:1px solid #33375a;border-radius:6px;padding:5px 6px;font-size:11.5px;width:100%;}
+
+  .status-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:18px;}
+  .status-box{border-radius:var(--radius);padding:14px;text-align:center;border:1.5px solid transparent;transition:transform .15s ease,box-shadow .15s ease;}
+  .status-box .num{font-size:22px;font-weight:800;}
+  .status-box .lbl{font-size:11px;font-weight:600;margin-top:2px;}
+
+  .stat-card{transition:transform .15s ease,box-shadow .15s ease;}
+  .stat-card.clickable:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(24,30,60,.08);}
+  .card{transition:box-shadow .15s ease;}
+  .priority-card{transition:transform .15s ease;}
+  .priority-card:hover{transform:translateY(-2px);}
+
+  .stat-card.accent{border-top:3px solid var(--accent);}
+  .stat-card.accent-danger{border-top:3px solid var(--danger);}
+  .stat-card.accent-success{border-top:3px solid var(--success);}
+  .stat-card.accent-warn{border-top:3px solid var(--warn);}
+  .stat-card.accent-gray{border-top:3px solid #9aa0b4;}
+
+  #impersonation-banner{display:none;background:#3d2c00;color:#ffcf70;font-size:12.5px;padding:8px 16px;text-align:center;}
+  #package-landing{display:none;background:var(--bg);min-height:100vh;}
+  .other-pkg-card{cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease;}
+  .other-pkg-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(24,30,60,.08);border-color:var(--accent);}
+
+  @keyframes fadeInUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+  .fade-in{animation:fadeInUp .35s ease-out both;}
+  .fade-in-stagger{animation:fadeInUp .4s ease-out both;}
+  @keyframes modalPop{from{opacity:0;transform:scale(.96);}to{opacity:1;transform:scale(1);}}
+  .modal-pop{animation:modalPop .22s ease-out both;}
+  @media (prefers-reduced-motion: reduce){ .fade-in,.fade-in-stagger,.modal-pop{animation:none;} }
+</style>
+</head>
+<body>
+
+<div id="demo-banner">DEMO MODE — dummy data only, nothing here is connected to a real database yet. Login: <b>support@thikaana.co</b> / <b>demo123</b> (Thikaana team) — client demo logins shown on the login screen.</div>
+<div id="impersonation-banner"></div>
+
+<div id="package-landing"></div>
+
+<div id="login-screen">
+  <div class="login-box">
+    <div class="logo-badge">ठ</div>
+    <h1>ठिkaana Ops</h1>
+    <p class="sub">Sign in to continue</p>
+    <input type="text" id="login-email" placeholder="Email">
+    <input type="password" id="login-pass" placeholder="Password">
+    <div id="login-error"></div>
+    <button onclick="attemptLogin()">Sign In</button>
+    <div class="demo-hint" id="demo-hint"></div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="shell">
+    <div class="sidebar" id="sidebar"></div>
+    <div class="main">
+      <div id="global-back-bar" style="display:none;"><span class="back-link" onclick="history.back()">&larr; Back</span></div>
+      <div id="main-content"></div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal" id="modal-body"></div>
+</div>
+
+<script>
+/* Restore the pretty /Project-Management-Suite/Thikaana_Ops URL after the
+   404.html handoff (GitHub Pages has no server-side routing — see 404.html). */
+(function(){
+  let redirected;
+  try{ redirected = sessionStorage.getItem("pms_redirect"); }catch(e){ redirected = null; }
+  if(redirected){
+    try{ sessionStorage.removeItem("pms_redirect"); }catch(e){}
+    try{ history.replaceState(null, "", redirected); }catch(e){}
+  }
+})();
+
+/* ================= CONFIG ================= */
+const BRAND = "ठिkaana";
+const SHARED_LOGIN = { email: "support@thikaana.co", password: "demo123" };
+const DEMO_PASSWORD = "demo123";
+
+// Static page in this same repo — calls Google Places directly from the browser
+// using a key entered on that page (saved in that page's own localStorage).
+const LEAD_GEN_URL = "leadgen.html";
+
+const SEED_EMPLOYEES = [
+  { id:"ankit", name:"Ankit Prakash", email:"ankit@thikaana.co", phone:"+91 98100 00001", title:"Founder", department:"Leadership", role:"Administrator", type:"technical", permissions:"full", active:true },
+  { id:"chandan", name:"Chandan Jha", email:"chandan@thikaana.co", phone:"+91 98100 00002", title:"Chief Technology Officer", department:"Technology", role:"CTO", type:"technical", permissions:"full", active:true },
+  { id:"bhuvanesh", name:"Bhuvanesh Meethal", email:"bhuvanesh@thikaana.co", phone:"+91 98100 00003", title:"Director – Client Relations", department:"Client Relations", role:"Client Relations", type:"nontechnical", permissions:"full", active:true },
+  { id:"irfan", name:"Irfan Azmi", email:"irfan@thikaana.co", phone:"+91 98100 00004", title:"Director – Customer Success", department:"Customer Success", role:"Customer Success", type:"nontechnical", permissions:"full", active:true }
+];
+let EMPLOYEES = [];
+function persistEmployees(){ saveKey("employees", EMPLOYEES); }
+
+const PACKAGE_CATALOG = [
+  { id:"starter", name:"Website Only", price:35000, services:["Website Development","Hosting"] },
+  { id:"growth", name:"Website + Maintenance", price:52000, services:["Website Development","Hosting","Monthly Maintenance"] },
+  { id:"seo", name:"Website Development + SEO", price:75000, services:["Website Development","Hosting","Domain Management","Monthly Maintenance","Technical Support","SEO"] },
+  { id:"support", name:"Website + Maintenance + Support", price:68000, services:["Website Development","Hosting","Domain Management","Monthly Maintenance","Technical Support"] },
+  { id:"scale", name:"Full Growth Package", price:120000, services:["Website Development","Hosting","Domain Management","Monthly Maintenance","Technical Support","SEO","AI Automation Add-on","Priority Support"] }
+];
+const DEFAULT_ROLES = ["Owner","Manager","Marketing Manager","IT Manager","Admin","Finance","Client User"];
+const PRESENCE_OPTIONS = ["Active","On Break","Offline"];
+function presenceColor(p){ return {Active:"#16a34a","On Break":"#d97706",Offline:"#9aa0b4"}[p] || "#9aa0b4"; }
+function presenceDot(p){ return `<span class="presence-dot ${p==="Active"?"glow":""}" style="background:${presenceColor(p||"Offline")};"></span>`; }
+function getRoleOptions(){ const custom = loadKey("customRoles")||[]; return [...DEFAULT_ROLES, ...custom.filter(r=>!DEFAULT_ROLES.includes(r))]; }
+function addCustomRole(role){ if(!role) return; const custom = loadKey("customRoles")||[]; if(!getRoleOptions().includes(role)){ custom.push(role); saveKey("customRoles", custom); } }
+
+const VAULT_CATEGORIES = ["Domain & Hosting","Google Workspace","Social Media","Banking & Payments","Software & Tools","Email","Other"];
+const EXPENSE_CATEGORIES = ["Software & Subscriptions","Marketing & Ads","Office & Admin","Travel","Salaries & Contractors","Client Project Cost","Domain & Hosting","Other"];
+const CLIENT_STATUSES = ["Lead","Prospect","Active","On Hold","Completed","Inactive"];
+const TICKET_CATEGORIES = ["Technical Issue","Website Issue","Content Update","Design Change","Domain / Hosting","Email","General Request","Other"];
+const TECHNICAL_CATEGORIES = ["Technical Issue","Website Issue","Domain / Hosting","Email"];
+const TICKET_PRIORITIES = ["Low","Medium","High","Urgent"];
+const TICKET_STATUSES = ["New","Assigned","In Progress","Waiting for Client","Resolved","Closed"];
+
+const KEYS = ["clients","clientUsers","tickets","meetings","vault","expenses","audit","employees","customRoles"];
+const SEED_VERSION = "3";
+
+function loadKey(k){ try{ return JSON.parse(localStorage.getItem("thikops_"+k)) || null; }catch(e){ return null; } }
+function saveKey(k, v){ localStorage.setItem("thikops_"+k, JSON.stringify(v)); }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
+function fmtMoney(n){ return "₹" + Number(n||0).toLocaleString("en-IN",{maximumFractionDigits:2}); }
+function fmtDate(d){ if(!d) return "—"; const dt=new Date(d+"T00:00:00"); if(isNaN(dt)) return d; return dt.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}); }
+function fmtDateTime(iso){ if(!iso) return "—"; const dt=new Date(iso); return dt.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}) + " " + dt.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"}); }
+function escapeHtml(s){ return String(s==null?"":s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function employeeName(id){ const e=EMPLOYEES.find(x=>x.id===id); return e?e.name:(id||"—"); }
+function employeeOptions(selected){ return EMPLOYEES.map(e=>`<option value="${e.id}" ${e.id===selected?"selected":""}>${e.name} (${e.title})</option>`).join(""); }
+function initials(name){ return (name||"?").split(" ").map(w=>w[0]).slice(0,2).join("").toUpperCase(); }
+function priorityPill(p){ return {Low:"gray",Medium:"blue",High:"orange",Urgent:"red"}[p]||"gray"; }
+function statusPill(s){ return {New:"blue","Assigned":"yellow","In Progress":"orange","Waiting for Client":"gray",Resolved:"green",Closed:"gray"}[s]||"gray"; }
+function statusPillClass(s){ return {Active:"green",Lead:"blue",Prospect:"blue",Completed:"gray","On Hold":"yellow",Inactive:"red"}[s] || "gray"; }
+
+/* ---------------- Seed data ---------------- */
+function seedIfEmpty(){
+  if(loadKey("clients") && localStorage.getItem("thikops_seedVersion")===SEED_VERSION){
+    EMPLOYEES = loadKey("employees") || SEED_EMPLOYEES.slice();
+    return;
+  }
+
+  EMPLOYEES = SEED_EMPLOYEES.slice();
+  persistEmployees();
+  localStorage.setItem("thikops_seedVersion", SEED_VERSION);
+
+  const ALL_TEAM = ["ankit","chandan","bhuvanesh","irfan"];
+  const clients = [
+    { id:"c-pavmantra", name:"Pav Mantra", company:"Pav Mantra Foods", website:"pavmantra.com", email:"hello@pavmantra.com", phone:"+91 98200 11221", status:"Active", onboardingDate:"2026-03-10", notes:"Food brand site — menu, story, ordering enquiries.",
+      package:{ name:"Website Development + SEO", price:75000, services:["Website Development","Hosting","Domain Management","Monthly Maintenance","Technical Support","SEO"] },
+      websiteStatus:{ url:"pavmantra.com", status:"Online", hosting:"Active", domain:"Active", ssl:"Valid", maintenance:"Up to date", lastChecked:"2026-08-20T09:00:00" },
+      assignedTeam: ALL_TEAM.slice() },
+    { id:"c-apoorva", name:"Apoorva Auto Parts", company:"Apoorva Auto Parts Pvt Ltd", website:"apoorvaauto.com", email:"sales@apoorvaauto.com", phone:"+91 98110 44552", status:"Active", onboardingDate:"2026-02-18", notes:"Auto parts supplier — catalogue, coverage area, enquiries.",
+      package:{ name:"Website + Maintenance", price:52000, services:["Website Development","Hosting","Monthly Maintenance"] },
+      websiteStatus:{ url:"apoorvaauto.com", status:"Online", hosting:"Active", domain:"Active", ssl:"Valid", maintenance:"Up to date", lastChecked:"2026-08-20T09:00:00" },
+      assignedTeam: ALL_TEAM.slice() },
+    { id:"c-hangout", name:"Hangout Cafe", company:"Hangout Cafe & Restaurant", website:"hangoutcafe.in", email:"contact@hangoutcafe.in", phone:"+91 90040 77332", status:"Active", onboardingDate:"2026-04-02", notes:"Cafe & restaurant site — menu, location, dine-in info.",
+      package:{ name:"Website", price:38000, services:["Website Development","Hosting"] },
+      websiteStatus:{ url:"hangoutcafe.in", status:"Online", hosting:"Active", domain:"Active", ssl:"Valid", maintenance:"Up to date", lastChecked:"2026-08-19T18:00:00" },
+      assignedTeam: ALL_TEAM.slice() },
+    { id:"c-srima", name:"Srima Diagnostic & Medical", company:"Srima Diagnostic & Medical Centre", website:"srimadiagnostic.com", email:"info@srimadiagnostic.com", phone:"+91 97110 22990", status:"Active", onboardingDate:"2026-01-25", notes:"Diagnostic centre & pharmacy — test listings, reports, pharmacy.",
+      package:{ name:"Website + Maintenance + Support", price:68000, services:["Website Development","Hosting","Domain Management","Monthly Maintenance","Technical Support"] },
+      websiteStatus:{ url:"srimadiagnostic.com", status:"Online", hosting:"Active", domain:"Renewing Soon", ssl:"Valid", maintenance:"Up to date", lastChecked:"2026-08-20T07:30:00" },
+      assignedTeam: ALL_TEAM.slice() },
+    { id:"c-sriram", name:"Sri Ram Gift Emporium", company:"Sri Ram Gift Emporium", website:"sriramgifts.com", email:"store@sriramgifts.com", phone:"+91 94350 66210", status:"Active", onboardingDate:"2026-05-14", notes:"Gift & home décor retailer in Mughalsarai — collections, store story.",
+      package:{ name:"Website", price:31000, services:["Website Development","Hosting"] },
+      websiteStatus:{ url:"sriramgifts.com", status:"Online", hosting:"Active", domain:"Active", ssl:"Valid", maintenance:"Up to date", lastChecked:"2026-08-19T12:00:00" },
+      assignedTeam: ALL_TEAM.slice() },
+    { id:"c-shibpur", name:"Shibpur Hindu Girls School", company:"Shibpur Hindu Girls High School", website:"shghschool.edu.in", email:"office@shghschool.edu.in", phone:"+91 98300 55127", status:"Active", onboardingDate:"2026-03-28", notes:"School information site — Howrah institution, facilities & contact.",
+      package:{ name:"Website + Maintenance", price:40000, services:["Website Development","Hosting","Monthly Maintenance"] },
+      websiteStatus:{ url:"shghschool.edu.in", status:"Online", hosting:"Active", domain:"Active", ssl:"Valid", maintenance:"Up to date", lastChecked:"2026-08-20T08:00:00" },
+      assignedTeam: ALL_TEAM.slice() }
+  ];
+  saveKey("clients", clients);
+
+  const clientUsers = [
+    { id:"cu-1", clientId:"c-pavmantra", name:"Rohan Verma", email:"rohan@pavmantra.com", role:"Owner", isAdmin:true, active:true, presence:"Active" },
+    { id:"cu-2", clientId:"c-pavmantra", name:"Aditi Nair", email:"aditi@pavmantra.com", role:"Marketing Manager", isAdmin:false, active:true, presence:"On Break" },
+    { id:"cu-3", clientId:"c-apoorva", name:"Suresh Apoorva", email:"suresh@apoorvaauto.com", role:"Owner", isAdmin:true, active:true, presence:"Active" },
+    { id:"cu-4", clientId:"c-hangout", name:"Meera Kapoor", email:"meera@hangoutcafe.in", role:"Manager", isAdmin:true, active:true, presence:"Active" },
+    { id:"cu-5", clientId:"c-srima", name:"Dr. Srima Rao", email:"srima@srimadiagnostic.com", role:"Owner", isAdmin:true, active:true, presence:"Offline" },
+    { id:"cu-6", clientId:"c-srima", name:"Vikas Rao", email:"vikas@srimadiagnostic.com", role:"Admin", isAdmin:false, active:true, presence:"Active" },
+    { id:"cu-7", clientId:"c-sriram", name:"Priyanka Gupta", email:"priyanka@sriramgifts.com", role:"Owner", isAdmin:true, active:true, presence:"Active" },
+    { id:"cu-8", clientId:"c-shibpur", name:"Anjali Bose", email:"anjali@shghschool.edu.in", role:"Admin / IT Coordinator", isAdmin:true, active:true, presence:"Active" }
+  ];
+  saveKey("clientUsers", clientUsers);
+
+  const now = Date.now(); const daysAgo = n => new Date(now - n*86400000).toISOString();
+  function mkHistory(entries){ return entries.map(e=>({ text:e[0], at:e[1] })); }
+
+  const tickets = [
+    { id:"t-1001", clientId:"c-pavmantra", createdBy:"cu-1", subject:"Online ordering form not submitting", description:"Customers report the enquiry form on the ordering page spins forever and never confirms.", category:"Technical Issue", priority:"Urgent", status:"In Progress", assignedTo:"chandan", createdAt:daysAgo(2), assignedAt:daysAgo(2), pageUrl:"pavmantra.com/order",
+      comments:[
+        {author:"Rohan Verma", role:"client", text:"Website contact form is not working.", at:daysAgo(2)},
+        {author:"Chandan Jha", role:"internal", text:"We are checking the issue.", at:daysAgo(1.5)},
+        {author:"Rohan Verma", role:"client", text:"Okay, thank you.", at:daysAgo(1.4)}
+      ],
+      history: mkHistory([["Pav Mantra created the ticket.", daysAgo(2)],["Ticket auto-assigned to Chandan Jha.", daysAgo(2)],["Chandan Jha changed status to In Progress.", daysAgo(1.6)],["Chandan Jha added a comment.", daysAgo(1.5)]]) },
+    { id:"t-1002", clientId:"c-apoorva", createdBy:"cu-3", subject:"Update catalogue with new brake pad range", description:"We've added 12 new SKUs, need the catalogue page updated with prices.", category:"Content Update", priority:"Medium", status:"Waiting for Client", assignedTo:"bhuvanesh", createdAt:daysAgo(5), assignedAt:daysAgo(5), pageUrl:"apoorvaauto.com/catalogue",
+      comments:[
+        {author:"Suresh Apoorva", role:"client", text:"Sharing the new price list by email shortly.", at:daysAgo(5)},
+        {author:"Bhuvanesh Meethal", role:"internal", text:"Got it — waiting on the file, will update within a day of receiving it.", at:daysAgo(4.6)}
+      ],
+      history: mkHistory([["Apoorva Auto Parts created the ticket.", daysAgo(5)],["Ticket auto-assigned to Bhuvanesh Meethal.", daysAgo(5)],["Bhuvanesh Meethal changed status to Waiting for Client.", daysAgo(4.6)]]) },
+    { id:"t-1003", clientId:"c-hangout", createdBy:"cu-4", subject:"Change weekend timings on homepage", description:"We're now open till 11pm on Fri/Sat, homepage still shows 10pm.", category:"Content Update", priority:"Low", status:"Resolved", assignedTo:"irfan", createdAt:daysAgo(9), assignedAt:daysAgo(9), resolvedAt:daysAgo(8), pageUrl:"hangoutcafe.in",
+      comments:[
+        {author:"Meera Kapoor", role:"client", text:"Can we get weekend hours updated?", at:daysAgo(9)},
+        {author:"Irfan Azmi", role:"internal", text:"Updated — please check and confirm.", at:daysAgo(8)},
+        {author:"Meera Kapoor", role:"client", text:"Looks perfect, thanks!", at:daysAgo(7.8)}
+      ],
+      history: mkHistory([["Hangout Cafe created the ticket.", daysAgo(9)],["Ticket auto-assigned to Irfan Azmi.", daysAgo(9)],["Irfan Azmi changed status to Resolved.", daysAgo(8)]]) },
+    { id:"t-1004", clientId:"c-srima", createdBy:"cu-5", subject:"Domain renewal reminder — expiring in 10 days", description:"Got an email saying our domain expires soon, please handle renewal.", category:"Domain / Hosting", priority:"High", status:"Assigned", assignedTo:"ankit", createdAt:daysAgo(1), assignedAt:daysAgo(1), pageUrl:"srimadiagnostic.com",
+      comments:[{author:"Dr. Srima Rao", role:"client", text:"Please make sure this doesn't lapse, it's urgent for us.", at:daysAgo(1)}],
+      history: mkHistory([["Srima Diagnostic & Medical created the ticket.", daysAgo(1)],["Ticket auto-assigned to Ankit Prakash.", daysAgo(1)]]) },
+    { id:"t-1005", clientId:"c-sriram", createdBy:"cu-7", subject:"Add new Diwali collection photos", description:"Need 20 new product photos added to the collections page before the festive season.", category:"Design Change", priority:"Medium", status:"New", assignedTo:"bhuvanesh", createdAt:daysAgo(0.3), assignedAt:daysAgo(0.3), pageUrl:"sriramgifts.com/collections",
+      comments:[], history: mkHistory([["Sri Ram Gift Emporium created the ticket.", daysAgo(0.3)],["Ticket auto-assigned to Bhuvanesh Meethal.", daysAgo(0.3)]]) },
+    { id:"t-1006", clientId:"c-shibpur", createdBy:"cu-8", subject:"Contact page email not receiving enquiries", description:"Parents say they've submitted the enquiry form but school office has not received a single email in 2 weeks.", category:"Email", priority:"Urgent", status:"Closed", assignedTo:"chandan", createdAt:daysAgo(14), assignedAt:daysAgo(14), resolvedAt:daysAgo(13), pageUrl:"shghschool.edu.in/contact",
+      comments:[
+        {author:"Anjali Bose", role:"client", text:"No enquiry emails coming through, please check urgently.", at:daysAgo(14)},
+        {author:"Chandan Jha", role:"internal", text:"Found it — form was pointing to an old email address. Fixed and tested.", at:daysAgo(13.2)},
+        {author:"Anjali Bose", role:"client", text:"Confirmed, receiving them now. Thank you!", at:daysAgo(13)}
+      ],
+      history: mkHistory([["Shibpur Hindu Girls School created the ticket.", daysAgo(14)],["Ticket auto-assigned to Chandan Jha.", daysAgo(14)],["Chandan Jha changed status to Resolved.", daysAgo(13.2)],["Ticket changed to Closed.", daysAgo(13)]]) },
+    { id:"t-1007", clientId:"c-pavmantra", createdBy:"cu-2", subject:"Add Instagram feed to homepage", description:"Would like our latest Instagram posts to show up on the homepage automatically.", category:"General Request", priority:"Low", status:"New", assignedTo:"irfan", createdAt:daysAgo(0.1), assignedAt:daysAgo(0.1), pageUrl:"pavmantra.com",
+      comments:[], history: mkHistory([["Pav Mantra created the ticket.", daysAgo(0.1)],["Ticket auto-assigned to Irfan Azmi.", daysAgo(0.1)]]) }
+  ];
+  saveKey("tickets", tickets);
+
+  const meetings = [
+    { id:"m-1", clientId:"c-srima", title:"Client Website Review", date:"2026-08-14", attendees:["ankit","bhuvanesh"], notes:"Reviewed homepage redesign, contact form reliability, and SEO improvements for the diagnostic centre site.", decisions:"Proceed with homepage redesign; move contact form to a monitored inbox; start basic on-page SEO next sprint.", actionItems:[
+        {task:"Fix contact form reliability", owner:"ankit", due:"2026-08-20", done:true},
+        {task:"Review site architecture for SEO", owner:"chandan", due:"2026-08-24", done:false},
+        {task:"Confirm new homepage content with client", owner:"bhuvanesh", due:"2026-08-22", done:false}
+    ]},
+    { id:"m-2", clientId:null, title:"Weekly Internal Sync", date:"2026-08-17", attendees:["ankit","chandan","bhuvanesh","irfan"], notes:"Reviewed open ticket load across clients, flagged Srima domain renewal as time-sensitive.", decisions:"Ankit to personally handle domain renewals going forward.", actionItems:[
+        {task:"Set calendar reminders for all client domain renewals", owner:"ankit", due:"2026-08-25", done:false}
+    ]}
+  ];
+  saveKey("meetings", meetings);
+
+  saveKey("vault", [
+    { id:"v-1", service:"GoDaddy — Domain Registrar", category:"Domain & Hosting", username:"support@thikaana.co", password:"Demo-Only-Not-Real", url:"godaddy.com", notes:"Renews annually.", updatedAt:daysAgo(20) },
+    { id:"v-2", service:"Google Workspace Admin", category:"Google Workspace", username:"support@thikaana.co", password:"Demo-Only-Not-Real", url:"admin.google.com", notes:"", updatedAt:daysAgo(15) }
+  ]);
+  saveKey("expenses", [
+    { id:"e-1", date:"2026-08-05", category:"Domain & Hosting", description:"Domain renewal — thikaana.co", amount:1200, paidBy:"ankit", notes:"" },
+    { id:"e-2", date:"2026-08-10", category:"Software & Subscriptions", description:"Design tool subscription", amount:1999, paidBy:"chandan", notes:"" },
+    { id:"e-3", date:"2026-08-15", category:"Marketing & Ads", description:"Instagram ad boost", amount:3000, paidBy:"bhuvanesh", notes:"" }
+  ]);
+
+  const audit = [];
+  clients.forEach(c=>{
+    audit.push({ id:uid(), action:"Client Onboarded", module:"Clients", clientId:c.id, summary:`${c.name} onboarded`, performedBy:"System", at:c.onboardingDate+"T10:00:00" });
+    audit.push({ id:uid(), action:"Package Added", module:"Packages", clientId:c.id, summary:`${c.package.name} — ${fmtMoney(c.package.price)}`, performedBy:"System", at:c.onboardingDate+"T10:05:00" });
+  });
+  clientUsers.filter(u=>u.isAdmin).forEach(u=>{
+    audit.push({ id:uid(), action:"Client Admin Set", module:"Client Users", clientId:u.clientId, summary:`${u.name} added as Client Admin`, performedBy:"System", at:daysAgo(25) });
+  });
+  saveKey("audit", audit.sort((a,b)=>(a.at||"").localeCompare(b.at||"")));
+}
+
+/* ---------------- Audit & history helpers ---------------- */
+function logAudit(action, module, summary, clientId, prevVal, newVal, actorUserId, relatedUserId){
+  const logs = loadKey("audit") || [];
+  logs.unshift({ id: uid(), action, module, clientId: clientId||null, summary, performedBy: currentActorName(), actorUserId: actorUserId||null, relatedUserId: relatedUserId||actorUserId||null, prevVal: prevVal||"", newVal: newVal||"", at: new Date().toISOString() });
+  saveKey("audit", logs.slice(0, 400));
+}
+function pushTicketHistory(ticket, text){
+  ticket.history = ticket.history || [];
+  ticket.history.push({ text, at: new Date().toISOString() });
+}
+function nextAssignee(category){
+  const isTech = TECHNICAL_CATEGORIES.includes(category);
+  const pool = EMPLOYEES.filter(e => e.type === (isTech ? "technical" : "nontechnical")).map(e=>e.id);
+  const rrKey = "thikops_rr_" + (isTech?"tech":"nontech");
+  let idx = parseInt(sessionStorage.getItem(rrKey) || "0", 10);
+  const chosen = pool[idx % pool.length];
+  sessionStorage.setItem(rrKey, String(idx+1));
+  return chosen;
+}
+
+/* ================= AUTH / SESSION ================= */
+// session: { type:'employee', actingAs:id } or { type:'client', userId:id }
+function getSession(){ try{ return JSON.parse(sessionStorage.getItem("thikops_session")); }catch(e){ return null; } }
+function setSession(s){ sessionStorage.setItem("thikops_session", JSON.stringify(s)); }
+function currentActorName(){ const s=getSession(); if(s && s.type==="employee") return employeeName(s.actingAs); if(s && s.type==="client"){ const u=(loadKey("clientUsers")||[]).find(x=>x.id===s.userId); return u?u.name:"Client"; } return "System"; }
+function currentClientUser(){ const s=getSession(); if(!s||s.type!=="client") return null; return (loadKey("clientUsers")||[]).find(u=>u.id===s.userId); }
+function currentClientRecord(){ const u=currentClientUser(); if(!u) return null; return (loadKey("clients")||[]).find(c=>c.id===u.clientId); }
+
+function populateDemoHint(){
+  const users = loadKey("clientUsers")||[];
+  document.getElementById("demo-hint").innerHTML =
+    `<b>ठिkaana team</b>support@thikaana.co / demo123<br>` +
+    `<b>Client demo logins (password demo123)</b>` +
+    users.map(u=>`${escapeHtml(u.email)} — ${escapeHtml(u.name)}${u.isAdmin?" (Admin)":""}`).join("<br>");
+}
+
+function attemptLogin(){
+  const email = document.getElementById("login-email").value.trim().toLowerCase();
+  const pass = document.getElementById("login-pass").value;
+  if(email === SHARED_LOGIN.email && pass === SHARED_LOGIN.password){
+    setSession({ type:"employee", actingAs: "ankit" });
+    showApp(); return;
+  }
+  const user = (loadKey("clientUsers")||[]).find(u=>u.email.toLowerCase()===email);
+  if(user && pass === DEMO_PASSWORD){
+    if(!user.active){ document.getElementById("login-error").textContent = "This account has been deactivated. Contact your Client Admin."; return; }
+    setSession({ type:"client", userId: user.id });
+    showApp(); return;
+  }
+  document.getElementById("login-error").textContent = "Incorrect email or password.";
+}
+document.getElementById("login-pass").addEventListener("keydown", e => { if(e.key==="Enter") attemptLogin(); });
+document.getElementById("login-email").addEventListener("keydown", e => { if(e.key==="Enter") attemptLogin(); });
+
+function logout(){
+  sessionStorage.removeItem("thikops_session");
+  document.getElementById("app").style.display = "none";
+  document.getElementById("login-screen").style.display = "flex";
+  document.getElementById("login-email").value=""; document.getElementById("login-pass").value="";
+}
+function showApp(){
+  seedIfEmpty();
+  document.getElementById("login-screen").style.display = "none";
+  document.getElementById("app").style.display = "block";
+  buildSidebar();
+  const s = getSession();
+  goToTab(s.type==="employee" ? "dashboard" : "cdashboard");
+}
+
+/* ================= SIDEBAR ================= */
+function buildSidebar(){
+  const s = getSession();
+  const sidebar = document.getElementById("sidebar");
+  if(s.type==="employee"){
+    sidebar.innerHTML = `
+      <div class="brand"><div class="logo-badge">ठ</div><div><b>${BRAND}</b><span>Ops (Demo)</span></div></div>
+      <div class="acting-as"><label>Acting as</label><select id="acting-as-select" onchange="setActingAs(this.value)">${EMPLOYEES.map(e=>`<option value="${e.id}">${e.name}</option>`).join("")}</select></div>
+      <div class="nav-item" data-tab="dashboard" onclick="goToTab('dashboard')"><span class="ic">&#9679;</span> Dashboard</div>
+      <div class="nav-item" data-tab="clients" onclick="goToTab('clients')"><span class="ic">&#128100;</span> Clients</div>
+      <div class="nav-item" data-tab="tickets" onclick="goToTab('tickets')"><span class="ic">&#127915;</span> Tickets</div>
+      <div class="nav-label">${BRAND} Workspace</div>
+      <div class="nav-item nav-sub" data-tab="vault" onclick="goToTab('vault')"><span class="ic">&#128274;</span> Vault</div>
+      <div class="nav-item nav-sub" data-tab="expenses" onclick="goToTab('expenses')"><span class="ic">&#8377;</span> Expenses</div>
+      <div class="nav-item nav-sub" data-tab="meetings" onclick="goToTab('meetings')"><span class="ic">&#128221;</span> Meeting Notes</div>
+      <div class="nav-item nav-sub" onclick="openLeadGen()" title="Opens the Lead Gen tool"><span class="ic">&#128269;</span> Lead Gen &#8599;</div>
+      <div class="nav-item" data-tab="employees" onclick="goToTab('employees')"><span class="ic">&#128101;</span> Employees</div>
+      <div class="nav-item" data-tab="history" onclick="goToTab('history')"><span class="ic">&#128203;</span> History</div>
+      <div class="nav-item" data-tab="settings" onclick="goToTab('settings')"><span class="ic">&#9881;</span> Settings</div>
+      <div class="sidebar-footer"><button onclick="logout()">Log Out</button></div>
+    `;
+    document.getElementById("acting-as-select").value = s.actingAs;
+  } else {
+    const user = currentClientUser(), client = currentClientRecord();
+    sidebar.innerHTML = `
+      <div class="brand"><div class="logo-badge">ठ</div><div><b>${BRAND}</b><span>Client Portal</span></div></div>
+      <div class="sidebar-org">
+        <b>${escapeHtml(client.name)}</b>${presenceDot(user.presence)}Signed in as ${escapeHtml(user.name)}${user.isAdmin?" (Admin)":""}
+        <div style="margin-top:8px;"><label style="font-size:10px;color:#9497b3;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:4px;">Your Status</label>
+          <select class="presence-select" onchange="setMyPresence(this.value)">${PRESENCE_OPTIONS.map(p=>`<option value="${p}" ${p===user.presence?"selected":""}>${p}</option>`).join("")}</select>
+        </div>
+      </div>
+      <div class="nav-item" data-tab="cdashboard" onclick="goToTab('cdashboard')"><span class="ic">&#9679;</span> Dashboard</div>
+      <div class="nav-item" data-tab="cwebsite" onclick="goToTab('cwebsite')"><span class="ic">&#127760;</span> Website</div>
+      <div class="nav-item" data-tab="crequests" onclick="goToTab('crequests')"><span class="ic">&#128203;</span> My Requests</div>
+      <div class="nav-item" data-tab="craise" onclick="goToTab('craise')"><span class="ic">&#10133;</span> Raise Request</div>
+      <div class="nav-item" data-tab="cpackage" onclick="goToTab('cpackage')"><span class="ic">&#128230;</span> Package</div>
+      ${user.isAdmin?`<div class="nav-item" data-tab="cusers" onclick="goToTab('cusers')"><span class="ic">&#128101;</span> Users</div>`:""}
+      <div class="nav-item" data-tab="chistory" onclick="goToTab('chistory')"><span class="ic">&#128337;</span> History</div>
+      <div class="nav-item" data-tab="cprofile" onclick="goToTab('cprofile')"><span class="ic">&#128100;</span> Profile</div>
+      <div class="sidebar-footer"><button onclick="logout()">Log Out</button></div>
+    `;
+  }
+}
+function setMyPresence(val){
+  const users = loadKey("clientUsers")||[]; const u = users.find(x=>x.id===currentClientUser().id);
+  u.presence = val; saveKey("clientUsers", users);
+  buildSidebar();
+}
+function setActingAs(id){ const s=getSession(); s.actingAs=id; setSession(s); if(currentTab) render(); }
+function openLeadGen(){
+  const win = window.open(LEAD_GEN_URL, "_blank", "noopener");
+  if(!win){
+    alert("Your browser blocked the popup. Allow popups for this site, or open "+LEAD_GEN_URL+" directly.");
+  }
+}
+
+/* ================= TAB ROUTER ================= */
+let currentTab = "dashboard";
+let currentClientId = null, currentClientTab = "overview", currentTicketId = null, currentPriorityFilter = null, currentClientTicketsBack = null;
+
+/* ---------------- Browser back/forward support ---------------- */
+let isRestoringHistory = false;
+function pushHistoryState(){
+  if(isRestoringHistory) return;
+  if(!getSession()) return;
+  const state = { tab: currentTab, clientId: currentClientId, clientTab: currentClientTab, ticketId: currentTicketId, ticketsBack: currentClientTicketsBack, dashViewAsUserId: (typeof dashViewAsUserId!=="undefined"?dashViewAsUserId:null) };
+  try{ history.pushState(state, ""); }catch(e){}
+}
+window.addEventListener("popstate", (e) => {
+  const s = getSession();
+  if(!s) return;
+  isRestoringHistory = true;
+  const st = e.state || { tab: s.type==="employee" ? "dashboard" : "cdashboard" };
+  currentTab = st.tab; currentClientId = st.clientId||null; currentClientTab = st.clientTab||"overview";
+  currentTicketId = st.ticketId||null; currentClientTicketsBack = st.ticketsBack||"tickets";
+  if(typeof dashViewAsUserId!=="undefined") dashViewAsUserId = st.dashViewAsUserId||null;
+  document.querySelectorAll(".nav-item").forEach(n => n.classList.toggle("active", n.dataset.tab===currentTab));
+  if(currentTicketId && s.type==="employee"){ renderTicketDetailEmployee(currentTicketId); }
+  else { render(); }
+  isRestoringHistory = false;
+});
+
+function goToTab(tab){
+  currentTab = tab; currentClientId=null; currentTicketId=null; currentPriorityFilter=null;
+  document.querySelectorAll(".nav-item").forEach(n => n.classList.toggle("active", n.dataset.tab===tab));
+  render();
+  pushHistoryState();
+}
+let pendingTicketFilter = null, pendingClientFilter = null;
+function goToTicketsFiltered(filter){ pendingTicketFilter = filter; goToTab("tickets"); }
+function goToClientsFiltered(status){ pendingClientFilter = status; goToTab("clients"); }
+function render(){
+  const s = getSession();
+  const empRenderers = { dashboard:renderDashboard, clients:renderClients, tickets:renderTickets, vault:renderVault, expenses:renderExpenses, meetings:renderMeetings, employees:renderEmployees, history:renderHistory, settings:renderSettings };
+  const clientRenderers = { cdashboard:renderClientDashboard, cwebsite:renderClientWebsite, crequests:renderClientRequests, craise:renderClientRaise, cpackage:renderClientPackage, cusers:renderClientUsers, chistory:renderClientHistory, cprofile:renderClientOwnProfile };
+  const map = s.type==="employee" ? empRenderers : clientRenderers;
+  (map[currentTab]||map[Object.keys(map)[0]])();
+  animateIn("#main-content");
+  const homeTab = s.type==="employee" ? "dashboard" : "cdashboard";
+  const backBar = document.getElementById("global-back-bar");
+  if(backBar) backBar.style.display = (currentTab===homeTab) ? "none" : "block";
+}
+function prefersReducedMotion(){ return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches; }
+function animateIn(sel){
+  if(prefersReducedMotion()) return;
+  const el = document.querySelector(sel);
+  if(!el) return;
+  el.classList.remove("fade-in"); void el.offsetWidth; el.classList.add("fade-in");
+}
+function animateStagger(sel){
+  if(prefersReducedMotion()) return;
+  document.querySelectorAll(sel).forEach((el, i) => {
+    el.classList.remove("fade-in-stagger");
+    el.style.animationDelay = (i * 0.05) + "s";
+    void el.offsetWidth;
+    el.classList.add("fade-in-stagger");
+  });
+}
+function openModal(html, wide){
+  document.getElementById("modal-body").className = "modal" + (wide?" wide":"");
+  document.getElementById("modal-body").innerHTML = html;
+  document.getElementById("overlay").classList.add("open");
+  if(!prefersReducedMotion()){ document.getElementById("modal-body").classList.add("modal-pop"); }
+}
+function closeModal(){ document.getElementById("overlay").classList.remove("open"); document.getElementById("modal-body").innerHTML=""; }
+document.getElementById("overlay").addEventListener("click", e => { if(e.target.id==="overlay") closeModal(); });
+
+/* ================= EMPLOYEE: DASHBOARD ================= */
+function renderDashboard(){
+  const clients = loadKey("clients")||[], tickets = loadKey("tickets")||[], expenses = loadKey("expenses")||[], meetings = loadKey("meetings")||[], vault = loadKey("vault")||[];
+  const now = new Date(); const ym = now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0");
+  const monthTotal = expenses.filter(e=>e.date && e.date.startsWith(ym)).reduce((s,e)=>s+Number(e.amount||0),0);
+  const activeClients = clients.filter(c=>c.status==="Active").length;
+  const openStatuses = ["New","Assigned","In Progress","Waiting for Client"];
+  const openTickets = tickets.filter(t=>openStatuses.includes(t.status));
+  const urgentTickets = tickets.filter(t=>t.priority==="Urgent" && openStatuses.includes(t.status));
+  const statusCounts = {}; TICKET_STATUSES.forEach(s=>statusCounts[s]=tickets.filter(t=>t.status===s).length);
+  const priorityCounts = {}; TICKET_PRIORITIES.forEach(p=>priorityCounts[p]=tickets.filter(t=>t.priority===p && openStatuses.includes(t.status)).length);
+  const recentMeetings = meetings.slice().sort((a,b)=>(b.date||"").localeCompare(a.date||"")).slice(0,3);
+  const auditLog = (loadKey("audit")||[]).slice(0,8);
+
+  const statusHex = {New:"#4f46e5",Assigned:"#a5720b","In Progress":"#b26a00","Waiting for Client":"#6b7080",Resolved:"#16a34a",Closed:"#6b7080"};
+  const priorityHex = {Low:"#6b7080",Medium:"#4f46e5",High:"#b26a00",Urgent:"#e0393e"};
+
+  document.getElementById("main-content").innerHTML = `
+    <div class="topbar"><div><h2>Dashboard</h2><p>${BRAND} Ops overview</p></div></div>
+    <div class="stat-grid">
+      <div class="stat-card clickable accent" onclick="goToTab('clients')"><div class="label">Total Clients</div><div class="value">${clients.length}</div></div>
+      <div class="stat-card clickable accent-success" onclick="goToClientsFiltered('Active')"><div class="label">Active Clients</div><div class="value">${activeClients}</div></div>
+      <div class="stat-card clickable accent-warn" onclick="goToTicketsFiltered({openOnly:true})"><div class="label">Open Tickets</div><div class="value">${openTickets.length}</div></div>
+      <div class="stat-card clickable accent-danger" onclick="goToTicketsFiltered({priority:'Urgent'})"><div class="label">Urgent Tickets</div><div class="value" style="color:var(--danger)">${urgentTickets.length}</div></div>
+      <div class="stat-card clickable accent-gray" onclick="goToTab('expenses')"><div class="label">Expenses This Month</div><div class="value small">${fmtMoney(monthTotal)}</div></div>
+      <div class="stat-card clickable accent-gray" onclick="goToTab('vault')"><div class="label">Vault Items</div><div class="value">${vault.length}</div></div>
+    </div>
+    <div class="two-col">
+      <div>
+        <div class="card"><h3>Ticket Summary</h3><div class="status-grid">${TICKET_STATUSES.map(s=>`<div class="status-box" style="border-color:${statusHex[s]};color:${statusHex[s]};background:${statusHex[s]}14;cursor:pointer;" onclick="goToTicketsFiltered({status:'${s}'})"><div class="num">${statusCounts[s]}</div><div class="lbl">${s}</div></div>`).join("")}</div></div>
+        <div class="card"><h3>Open Tickets by Priority</h3><div class="priority-grid">${TICKET_PRIORITIES.map(p=>`<div class="priority-card ${p}" onclick="goToTicketsFiltered({priority:'${p}'})"><div class="num">${priorityCounts[p]}</div><div class="lbl">${p}</div></div>`).join("")}</div></div>
+        <div class="card"><h3>Recent Activity</h3>${auditLog.length ? auditLog.map(a=>`<div style="padding:7px 0;border-bottom:1px solid #f0f1f5;font-size:12.5px;"><b>${escapeHtml(a.summary)}</b><br><span style="color:var(--muted);">${escapeHtml(a.performedBy)} · ${fmtDateTime(a.at)}</span></div>`).join("") : `<p style="color:var(--muted);font-size:13px;margin:0;">No activity yet.</p>`}</div>
+      </div>
+      <div>
+        <div class="card"><h3>Employees</h3>${EMPLOYEES.map(e=>`<div style="display:flex;align-items:center;gap:9px;padding:6px 0;"><div class="avatar">${initials(e.name)}</div><div><div style="font-size:13px;font-weight:600;">${e.name}</div><div style="font-size:11.5px;color:var(--muted);">${e.title}</div></div></div>`).join("")}</div>
+        <div class="card"><h3>Recent Meetings</h3>${recentMeetings.length ? recentMeetings.map(m=>{ const client = clients.find(c=>c.id===m.clientId); return `<div style="padding:7px 0;border-bottom:1px solid #f0f1f5;"><div style="font-size:13px;font-weight:600;">${escapeHtml(m.title)}</div><div style="font-size:11.5px;color:var(--muted);">${fmtDate(m.date)}${client?" · "+escapeHtml(client.name):""}</div></div>`; }).join("") : `<p style="color:var(--muted);font-size:13px;margin:0;">No meetings logged yet.</p>`}</div>
+      </div>
+    </div>
+  `;
+  animateStagger(".stat-card");
+}
+
+/* ================= EMPLOYEE: CLIENTS LIST ================= */
+function renderClients(){
+  if(currentClientId){ renderClientProfile(currentClientId); return; }
+  const initFilter = pendingClientFilter; pendingClientFilter = null;
+  const items = loadKey("clients")||[];
+  const tickets = loadKey("tickets")||[];
+  const search = (document.getElementById("client-search")?.value || "").toLowerCase();
+  const statusFilter = document.getElementById("client-status")?.value ?? (initFilter||"");
+  const filtered = items.filter(c => (!search || (c.name+c.company).toLowerCase().includes(search)) && (!statusFilter || c.status===statusFilter));
+
+  document.getElementById("main-content").innerHTML = `
+    <div class="topbar"><div><h2>Clients</h2><p>Every account ${BRAND} manages</p></div><button class="btn" onclick="openClientForm()">+ Add Client</button></div>
+    <div class="toolbar">
+      <input type="search" id="client-search" placeholder="Search clients..." class="grow" oninput="renderClients()">
+      <select id="client-status" onchange="renderClients()"><option value="">All statuses</option>${CLIENT_STATUSES.map(s=>`<option ${s===statusFilter?"selected":""}>${s}</option>`).join("")}</select>
+    </div>
+    <div class="card" style="padding:0;overflow-x:auto;">
+      <table><thead><tr><th>Client</th><th>Package</th><th>Status</th><th>Open</th><th>Urgent</th><th>High</th><th>Medium</th><th>Low</th><th></th></tr></thead>
+      <tbody>
+        ${filtered.length ? filtered.map(c=>{
+          const ct = tickets.filter(t=>t.clientId===c.id);
+          const open = ct.filter(t=>!["Resolved","Closed"].includes(t.status));
+          const cnt = p => open.filter(t=>t.priority===p).length;
+          return `<tr class="clickable" onclick="openClientProfile('${c.id}')">
+            <td><b>${escapeHtml(c.name)}</b><br><span style="color:var(--muted);font-size:12px;">${escapeHtml(c.company)}</span></td>
+            <td style="font-size:12.5px;">${escapeHtml(c.package.name)}</td>
+            <td><span class="pill ${statusPillClass(c.status)}">${escapeHtml(c.status)}</span></td>
+            <td><b>${open.length}</b></td>
+            <td>${cnt("Urgent")?`<span class="pill red">${cnt("Urgent")}</span>`:"0"}</td>
+            <td>${cnt("High")?`<span class="pill orange">${cnt("High")}</span>`:"0"}</td>
+            <td>${cnt("Medium")?`<span class="pill blue">${cnt("Medium")}</span>`:"0"}</td>
+            <td>${cnt("Low")?`<span class="pill gray">${cnt("Low")}</span>`:"0"}</td>
+            <td onclick="event.stopPropagation();"><button class="icon-btn" onclick="loginAsClient('${c.id}')">Login ↗</button></td>
+          </tr>`;
+        }).join("") : `<tr><td colspan="9" class="empty-row">No clients yet.</td></tr>`}
+      </tbody></table>
+    </div>
+  `;
+}
+function openClientForm(id){
+  const items = loadKey("clients")||[]; const item = items.find(i=>i.id===id) || {};
+  openModal(`
+    <h3>${id?"Edit":"Add"} Client</h3>
+    <div class="field-row"><div class="field"><label>Client Name *</label><input type="text" id="f-name" value="${escapeHtml(item.name||"")}"></div><div class="field"><label>Company</label><input type="text" id="f-company" value="${escapeHtml(item.company||"")}"></div></div>
+    <div class="field-row"><div class="field"><label>Email</label><input type="text" id="f-email" value="${escapeHtml(item.email||"")}"></div><div class="field"><label>Phone</label><input type="text" id="f-phone" value="${escapeHtml(item.phone||"")}"></div></div>
+    <div class="field"><label>Website</label><input type="text" id="f-website" value="${escapeHtml(item.website||"")}"></div>
+    <div class="field"><label>Status</label><select id="f-status">${CLIENT_STATUSES.map(s=>`<option ${s===item.status?"selected":""}>${s}</option>`).join("")}</select></div>
+    <div class="field"><label>Notes</label><textarea id="f-notes">${escapeHtml(item.notes||"")}</textarea></div>
+    <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveClient('${id||""}')">Save</button></div>
+  `);
+}
+function saveClient(id){
+  const name = document.getElementById("f-name").value.trim();
+  if(!name){ alert("Client name is required."); return; }
+  const items = loadKey("clients")||[];
+  const existing = items.find(i=>i.id===id);
+  const record = Object.assign({}, existing, {
+    id: id || uid(), name,
+    company: document.getElementById("f-company").value.trim(),
+    email: document.getElementById("f-email").value.trim(),
+    phone: document.getElementById("f-phone").value.trim(),
+    website: document.getElementById("f-website").value.trim(),
+    status: document.getElementById("f-status").value,
+    notes: document.getElementById("f-notes").value.trim(),
+    onboardingDate: existing ? existing.onboardingDate : new Date().toISOString().slice(0,10),
+    package: existing ? existing.package : { name:"Not set", price:0, services:[] },
+    websiteStatus: existing ? existing.websiteStatus : { url: document.getElementById("f-website").value.trim(), status:"Not checked", hosting:"—", domain:"—", ssl:"—", maintenance:"—", lastChecked:null },
+    assignedTeam: existing ? existing.assignedTeam : ["ankit","chandan","bhuvanesh","irfan"]
+  });
+  const idx = items.findIndex(i=>i.id===id);
+  if(idx>-1) items[idx]=record; else items.push(record);
+  saveKey("clients", items);
+  logAudit(id?"Client Updated":"Client Onboarded","Clients", name, record.id);
+  closeModal(); renderClients();
+}
+
+/* ================= EMPLOYEE: CLIENT PROFILE (tabbed) ================= */
+function openClientProfile(id){ currentClientId = id; currentClientTab = "overview"; currentPriorityFilter=null; goToClientTab_(); }
+function goToClientTab_(){
+  currentTab = "clients";
+  document.querySelectorAll(".nav-item").forEach(n => n.classList.toggle("active", n.dataset.tab==="clients"));
+  render();
+  pushHistoryState();
+}
+function setClientTab(tab){ currentClientTab = tab; currentPriorityFilter=null; render(); pushHistoryState(); }
+
+function renderClientProfile(id){
+  const clients = loadKey("clients")||[];
+  const c = clients.find(x=>x.id===id);
+  const users = (loadKey("clientUsers")||[]).filter(u=>u.clientId===id);
+  const tickets = (loadKey("tickets")||[]).filter(t=>t.clientId===id).sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||""));
+  const open = tickets.filter(t=>!["Resolved","Closed"].includes(t.status));
+  const closed = tickets.filter(t=>["Resolved","Closed"].includes(t.status));
+  const meetings = (loadKey("meetings")||[]).filter(m=>m.clientId===id);
+  const history = (loadKey("audit")||[]).filter(a=>a.clientId===id).sort((a,b)=>(b.at||"").localeCompare(a.at||""));
+  const TABS = [["overview","Overview"],["package","Package"],["tickets","Tickets"],["users","Users"],["website","Website"],["meetings","Meetings"],["history","History"]];
+
+  let body = "";
+  if(currentClientTab==="overview"){
+    body = `
+      <div class="two-col">
+        <div>
+          <div class="card"><h3>Client Information</h3>
+            <div style="font-size:13px;line-height:2;">
+              Company: ${escapeHtml(c.company)}<br>
+              Contact: ${escapeHtml(users.find(u=>u.isAdmin)?.name || "—")}<br>
+              Email: ${escapeHtml(c.email)}<br>
+              Phone: ${escapeHtml(c.phone)}<br>
+              Website: ${escapeHtml(c.website)}<br>
+              Onboarded: ${fmtDate(c.onboardingDate)}
+            </div>
+          </div>
+          <div class="card"><h3>Notes</h3><p style="font-size:13px;line-height:1.6;margin:0;">${escapeHtml(c.notes||"—")}</p></div>
+        </div>
+        <div>
+          <div class="card"><h3>Assigned Team</h3>${(c.assignedTeam||[]).map(eid=>`<div style="display:flex;align-items:center;gap:9px;padding:6px 0;"><div class="avatar">${initials(employeeName(eid))}</div><div style="font-size:13px;font-weight:600;">${employeeName(eid)}</div></div>`).join("") || `<p style="color:var(--muted);font-size:13px;margin:0;">Not assigned yet.</p>`}</div>
+        </div>
+      </div>`;
+  } else if(currentClientTab==="package"){
+    body = `<div class="card" style="max-width:520px;">
+      <h3>Current Package</h3>
+      <div style="font-size:16px;font-weight:700;margin-bottom:4px;">${escapeHtml(c.package.name)}</div>
+      <div style="font-size:22px;font-weight:800;color:var(--accent);margin-bottom:12px;">${fmtMoney(c.package.price)}</div>
+      <div style="font-size:12.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Services Included</div>
+      <ul style="margin:0 0 16px;padding-left:18px;font-size:13.5px;line-height:1.9;">${(c.package.services||[]).map(s=>`<li>${escapeHtml(s)}</li>`).join("")}</ul>
+      <button class="btn secondary small" onclick="openPackageForm('${c.id}')">Edit Package</button>
+    </div>`;
+  } else if(currentClientTab==="tickets"){
+    const filtered = currentPriorityFilter ? tickets.filter(t=>t.priority===currentPriorityFilter && !["Resolved","Closed"].includes(t.status)) : tickets;
+    body = `
+      <div class="priority-grid">
+        ${TICKET_PRIORITIES.map(p=>`<div class="priority-card ${p} ${currentPriorityFilter===p?"active":""}" onclick="currentPriorityFilter=currentPriorityFilter==='${p}'?null:'${p}';render();"><div class="num">${open.filter(t=>t.priority===p).length}</div><div class="lbl">${p}</div></div>`).join("")}
+      </div>
+      <div class="card" style="padding:0;overflow-x:auto;">
+        <table><thead><tr><th>ID</th><th>Subject</th><th>Category</th><th>Priority</th><th>Status</th><th>Assigned</th></tr></thead><tbody>
+          ${filtered.length ? filtered.map(t=>`<tr class="clickable" onclick="openTicketDetail('${t.id}', 'clients')"><td class="mono">${t.id}</td><td><b>${escapeHtml(t.subject)}</b></td><td>${escapeHtml(t.category)}</td><td><span class="pill ${priorityPill(t.priority)}">${t.priority}</span></td><td><span class="pill ${statusPill(t.status)}">${t.status}</span></td><td>${employeeName(t.assignedTo)}</td></tr>`).join("") : `<tr><td colspan="6" class="empty-row">No tickets${currentPriorityFilter?" at this priority":""}.</td></tr>`}
+        </tbody></table>
+      </div>`;
+  } else if(currentClientTab==="users"){
+    body = `<div class="card">
+      <h3>Client Admin &amp; Users</h3>
+      <table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th></tr></thead><tbody>
+        ${users.map(u=>`<tr><td><b>${escapeHtml(u.name)}</b>${u.isAdmin?` <span class="pill blue">Client Admin</span>`:""}</td><td>${escapeHtml(u.email)}</td><td>${escapeHtml(u.role)}</td><td><span class="pill ${u.active?"green":"red"}">${u.active?"Active":"Deactivated"}</span></td></tr>`).join("") || `<tr><td colspan="4" class="empty-row">No users yet.</td></tr>`}
+      </tbody></table>
+    </div>`;
+  } else if(currentClientTab==="website"){
+    const w = c.websiteStatus;
+    body = `<div class="card" style="max-width:480px;">
+      <h3>Website</h3>
+      <div style="font-size:14px;margin-bottom:14px;"><span class="status-dot" style="background:${w.status==='Online'?'var(--success)':'var(--danger)'}"></span><b>${escapeHtml(w.url)}</b> — ${escapeHtml(w.status)}</div>
+      <div style="font-size:13px;line-height:2;">
+        Hosting: <span class="pill ${w.hosting==='Active'?'green':'yellow'}">${escapeHtml(w.hosting)}</span><br>
+        Domain: <span class="pill ${w.domain==='Active'?'green':'yellow'}">${escapeHtml(w.domain)}</span><br>
+        SSL: <span class="pill ${w.ssl==='Valid'?'green':'red'}">${escapeHtml(w.ssl)}</span><br>
+        Maintenance: ${escapeHtml(w.maintenance)}<br>
+        Last checked: ${fmtDateTime(w.lastChecked)}
+      </div>
+    </div>`;
+  } else if(currentClientTab==="meetings"){
+    body = `<div class="card">
+      <h3>Meeting History</h3>
+      ${meetings.length ? meetings.map(m=>`<div style="padding:9px 0;border-bottom:1px solid #f0f1f5;"><b style="font-size:13px;">${escapeHtml(m.title)}</b><br><span style="font-size:11.5px;color:var(--muted);">${fmtDate(m.date)}</span></div>`).join("") : `<p style="color:var(--muted);font-size:13px;margin:0;">No meetings logged for this client.</p>`}
+    </div>`;
+  } else if(currentClientTab==="history"){
+    body = `<div class="card"><h3>Client History</h3>${history.length ? history.map(h=>`<div class="history-item"><div class="time">${fmtDateTime(h.at)}</div><div>${escapeHtml(h.summary)} <span style="color:var(--muted);">— ${escapeHtml(h.performedBy)}</span></div></div>`).join("") : `<p style="color:var(--muted);font-size:13px;margin:0;">No history yet.</p>`}</div>`;
+  }
+
+  document.getElementById("main-content").innerHTML = `
+    <div class="profile-header">
+      <div>
+        <h2 style="margin:0 0 4px;">${escapeHtml(c.name)}</h2>
+        <p style="margin:0;color:var(--muted);">${escapeHtml(c.company)} · <span class="pill ${statusPillClass(c.status)}">${escapeHtml(c.status)}</span></p>
+        <div class="profile-stats"><div><b>${fmtMoney(c.package.price)}</b>Package Value</div><div><b>${users.length}</b>Users</div><div><b>${open.length}</b>Open Tickets</div><div><b>${closed.length}</b>Closed Tickets</div></div>
+      </div>
+      <button class="btn secondary small" onclick="openClientForm('${c.id}')">Edit Client</button>
+    </div>
+    <div class="tabs">${TABS.map(([k,label])=>`<button class="tab-btn ${currentClientTab===k?"active":""}" onclick="setClientTab('${k}')">${label}</button>`).join("")}</div>
+    ${body}
+  `;
+}
+function openPackageForm(clientId){
+  const clients = loadKey("clients")||[]; const c = clients.find(x=>x.id===clientId);
+  openModal(`
+    <h3>Edit Package</h3>
+    <div class="field"><label>Package Name</label><input type="text" id="f-pkg-name" value="${escapeHtml(c.package.name)}"></div>
+    <div class="field"><label>Price (₹)</label><input type="number" id="f-pkg-price" value="${c.package.price}"></div>
+    <div class="field"><label>Services (one per line)</label><textarea id="f-pkg-services" style="min-height:100px;">${(c.package.services||[]).join("\n")}</textarea></div>
+    <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="savePackage('${clientId}')">Save</button></div>
+  `);
+}
+function savePackage(clientId){
+  const clients = loadKey("clients")||[]; const c = clients.find(x=>x.id===clientId);
+  const old = `${c.package.name} — ${fmtMoney(c.package.price)}`;
+  c.package = { name: document.getElementById("f-pkg-name").value.trim(), price: Number(document.getElementById("f-pkg-price").value||0), services: document.getElementById("f-pkg-services").value.split("\n").map(s=>s.trim()).filter(Boolean) };
+  saveKey("clients", clients);
+  logAudit("Package Updated","Packages", `${c.name} package updated`, clientId, old, `${c.package.name} — ${fmtMoney(c.package.price)}`);
+  closeModal(); render();
+}
+
+/* ================= TICKETS (employee: global queue + detail) ================= */
+function renderTickets(){
+  const initFilter = pendingTicketFilter; pendingTicketFilter = null;
+  const tickets = loadKey("tickets")||[], clients = loadKey("clients")||[];
+  const statusFilter = document.getElementById("tk-status")?.value ?? (initFilter?.status||"");
+  const priorityFilter = document.getElementById("tk-priority")?.value ?? (initFilter?.priority||"");
+  const openOnly = !document.getElementById("tk-status") && !!(initFilter && initFilter.openOnly);
+  const search = (document.getElementById("tk-search")?.value || "").toLowerCase();
+  const openStatuses = ["New","Assigned","In Progress","Waiting for Client"];
+  const sorted = tickets.slice().sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||""));
+  const filtered = sorted.filter(t=>{
+    if(statusFilter && t.status!==statusFilter) return false;
+    if(priorityFilter && t.priority!==priorityFilter) return false;
+    if(openOnly && !openStatuses.includes(t.status)) return false;
+    if(search){ const client = clients.find(c=>c.id===t.clientId); if(!(t.subject+t.id+(client?client.name:"")).toLowerCase().includes(search)) return false; }
+    return true;
+  });
+  document.getElementById("main-content").innerHTML = `
+    <div class="topbar"><div><h2>Tickets</h2><p>All client requests across every account</p></div><button class="btn" onclick="openTicketForm()">+ New Ticket</button></div>
+    <div class="toolbar">
+      <input type="search" id="tk-search" placeholder="Search subject, ID or client..." class="grow" oninput="renderTickets()">
+      <select id="tk-status" onchange="renderTickets()"><option value="">All statuses</option>${TICKET_STATUSES.map(s=>`<option ${s===statusFilter?"selected":""}>${s}</option>`).join("")}</select>
+      <select id="tk-priority" onchange="renderTickets()"><option value="">All priorities</option>${TICKET_PRIORITIES.map(p=>`<option ${p===priorityFilter?"selected":""}>${p}</option>`).join("")}</select>
+    </div>
+    <div class="card" style="padding:0;overflow-x:auto;">
+      <table><thead><tr><th>ID</th><th>Subject</th><th>Client</th><th>Category</th><th>Priority</th><th>Status</th><th>Assigned</th></tr></thead>
+      <tbody>
+        ${filtered.length ? filtered.map(t=>{
+          const client = clients.find(c=>c.id===t.clientId);
+          return `<tr class="clickable" onclick="openTicketDetail('${t.id}', 'tickets')"><td class="mono">${t.id}</td><td><b>${escapeHtml(t.subject)}</b></td><td>${client?escapeHtml(client.name):"—"}</td><td>${escapeHtml(t.category)}</td><td><span class="pill ${priorityPill(t.priority)}">${t.priority}</span></td><td><span class="pill ${statusPill(t.status)}">${t.status}</span></td><td>${employeeName(t.assignedTo)}</td></tr>`;
+        }).join("") : `<tr><td colspan="7" class="empty-row">No tickets match this filter.</td></tr>`}
+      </tbody></table>
+    </div>
+  `;
+}
+function openTicketDetail(id, backTo){ currentTicketId = id; currentClientTicketsBack = backTo || "tickets"; currentTab = currentClientTicketsBack; document.querySelectorAll(".nav-item").forEach(n => n.classList.toggle("active", n.dataset.tab===currentClientTicketsBack)); renderTicketDetailEmployee(id); animateIn("#main-content"); document.getElementById("global-back-bar").style.display = "block"; pushHistoryState(); }
+function renderTicketDetailEmployee(id){
+  const tickets = loadKey("tickets")||[], clients = loadKey("clients")||[];
+  const t = tickets.find(x=>x.id===id);
+  const client = clients.find(c=>c.id===t.clientId);
+  document.getElementById("global-back-bar").style.display = "block";
+  document.getElementById("main-content").innerHTML = `
+    <div class="topbar">
+      <div><h2>${escapeHtml(t.subject)}</h2><p class="mono">${t.id} · ${client?escapeHtml(client.name):"—"} · opened ${fmtDateTime(t.createdAt)}</p></div>
+      <div style="display:flex;gap:8px;"><span class="pill ${priorityPill(t.priority)}">${t.priority}</span><span class="pill ${statusPill(t.status)}">${t.status}</span></div>
+    </div>
+    <div class="two-col">
+      <div>
+        <div class="card"><h3>Description</h3><p style="font-size:13.5px;line-height:1.6;margin:0 0 8px;">${escapeHtml(t.description)}</p><div style="font-size:12px;color:var(--muted);">Category: ${escapeHtml(t.category)} ${t.pageUrl?(" · Page: "+escapeHtml(t.pageUrl)):""}</div></div>
+        <div class="card"><h3>Conversation</h3>
+          <div>${t.comments.length ? t.comments.map(c=>`<div class="comment ${c.role==='client'?'':''}"><div class="avatar">${initials(c.author)}</div><div class="bubble"><div class="meta"><b>${escapeHtml(c.author)}</b> · ${c.role==='client'?'Client':BRAND} · ${fmtDateTime(c.at)}</div><div class="text">${escapeHtml(c.text)}</div></div></div>`).join("") : `<p style="color:var(--muted);font-size:13px;">No messages yet.</p>`}</div>
+          <div class="field" style="margin-top:14px;"><label>Reply as ${escapeHtml(currentActorName())}</label><textarea id="reply-text"></textarea></div>
+          <button class="btn small" onclick="postReplyEmployee('${t.id}')">Send Reply</button>
+        </div>
+        <div class="card"><h3>Ticket History</h3>${(t.history||[]).slice().reverse().map(h=>`<div class="history-item"><div class="time">${fmtDateTime(h.at)}</div><div>${escapeHtml(h.text)}</div></div>`).join("") || `<p style="color:var(--muted);font-size:13px;margin:0;">No history yet.</p>`}</div>
+      </div>
+      <div>
+        <div class="card"><h3>Ticket Details</h3>
+          <div class="field"><label>Status</label><select onchange="updateTicketStatus('${t.id}', this.value)">${TICKET_STATUSES.map(s=>`<option ${s===t.status?"selected":""}>${s}</option>`).join("")}</select></div>
+          <div class="field"><label>Assigned to</label><select onchange="reassignTicket('${t.id}', this.value)">${employeeOptions(t.assignedTo)}</select></div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.7;">Assigned: ${fmtDateTime(t.assignedAt)}<br>${t.resolvedAt?("Resolved: "+fmtDateTime(t.resolvedAt)+"<br>"):""}Created by: ${(loadKey("clientUsers")||[]).find(u=>u.id===t.createdBy)?.name || "—"}</div>
+        </div>
+        ${client?`<div class="card"><h3>Client</h3><div style="font-size:13.5px;font-weight:600;">${escapeHtml(client.name)}</div><div style="font-size:12px;color:var(--muted);margin-bottom:8px;">${escapeHtml(client.company)}</div><button class="btn secondary small" onclick="currentTicketId=null;openClientProfile('${client.id}');">View Client Profile</button></div>`:""}
+      </div>
+    </div>
+  `;
+}
+function postReplyEmployee(ticketId){
+  const text = document.getElementById("reply-text").value.trim(); if(!text) return;
+  const tickets = loadKey("tickets")||[]; const t = tickets.find(x=>x.id===ticketId);
+  t.comments.push({ author: currentActorName(), role:"internal", text, at:new Date().toISOString() });
+  pushTicketHistory(t, `${currentActorName()} added a comment.`);
+  if(t.status==="New") t.status="Assigned"; if(t.status==="Assigned") t.status="In Progress";
+  saveKey("tickets", tickets);
+  logAudit("Comment Added","Tickets",`Replied on ${ticketId}: "${text.slice(0,50)}${text.length>50?"…":""}"`, t.clientId, null, null, null, t.createdBy);
+  renderTicketDetailEmployee(ticketId);
+}
+function updateTicketStatus(ticketId, newStatus){
+  const tickets = loadKey("tickets")||[]; const t = tickets.find(x=>x.id===ticketId);
+  const old = t.status; t.status = newStatus;
+  if(newStatus==="Resolved" && !t.resolvedAt) t.resolvedAt = new Date().toISOString();
+  pushTicketHistory(t, `${currentActorName()} changed status to ${newStatus}.`);
+  saveKey("tickets", tickets);
+  logAudit("Status Changed","Tickets",`${ticketId} status changed`, t.clientId, old, newStatus, null, t.createdBy);
+  renderTicketDetailEmployee(ticketId);
+}
+function reassignTicket(ticketId, newAssignee){
+  const tickets = loadKey("tickets")||[]; const t = tickets.find(x=>x.id===ticketId);
+  const old = employeeName(t.assignedTo); t.assignedTo = newAssignee;
+  pushTicketHistory(t, `Ticket reassigned to ${employeeName(newAssignee)} by ${currentActorName()}.`);
+  saveKey("tickets", tickets);
+  logAudit("Reassigned","Tickets",`${ticketId} reassigned`, t.clientId, old, employeeName(newAssignee), null, t.createdBy);
+  renderTicketDetailEmployee(ticketId);
+}
+function openTicketForm(){
+  const clients = loadKey("clients")||[];
+  openModal(`
+    <h3>New Ticket</h3>
+    <div class="field"><label>Client *</label><select id="f-client">${clients.map(c=>`<option value="${c.id}">${escapeHtml(c.name)}</option>`).join("")}</select></div>
+    <div class="field"><label>Subject *</label><input type="text" id="f-subject"></div>
+    <div class="field-row"><div class="field"><label>Category</label><select id="f-category">${TICKET_CATEGORIES.map(c=>`<option>${c}</option>`).join("")}</select></div><div class="field"><label>Priority</label><select id="f-priority">${TICKET_PRIORITIES.map(p=>`<option ${p==="Medium"?"selected":""}>${p}</option>`).join("")}</select></div></div>
+    <div class="field"><label>Description</label><textarea id="f-description"></textarea></div>
+    <div class="field"><label>Page / URL</label><input type="text" id="f-pageurl" placeholder="optional"></div>
+    <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveTicketEmployee()">Create Ticket</button></div>
+  `);
+}
+function saveTicketEmployee(){
+  const subject = document.getElementById("f-subject").value.trim(); if(!subject){ alert("Subject is required."); return; }
+  const category = document.getElementById("f-category").value;
+  const assignedTo = nextAssignee(category);
+  const clientId = document.getElementById("f-client").value;
+  const tickets = loadKey("tickets")||[];
+  const id = "t-"+(1000+tickets.length+1);
+  const record = { id, clientId, createdBy:null, subject, description: document.getElementById("f-description").value.trim(), category, priority: document.getElementById("f-priority").value, status:"Assigned", assignedTo, createdAt:new Date().toISOString(), assignedAt:new Date().toISOString(), pageUrl: document.getElementById("f-pageurl").value.trim(), comments:[], history:[{text:`${currentActorName()} created the ticket.`, at:new Date().toISOString()},{text:`Ticket auto-assigned to ${employeeName(assignedTo)}.`, at:new Date().toISOString()}] };
+  tickets.push(record); saveKey("tickets", tickets);
+  logAudit("Ticket Created","Tickets",`${id}: "${subject}" — auto-assigned to ${employeeName(assignedTo)}`, clientId);
+  closeModal(); renderTickets();
+}
+
+/* ================= EMPLOYEE: VAULT ================= */
+function renderVault(){
+  const items = loadKey("vault")||[];
+  const search = (document.getElementById("vault-search")?.value || "").toLowerCase();
+  const filtered = items.filter(i => !search || (i.service+i.username+i.category).toLowerCase().includes(search));
+  document.getElementById("main-content").innerHTML = `
+    <div class="topbar"><div><h2>Vault</h2><p>Credentials the business depends on</p></div><button class="btn" onclick="openVaultForm()">+ Add Credential</button></div>
+    <div class="toolbar"><input type="search" id="vault-search" placeholder="Search..." class="grow" oninput="renderVault()"></div>
+    <div class="card" style="padding:0;overflow-x:auto;">
+      <table><thead><tr><th>Service</th><th>Category</th><th>Username</th><th>Password</th><th>Notes</th><th></th></tr></thead>
+      <tbody>
+        ${filtered.length ? filtered.map(i => `<tr><td><b>${escapeHtml(i.service)}</b></td><td><span class="pill blue">${escapeHtml(i.category)}</span></td><td>${escapeHtml(i.username)}</td><td><div class="pw-cell"><span class="mono" id="pw-${i.id}" data-pw="${escapeHtml(i.password)}">••••••••</span><button class="icon-btn" onclick="togglePw('${i.id}')">Show</button></div></td><td style="color:var(--muted);font-size:12.5px;">${escapeHtml(i.notes||"—")}</td><td class="row-actions"><button class="icon-btn" onclick="openVaultForm('${i.id}')">Edit</button><button class="icon-btn" onclick="deleteItem('vault','${i.id}')">Delete</button></td></tr>`).join("") : `<tr><td colspan="6" class="empty-row">No credentials saved yet.</td></tr>`}
+      </tbody></table>
+    </div>
+  `;
+}
+function togglePw(id){ const el = document.getElementById("pw-"+id); const btn = el.nextElementSibling; if(el.textContent.includes("•")){ el.textContent = el.dataset.pw; btn.textContent="Hide"; } else { el.textContent = "••••••••"; btn.textContent="Show"; } }
+function openVaultForm(id){
+  const items = loadKey("vault")||[]; const item = items.find(i=>i.id===id) || {};
+  openModal(`
+    <h3>${id?"Edit":"Add"} Credential</h3>
+    <div class="field"><label>Service *</label><input type="text" id="f-service" value="${escapeHtml(item.service||"")}"></div>
+    <div class="field-row"><div class="field"><label>Category</label><select id="f-category">${VAULT_CATEGORIES.map(c=>`<option ${c===item.category?"selected":""}>${c}</option>`).join("")}</select></div><div class="field"><label>URL</label><input type="text" id="f-url" value="${escapeHtml(item.url||"")}"></div></div>
+    <div class="field-row"><div class="field"><label>Username *</label><input type="text" id="f-username" value="${escapeHtml(item.username||"")}"></div><div class="field"><label>Password *</label><input type="text" id="f-password" value="${escapeHtml(item.password||"")}"></div></div>
+    <div class="field"><label>Notes</label><textarea id="f-notes">${escapeHtml(item.notes||"")}</textarea></div>
+    <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveVault('${id||""}')">Save</button></div>
+  `);
+}
+function saveVault(id){
+  const service = document.getElementById("f-service").value.trim(); const username = document.getElementById("f-username").value.trim(); const password = document.getElementById("f-password").value;
+  if(!service || !username || !password){ alert("Service, username and password are required."); return; }
+  const items = loadKey("vault")||[];
+  const record = { id: id || uid(), service, username, password, category: document.getElementById("f-category").value, url: document.getElementById("f-url").value.trim(), notes: document.getElementById("f-notes").value.trim(), updatedAt: new Date().toISOString() };
+  const idx = items.findIndex(i=>i.id===id); if(idx>-1) items[idx]=record; else items.push(record);
+  saveKey("vault", items);
+  logAudit(id?"Vault Updated":"Vault Added","Vault", service);
+  closeModal(); renderVault();
+}
+
+/* ================= EMPLOYEE: EXPENSES ================= */
+function renderExpenses(){
+  const items = (loadKey("expenses")||[]).slice().sort((a,b)=> (b.date||"").localeCompare(a.date||""));
+  const monthFilter = document.getElementById("exp-month")?.value || "";
+  const filtered = monthFilter ? items.filter(e=>e.date && e.date.startsWith(monthFilter)) : items;
+  const total = filtered.reduce((s,e)=>s+Number(e.amount||0),0);
+  const byCategory = {}; filtered.forEach(e => { byCategory[e.category] = (byCategory[e.category]||0) + Number(e.amount||0); });
+  document.getElementById("main-content").innerHTML = `
+    <div class="topbar"><div><h2>Expenses</h2><p>Business spending</p></div><button class="btn" onclick="openExpenseForm()">+ Add Expense</button></div>
+    <div class="stat-grid"><div class="stat-card"><div class="label">Total</div><div class="value">${fmtMoney(total)}</div></div><div class="stat-card"><div class="label">Entries</div><div class="value">${filtered.length}</div></div></div>
+    ${Object.keys(byCategory).length?`<div class="card"><h3>By Category</h3>${Object.entries(byCategory).sort((a,b)=>b[1]-a[1]).map(([c,v])=>`<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid #f0f1f5;"><span>${escapeHtml(c)}</span><b>${fmtMoney(v)}</b></div>`).join("")}</div>`:""}
+    <div class="toolbar"><label style="font-size:12.5px;color:var(--muted);">Month:</label><input type="month" id="exp-month" value="${monthFilter}" onchange="renderExpenses()">${monthFilter?`<button class="btn secondary small" onclick="document.getElementById('exp-month').value='';renderExpenses();">Clear</button>`:""}</div>
+    <div class="card" style="padding:0;overflow-x:auto;">
+      <table><thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Paid By</th><th></th></tr></thead>
+      <tbody>${filtered.length ? filtered.map(e => `<tr><td>${fmtDate(e.date)}</td><td><span class="pill gray">${escapeHtml(e.category)}</span></td><td>${escapeHtml(e.description)}</td><td><b>${fmtMoney(e.amount)}</b></td><td>${employeeName(e.paidBy)}</td><td class="row-actions"><button class="icon-btn" onclick="openExpenseForm('${e.id}')">Edit</button><button class="icon-btn" onclick="deleteItem('expenses','${e.id}')">Delete</button></td></tr>`).join("") : `<tr><td colspan="6" class="empty-row">No expenses recorded yet.</td></tr>`}</tbody></table>
+    </div>
+  `;
+}
+function openExpenseForm(id){
+  const items = loadKey("expenses")||[]; const item = items.find(i=>i.id===id) || { date: new Date().toISOString().slice(0,10) };
+  openModal(`
+    <h3>${id?"Edit":"Add"} Expense</h3>
+    <div class="field-row"><div class="field"><label>Date *</label><input type="date" id="f-date" value="${item.date||""}"></div><div class="field"><label>Amount (₹) *</label><input type="number" id="f-amount" value="${item.amount||""}"></div></div>
+    <div class="field"><label>Category</label><select id="f-category">${EXPENSE_CATEGORIES.map(c=>`<option ${c===item.category?"selected":""}>${c}</option>`).join("")}</select></div>
+    <div class="field"><label>Description *</label><input type="text" id="f-description" value="${escapeHtml(item.description||"")}"></div>
+    <div class="field"><label>Paid By</label><select id="f-paidby">${employeeOptions(item.paidBy)}</select></div>
+    <div class="field"><label>Notes</label><textarea id="f-notes">${escapeHtml(item.notes||"")}</textarea></div>
+    <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveExpense('${id||""}')">Save</button></div>
+  `);
+}
+function saveExpense(id){
+  const date = document.getElementById("f-date").value, amount = document.getElementById("f-amount").value, description = document.getElementById("f-description").value.trim();
+  if(!date || !amount || !description){ alert("Date, amount and description are required."); return; }
+  const items = loadKey("expenses")||[];
+  const record = { id: id || uid(), date, amount: Number(amount), description, category: document.getElementById("f-category").value, paidBy: document.getElementById("f-paidby").value, notes: document.getElementById("f-notes").value.trim() };
+  const idx = items.findIndex(i=>i.id===id); if(idx>-1) items[idx]=record; else items.push(record);
+  saveKey("expenses", items);
+  logAudit(id?"Expense Updated":"Expense Added","Expenses", `${description} — ${fmtMoney(record.amount)}`);
+  closeModal(); renderExpenses();
+}
+
+/* ================= EMPLOYEE: MEETINGS ================= */
+function renderMeetings(){
+  const items = (loadKey("meetings")||[]).slice().sort((a,b)=> (b.date||"").localeCompare(a.date||""));
+  const clients = loadKey("clients")||[];
+  document.getElementById("main-content").innerHTML = `
+    <div class="topbar"><div><h2>Meeting Notes</h2><p>What we discussed and decided</p></div><button class="btn" onclick="openMeetingForm()">+ Log Meeting</button></div>
+    ${items.length ? items.map(m => { const client = clients.find(c=>c.id===m.clientId);
+      return `<div class="card"><h3 style="margin-bottom:4px;">${escapeHtml(m.title)}</h3><p style="margin:0 0 10px;color:var(--muted);font-size:12.5px;">${fmtDate(m.date)}${client?" · "+escapeHtml(client.name):""} · ${(m.attendees||[]).map(employeeName).join(", ")}</p>${m.notes?`<p style="font-size:13.5px;white-space:pre-wrap;margin:0 0 10px;"><b>Discussion:</b><br>${escapeHtml(m.notes)}</p>`:""}${m.decisions?`<p style="font-size:13.5px;white-space:pre-wrap;margin:0 0 10px;"><b>Decisions:</b><br>${escapeHtml(m.decisions)}</p>`:""}${(m.actionItems&&m.actionItems.length)?`<b style="font-size:13.5px;">Action Items:</b><table style="margin-top:6px;"><thead><tr><th>Task</th><th>Owner</th><th>Due</th><th>Status</th></tr></thead><tbody>${m.actionItems.map(a=>`<tr><td>${escapeHtml(a.task)}</td><td>${employeeName(a.owner)}</td><td>${a.due?fmtDate(a.due):"—"}</td><td><span class="pill ${a.done?"green":"yellow"}">${a.done?"Done":"Pending"}</span></td></tr>`).join("")}</tbody></table>`:""}</div>`;
+    }).join("") : `<div class="card"><p class="empty-row">No meetings logged yet.</p></div>`}
+  `;
+}
+let tempActionItems = [];
+function openMeetingForm(){
+  const clients = loadKey("clients")||[]; tempActionItems = [];
+  openModal(`
+    <h3>Log Meeting</h3>
+    <div class="field-row"><div class="field"><label>Date *</label><input type="date" id="f-date" value="${new Date().toISOString().slice(0,10)}"></div><div class="field"><label>Title *</label><input type="text" id="f-title"></div></div>
+    <div class="field"><label>Client (optional)</label><select id="f-client"><option value="">Internal only</option>${clients.map(c=>`<option value="${c.id}">${escapeHtml(c.name)}</option>`).join("")}</select></div>
+    <div class="field"><label>Attendees</label><div class="checkbox-group">${EMPLOYEES.map(e=>`<label><input type="checkbox" value="${e.id}" class="attendee-check"> ${e.name}</label>`).join("")}</div></div>
+    <div class="field"><label>Discussion Notes</label><textarea id="f-notes"></textarea></div>
+    <div class="field"><label>Decisions Made</label><textarea id="f-decisions"></textarea></div>
+    <div class="field"><label>Action Items</label><div id="action-items-container"></div><button type="button" class="btn secondary small" onclick="addActionItemRow()">+ Add Action Item</button></div>
+    <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveMeeting()">Save</button></div>
+  `);
+  renderActionItemRows();
+}
+function renderActionItemRows(){
+  const c = document.getElementById("action-items-container");
+  c.innerHTML = tempActionItems.map((a,idx)=>`<div class="action-item-row"><input type="text" placeholder="Task" value="${escapeHtml(a.task||"")}" onchange="tempActionItems[${idx}].task=this.value"><select onchange="tempActionItems[${idx}].owner=this.value">${employeeOptions(a.owner)}</select><input type="date" value="${a.due||""}" onchange="tempActionItems[${idx}].due=this.value"><button type="button" class="icon-btn" onclick="removeActionItemRow(${idx})">✕</button></div>`).join("") || `<p style="color:var(--muted);font-size:12.5px;margin:4px 0;">No action items yet.</p>`;
+}
+function addActionItemRow(){ tempActionItems.push({task:"",owner:EMPLOYEES[0].id,due:"",done:false}); renderActionItemRows(); }
+function removeActionItemRow(idx){ tempActionItems.splice(idx,1); renderActionItemRows(); }
+function saveMeeting(){
+  const title = document.getElementById("f-title").value.trim(), date = document.getElementById("f-date").value;
+  if(!title || !date){ alert("Date and title are required."); return; }
+  const items = loadKey("meetings")||[];
+  const record = { id: uid(), date, title, clientId: document.getElementById("f-client").value || null, attendees: Array.from(document.querySelectorAll(".attendee-check:checked")).map(el=>el.value), notes: document.getElementById("f-notes").value.trim(), decisions: document.getElementById("f-decisions").value.trim(), actionItems: tempActionItems.filter(a=>a.task && a.task.trim()) };
+  items.push(record); saveKey("meetings", items);
+  logAudit("Meeting Logged","Meeting Notes", title, record.clientId);
+  closeModal(); renderMeetings();
+}
+
+/* ================= EMPLOYEE: EMPLOYEES ================= */
+function renderEmployees(){
+  document.getElementById("main-content").innerHTML = `
+    <div class="topbar"><div><h2>Employees</h2><p>${BRAND} team &amp; access</p></div><button class="btn secondary" onclick="openEmployeeForm()">+ Add Employee</button></div>
+    <div class="team-grid">
+      ${EMPLOYEES.map(e=>`<div class="team-card"><div class="avatar">${initials(e.name)}</div><div style="flex:1;"><div style="font-weight:700;font-size:14.5px;">${escapeHtml(e.name)}</div><div style="font-size:12.5px;color:var(--muted);">${escapeHtml(e.title)} · ${escapeHtml(e.department)}</div><div style="margin-top:4px;display:flex;gap:6px;flex-wrap:wrap;"><span class="pill ${e.active?"green":"red"}">${e.active?"Active":"Inactive"}</span><span class="pill blue">Full Access</span><span class="pill gray">${e.type==="technical"?"Technical":"Client Relations"}</span></div></div>${SEED_EMPLOYEES.some(se=>se.id===e.id)?"":`<button class="icon-btn" onclick="removeEmployee('${e.id}')">Remove</button>`}</div>`).join("")}
+    </div>
+    <div class="card" style="margin-top:16px;">
+      <h3>About Access</h3>
+      <p style="font-size:13px;color:var(--muted);margin:0 0 8px;">All ${BRAND} team members currently have full access to every client's data — clients, tickets, package info, vault, and expenses. There's no restriction between them yet.</p>
+      <p style="font-size:13px;color:var(--muted);margin:0;">When individual permission levels are needed, they'll be configured per person here instead of everyone having full access by default.</p>
+    </div>
+    <div class="card"><h3>Login</h3><p style="font-size:13px;color:var(--muted);margin:0;">The whole team currently shares one login (<span class="mono">support@thikaana.co</span>) and identifies themselves via "Acting as" in the sidebar. Individual logins are planned once Google Workspace accounts are live.</p></div>
+  `;
+}
+function openEmployeeForm(){
+  openModal(`
+    <h3>Add Employee</h3>
+    <div class="field-row"><div class="field"><label>Name *</label><input type="text" id="f-name"></div><div class="field"><label>Email *</label><input type="text" id="f-email"></div></div>
+    <div class="field-row"><div class="field"><label>Phone</label><input type="text" id="f-phone"></div><div class="field"><label>Job Title</label><input type="text" id="f-title" placeholder="e.g. Developer"></div></div>
+    <div class="field-row"><div class="field"><label>Department</label><input type="text" id="f-department" placeholder="e.g. Technology"></div><div class="field"><label>Ticket Routing</label><select id="f-type"><option value="technical">Technical</option><option value="nontechnical">Client Relations / Non-Technical</option></select></div></div>
+    <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveEmployee()">Add Employee</button></div>
+  `);
+}
+function saveEmployee(){
+  const name = document.getElementById("f-name").value.trim(); const email = document.getElementById("f-email").value.trim();
+  if(!name || !email){ alert("Name and email are required."); return; }
+  const record = { id: uid(), name, email, phone: document.getElementById("f-phone").value.trim(), title: document.getElementById("f-title").value.trim()||"Team Member", department: document.getElementById("f-department").value.trim()||"General", role:"Employee", type: document.getElementById("f-type").value, permissions:"full", active:true };
+  EMPLOYEES.push(record); persistEmployees();
+  logAudit("Employee Added","Employees", `${name} added as ${record.title}`);
+  closeModal(); renderEmployees();
+}
+function removeEmployee(id){
+  if(!confirm("Remove this employee?")) return;
+  EMPLOYEES = EMPLOYEES.filter(e=>e.id!==id); persistEmployees();
+  logAudit("Employee Removed","Employees", `Removed employee ${id}`);
+  renderEmployees();
+}
+
+/* ================= EMPLOYEE: HISTORY / AUDIT ================= */
+function renderHistory(){
+  const logs = loadKey("audit")||[];
+  const moduleFilter = document.getElementById("audit-module")?.value || "";
+  const modules = [...new Set(logs.map(l=>l.module))];
+  const filtered = moduleFilter ? logs.filter(l=>l.module===moduleFilter) : logs;
+  document.getElementById("main-content").innerHTML = `
+    <div class="topbar"><div><h2>History</h2><p>Complete audit trail across ${BRAND} Ops</p></div></div>
+    <div class="toolbar"><select id="audit-module" onchange="renderHistory()"><option value="">All modules</option>${modules.map(m=>`<option ${m===moduleFilter?"selected":""}>${m}</option>`).join("")}</select></div>
+    <div class="card" style="padding:0;overflow-x:auto;">
+      <table><thead><tr><th>When</th><th>User</th><th>Action</th><th>Module</th><th>Details</th></tr></thead>
+      <tbody>${filtered.length ? filtered.map(l=>`<tr><td style="white-space:nowrap;">${fmtDateTime(l.at)}</td><td>${escapeHtml(l.performedBy)}</td><td><span class="pill blue">${escapeHtml(l.action)}</span></td><td>${escapeHtml(l.module)}</td><td style="font-size:12.5px;">${escapeHtml(l.summary)}${l.prevVal?`<br><span style="color:var(--muted);">${escapeHtml(l.prevVal)} &rarr; ${escapeHtml(l.newVal)}</span>`:""}</td></tr>`).join("") : `<tr><td colspan="5" class="empty-row">No history yet.</td></tr>`}</tbody></table>
+    </div>
+  `;
+}
+
+/* ================= EMPLOYEE: SETTINGS ================= */
+function renderSettings(){
+  document.getElementById("main-content").innerHTML = `
+    <div class="topbar"><div><h2>Settings</h2><p>Application configuration</p></div></div>
+    <div class="card"><h3>Data</h3><p style="font-size:13px;color:var(--muted);margin:0 0 10px;">This demo runs entirely on dummy data stored in this browser. There is no real database connected yet.</p><button class="btn danger small" onclick="wipeAllData()">Reset Demo Data</button></div>
+    <div class="card"><h3>Branding</h3><p style="font-size:13px;color:var(--muted);margin:0;">Product name: ${BRAND} Ops</p></div>
+  `;
+}
+function wipeAllData(){
+  if(!confirm("Reset all demo data back to the original seed? This clears everything you've added.")) return;
+  KEYS.forEach(k=>localStorage.removeItem("thikops_"+k));
+  seedIfEmpty();
+  render();
+}
+
+/* ================= SHARED DELETE ================= */
+function deleteItem(key, id){
+  if(!confirm("Delete this entry? This cannot be undone.")) return;
+  const items = (loadKey(key)||[]).filter(i=>i.id!==id);
+  saveKey(key, items);
+  logAudit("Deleted", key.charAt(0).toUpperCase()+key.slice(1), `Removed record ${id}`);
+  render();
+}
+
+/* ================================================================= */
+/* ======================= CLIENT PORTAL SIDE ===================== */
+/* ================================================================= */
+function myClientTickets(){ const client = currentClientRecord(); return (loadKey("tickets")||[]).filter(t=>t.clientId===client.id); }
+
+let dashViewAsUserId = null;
+function renderClientDashboard(){
+  const client = currentClientRecord(), user = currentClientUser();
+  const w = client.websiteStatus;
+
+  if(!user.isAdmin){
+    const peers = (loadKey("clientUsers")||[]).filter(u=>u.clientId===client.id);
+    const viewingId = dashViewAsUserId || user.id;
+    const viewing = peers.find(p=>p.id===viewingId) || user;
+    const tickets = (loadKey("tickets")||[]).filter(t=>t.clientId===client.id && t.createdBy===viewing.id);
+    const open = tickets.filter(t=>!["Resolved","Closed"].includes(t.status));
+    const closed = tickets.filter(t=>["Resolved","Closed"].includes(t.status));
+    const recent = tickets.slice().sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||""));
+    document.getElementById("main-content").innerHTML = `
+      <div class="topbar"><div><h2>Welcome, ${escapeHtml(user.name.split(" ")[0])}</h2><p>${escapeHtml(client.name)} · ${escapeHtml(user.role)}</p></div><button class="btn" onclick="goToTab('craise')">+ Raise Request</button></div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="label">Website Status</div><div class="value small"><span class="status-dot" style="background:${w.status==='Online'?'var(--success)':'var(--danger)'}"></span>${escapeHtml(w.status)}</div></div>
+        <div class="stat-card"><div class="label">Open Requests</div><div class="value">${open.length}</div></div>
+        <div class="stat-card"><div class="label">Resolved / Closed</div><div class="value">${closed.length}</div></div>
+        <div class="stat-card"><div class="label">Package</div><div class="value small">${escapeHtml(client.package.name)}</div></div>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+          <h3 style="margin:0;">Requests raised by ${viewing.id===user.id?"you":escapeHtml(viewing.name)}</h3>
+          <div>
+            <label style="font-size:11.5px;color:var(--muted);margin-right:6px;">View colleague:</label>
+            <select onchange="dashViewAsUserId=this.value;render();">
+              ${peers.map(p=>`<option value="${p.id}" ${p.id===viewingId?"selected":""}>${p.id===user.id?"Me":escapeHtml(p.name)}${p.isAdmin?" (Admin)":""}</option>`).join("")}
+            </select>
+          </div>
+        </div>
+        <table><thead><tr><th>Subject</th><th>Priority</th><th>Status</th><th>Updated</th></tr></thead><tbody>
+          ${recent.length ? recent.map(t=>`<tr class="clickable" onclick="openClientTicketDetail('${t.id}')"><td><b>${escapeHtml(t.subject)}</b></td><td><span class="pill ${priorityPill(t.priority)}">${t.priority}</span></td><td><span class="pill ${statusPill(t.status)}">${t.status}</span></td><td>${fmtDateTime(t.assignedAt)}</td></tr>`).join("") : `<tr><td colspan="4" class="empty-row">No requests raised yet.</td></tr>`}
+        </tbody></table>
+      </div>
+    `;
+    return;
+  }
+
+  const tickets = myClientTickets();
+  const open = tickets.filter(t=>!["Resolved","Closed"].includes(t.status));
+  const closed = tickets.filter(t=>["Resolved","Closed"].includes(t.status));
+  const recent = tickets.slice().sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||"")).slice(0,5);
+  document.getElementById("main-content").innerHTML = `
+    <div class="topbar"><div><h2>Welcome, ${escapeHtml(user.name.split(" ")[0])}</h2><p>${escapeHtml(client.name)} · ${escapeHtml(user.role)}</p></div><button class="btn" onclick="goToTab('craise')">+ Raise Request</button></div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="label">Website Status</div><div class="value small"><span class="status-dot" style="background:${w.status==='Online'?'var(--success)':'var(--danger)'}"></span>${escapeHtml(w.status)}</div></div>
+      <div class="stat-card"><div class="label">Open Requests</div><div class="value">${open.length}</div></div>
+      <div class="stat-card"><div class="label">Resolved / Closed</div><div class="value">${closed.length}</div></div>
+      <div class="stat-card"><div class="label">Package</div><div class="value small">${escapeHtml(client.package.name)}</div></div>
+    </div>
+    <div class="card"><h3>Recent Requests (whole account)</h3>
+      <table><thead><tr><th>Subject</th><th>Priority</th><th>Status</th><th>Updated</th></tr></thead><tbody>
+        ${recent.length ? recent.map(t=>`<tr class="clickable" onclick="openClientTicketDetail('${t.id}')"><td><b>${escapeHtml(t.subject)}</b></td><td><span class="pill ${priorityPill(t.priority)}">${t.priority}</span></td><td><span class="pill ${statusPill(t.status)}">${t.status}</span></td><td>${fmtDateTime(t.assignedAt)}</td></tr>`).join("") : `<tr><td colspan="4" class="empty-row">No requests yet.</td></tr>`}
+      </tbody></table>
+    </div>
+  `;
+}
+function renderClientWebsite(){
+  const client = currentClientRecord(); const w = client.websiteStatus;
+  document.getElementById("main-content").innerHTML = `
+    <div class="topbar"><div><h2>Website</h2><p>Live status for ${escapeHtml(client.website)}</p></div></div>
+    <div class="card" style="max-width:480px;">
+      <div style="font-size:16px;margin-bottom:16px;"><span class="status-dot" style="background:${w.status==='Online'?'var(--success)':'var(--danger)'}"></span><b>${escapeHtml(w.url)}</b><br><span class="pill ${w.status==='Online'?'green':'red'}" style="margin-top:6px;">${escapeHtml(w.status)}</span></div>
+      <div style="font-size:13px;line-height:2.1;">
+        Hosting: <span class="pill ${w.hosting==='Active'?'green':'yellow'}">${escapeHtml(w.hosting)}</span><br>
+        Domain: <span class="pill ${w.domain==='Active'?'green':'yellow'}">${escapeHtml(w.domain)}</span><br>
+        SSL Certificate: <span class="pill ${w.ssl==='Valid'?'green':'red'}">${escapeHtml(w.ssl)}</span><br>
+        Maintenance: ${escapeHtml(w.maintenance)}<br>
+        Last checked: ${fmtDateTime(w.lastChecked)}
+      </div>
+    </div>
+  `;
+}
+function renderClientRequests(){
+  if(currentTicketId){ renderClientTicketDetail(currentTicketId); return; }
+  let tickets = myClientTickets().slice();
+  const open = tickets.filter(t=>!["Resolved","Closed"].includes(t.status));
+  const counts = {}; TICKET_PRIORITIES.forEach(p=>counts[p]=open.filter(t=>t.priority===p).length);
+  let filtered = tickets.slice().sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||""));
+  if(currentPriorityFilter) filtered = filtered.filter(t=>t.priority===currentPriorityFilter);
+
+  document.getElementById("main-content").innerHTML = `
+    <div class="topbar"><div><h2>My Requests</h2><p>Everything you've raised with ${BRAND}</p></div><button class="btn" onclick="goToTab('craise')">+ Raise Request</button></div>
+    <div class="priority-grid">${TICKET_PRIORITIES.map(p=>`<div class="priority-card ${p} ${currentPriorityFilter===p?"active":""}" onclick="currentPriorityFilter=currentPriorityFilter==='${p}'?null:'${p}';render();"><div class="num">${counts[p]}</div><div class="lbl">${p}</div></div>`).join("")}</div>
+    <div class="card" style="padding:0;overflow-x:auto;">
+      <table><thead><tr><th>ID</th><th>Subject</th><th>Category</th><th>Priority</th><th>Status</th><th>Handled By</th></tr></thead>
+      <tbody>${filtered.length ? filtered.map(t=>`<tr class="clickable" onclick="openClientTicketDetail('${t.id}')"><td class="mono">${t.id}</td><td><b>${escapeHtml(t.subject)}</b></td><td>${escapeHtml(t.category)}</td><td><span class="pill ${priorityPill(t.priority)}">${t.priority}</span></td><td><span class="pill ${statusPill(t.status)}">${t.status}</span></td><td>${employeeName(t.assignedTo)}</td></tr>`).join("") : `<tr><td colspan="6" class="empty-row">No requests${currentPriorityFilter?" at this priority":""} yet.</td></tr>`}</tbody></table>
+    </div>
+  `;
+}
+function openClientTicketDetail(id){ currentTicketId = id; currentTab = "crequests"; document.querySelectorAll(".nav-item").forEach(n => n.classList.toggle("active", n.dataset.tab==="crequests")); render(); pushHistoryState(); }
+function renderClientTicketDetail(id){
+  const t = (loadKey("tickets")||[]).find(x=>x.id===id);
+  document.getElementById("main-content").innerHTML = `
+    <div class="topbar"><div><h2>${escapeHtml(t.subject)}</h2><p class="mono">${t.id} · opened ${fmtDateTime(t.createdAt)}</p></div><div style="display:flex;gap:8px;"><span class="pill ${priorityPill(t.priority)}">${t.priority}</span><span class="pill ${statusPill(t.status)}">${t.status}</span></div></div>
+    <div class="two-col">
+      <div>
+        <div class="card"><h3>Description</h3><p style="font-size:13.5px;line-height:1.6;margin:0;">${escapeHtml(t.description)}</p></div>
+        <div class="card"><h3>Conversation</h3>
+          <div>${t.comments.length ? t.comments.map(c=>`<div class="comment ${c.role==='client'?'mine':''}"><div class="avatar">${initials(c.author)}</div><div class="bubble"><div class="meta"><b>${escapeHtml(c.author)}</b> · ${c.role==='client'?'You':BRAND} · ${fmtDateTime(c.at)}</div><div class="text">${escapeHtml(c.text)}</div></div></div>`).join("") : `<p style="color:var(--muted);font-size:13px;">No messages yet.</p>`}</div>
+          <div class="field" style="margin-top:14px;"><label>Add a comment</label><textarea id="reply-text"></textarea></div>
+          <button class="btn small" onclick="postReplyClient('${t.id}')">Send</button>
+        </div>
+      </div>
+      <div>
+        <div class="card"><h3>Handled By</h3><div style="display:flex;align-items:center;gap:9px;"><div class="avatar">${initials(employeeName(t.assignedTo))}</div><div style="font-size:13.5px;font-weight:600;">${employeeName(t.assignedTo)}</div></div></div>
+        <div class="card"><h3>Details</h3><div style="font-size:12.5px;color:var(--muted);line-height:1.8;">Category: ${escapeHtml(t.category)}<br>${t.pageUrl?("Page: "+escapeHtml(t.pageUrl)+"<br>"):""}Raised: ${fmtDateTime(t.createdAt)}<br>${t.resolvedAt?("Resolved: "+fmtDateTime(t.resolvedAt)):""}</div></div>
+      </div>
+    </div>
+  `;
+}
+function postReplyClient(ticketId){
+  const text = document.getElementById("reply-text").value.trim(); if(!text) return;
+  const tickets = loadKey("tickets")||[]; const t = tickets.find(x=>x.id===ticketId); const user = currentClientUser();
+  t.comments.push({ author:user.name, role:"client", text, at:new Date().toISOString() });
+  pushTicketHistory(t, `${user.name} added a comment.`);
+  if(t.status==="Waiting for Client") t.status="In Progress";
+  saveKey("tickets", tickets);
+  logAudit("Comment Added","Tickets",`Client replied on ${ticketId}`, t.clientId, null, null, user.id);
+  renderClientTicketDetail(ticketId);
+}
+function renderClientRaise(){
+  document.getElementById("main-content").innerHTML = `
+    <div class="topbar"><div><h2>Raise Request</h2><p>Tell us what's going on — we'll route it to the right person</p></div></div>
+    <div class="card" style="max-width:640px;">
+      <div class="field"><label>Subject *</label><input type="text" id="f-subject" placeholder="Short summary of the issue"></div>
+      <div class="field-row"><div class="field"><label>Category</label><select id="f-category">${TICKET_CATEGORIES.map(c=>`<option>${c}</option>`).join("")}</select></div><div class="field"><label>Website / Page URL</label><input type="text" id="f-pageurl" placeholder="optional"></div></div>
+      <div class="field"><label>Priority</label><div class="priority-choice">${TICKET_PRIORITIES.map(p=>`<label><input type="radio" name="priority" value="${p}" ${p==="Medium"?"checked":""}><span>${p}</span></label>`).join("")}</div></div>
+      <div class="field"><label>Description *</label><textarea id="f-description" placeholder="Describe the issue in detail..."></textarea></div>
+      <div class="field"><label>Attachment</label><input type="file" id="f-attachment"><div style="font-size:11.5px;color:var(--muted);margin-top:4px;">Demo only — files aren't actually uploaded yet.</div></div>
+      <div class="field"><label>Additional Comments</label><textarea id="f-comments" placeholder="optional"></textarea></div>
+      <button class="btn" onclick="submitClientTicket()">Submit Request</button>
+    </div>
+  `;
+}
+function submitClientTicket(){
+  const subject = document.getElementById("f-subject").value.trim(); const description = document.getElementById("f-description").value.trim();
+  if(!subject || !description){ alert("Subject and description are required."); return; }
+  const category = document.getElementById("f-category").value;
+  const assignedTo = nextAssignee(category);
+  const user = currentClientUser(), client = currentClientRecord();
+  const tickets = loadKey("tickets")||[];
+  const id = "t-"+(1000+tickets.length+1);
+  const extra = document.getElementById("f-comments").value.trim();
+  const comments = extra ? [{author:user.name, role:"client", text:extra, at:new Date().toISOString()}] : [];
+  const record = { id, clientId: client.id, createdBy: user.id, subject, description, category, priority: document.querySelector('input[name="priority"]:checked').value, status:"Assigned", assignedTo, createdAt:new Date().toISOString(), assignedAt:new Date().toISOString(), pageUrl: document.getElementById("f-pageurl").value.trim(), comments, history:[{text:`${client.name} created the ticket.`, at:new Date().toISOString()},{text:`Ticket auto-assigned to ${employeeName(assignedTo)}.`, at:new Date().toISOString()}] };
+  tickets.push(record); saveKey("tickets", tickets);
+  logAudit("Ticket Created","Tickets", `${id}: "${subject}" from ${client.name}`, client.id, null, null, user.id);
+  goToTab("crequests");
+  alert(`Request submitted as ${id}. It's been routed to ${employeeName(assignedTo)}.`);
+}
+function renderClientPackage(){
+  const client = currentClientRecord(), user = currentClientUser();
+  const others = PACKAGE_CATALOG.filter(p=>p.name !== client.package.name);
+  document.getElementById("main-content").innerHTML = `
+    <div class="topbar"><div><h2>Package</h2><p>Your current plan with ${BRAND}</p></div></div>
+    <div class="card" style="max-width:480px;">
+      <div style="font-size:16px;font-weight:700;margin-bottom:4px;">${escapeHtml(client.package.name)}</div>
+      <div style="font-size:22px;font-weight:800;color:var(--accent);margin-bottom:12px;">${fmtMoney(client.package.price)}</div>
+      <div style="font-size:12.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Services Included</div>
+      <ul style="margin:0;padding-left:18px;font-size:13.5px;line-height:1.9;">${(client.package.services||[]).map(s=>`<li>${escapeHtml(s)}</li>`).join("")}</ul>
+      <p style="font-size:11.5px;color:var(--muted);margin-top:14px;">Only ${BRAND} can change package details. Contact your account team for upgrades.</p>
+    </div>
+    ${user.isAdmin ? `
+    <div class="card">
+      <h3>Other Available Packages</h3>
+      <p style="font-size:12px;color:var(--muted);margin:0 0 14px;">Opens in a new tab with full details, plus options to buy or talk to us.</p>
+      <div class="team-grid">
+        ${others.map(p=>`<div class="other-pkg-card" onclick="window.open(location.pathname+'?viewPackage=${p.id}&forClient=${client.id}','_blank')">
+          <div style="font-weight:700;font-size:14px;">${escapeHtml(p.name)}</div>
+          <div style="font-size:18px;font-weight:800;color:var(--accent);margin:4px 0 8px;">${fmtMoney(p.price)}</div>
+          <div style="font-size:11.5px;color:var(--muted);">${p.services.length} services included ↗</div>
+        </div>`).join("")}
+      </div>
+    </div>` : ""}
+  `;
+}
+function renderClientUsers(){
+  const client = currentClientRecord(), me = currentClientUser();
+  if(!me.isAdmin){ document.getElementById("main-content").innerHTML = `<div class="card"><p class="empty-row">Only your Client Admin can manage users.</p></div>`; return; }
+  const users = (loadKey("clientUsers")||[]).filter(u=>u.clientId===client.id);
+  document.getElementById("main-content").innerHTML = `
+    <div class="topbar"><div><h2>Users</h2><p>Manage who from ${escapeHtml(client.name)} can access ${BRAND} Ops</p></div><button class="btn" onclick="openClientUserForm()">+ Add User</button></div>
+    <div class="card" style="padding:0;overflow-x:auto;">
+      <table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Presence</th><th></th></tr></thead>
+      <tbody>${users.map(u=>`<tr><td><b>${escapeHtml(u.name)}</b>${u.isAdmin?` <span class="pill blue">Client Admin</span>`:""}</td><td>${escapeHtml(u.email)}</td><td>${escapeHtml(u.role)}</td><td><span class="pill ${u.active?"green":"red"}">${u.active?"Active":"Deactivated"}</span></td><td>${presenceDot(u.presence)}${escapeHtml(u.presence||"Offline")}</td><td class="row-actions">${u.id===me.id?"<span style=\"color:var(--muted);font-size:12px;\">You</span>":`<button class="icon-btn" onclick="openClientUserForm('${u.id}')">Edit</button><button class="icon-btn" onclick="toggleClientUserActive('${u.id}')">${u.active?"Deactivate":"Activate"}</button><button class="icon-btn" onclick="deleteClientUser('${u.id}')">Remove</button>`}</td></tr>`).join("")}</tbody></table>
+    </div>
+    <div class="card"><p style="font-size:12.5px;color:var(--muted);margin:0;">There must always be exactly one Client Admin. Removing yourself as admin isn't available in this demo — contact ${BRAND} to transfer admin rights.</p></div>
+  `;
+}
+function roleSelectHtml(currentRole){
+  const opts = getRoleOptions();
+  const isCustom = currentRole && !opts.includes(currentRole);
+  return `
+    <select id="f-role-select" onchange="document.getElementById('f-role-custom').style.display=this.value==='__custom__'?'block':'none';">
+      ${opts.map(r=>`<option value="${escapeHtml(r)}" ${r===currentRole?"selected":""}>${escapeHtml(r)}</option>`).join("")}
+      <option value="__custom__" ${isCustom?"selected":""}>+ Add new role...</option>
+    </select>
+    <input type="text" id="f-role-custom" placeholder="Type new role name" value="${isCustom?escapeHtml(currentRole):""}" style="display:${isCustom?"block":"none"};margin-top:6px;">
+  `;
+}
+function openClientUserForm(id){
+  const users = loadKey("clientUsers")||[]; const item = id ? users.find(u=>u.id===id) : {};
+  openModal(`
+    <h3>${id?"Edit":"Add"} User</h3>
+    <div class="field"><label>Name *</label><input type="text" id="f-name" value="${escapeHtml(item.name||"")}"></div>
+    <div class="field"><label>Email *</label><input type="text" id="f-email" value="${escapeHtml(item.email||"")}" ${id?"readonly style=\"background:#f4f5f9;\"":""}></div>
+    <div class="field"><label>Role</label>${roleSelectHtml(item.role||"")}</div>
+    <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveClientUser('${id||""}')">Save</button></div>
+  `);
+}
+function resolveRoleFromForm(){
+  let role = document.getElementById("f-role-select").value;
+  if(role==="__custom__"){ role = document.getElementById("f-role-custom").value.trim() || "Client User"; addCustomRole(role); }
+  return role;
+}
+function saveClientUser(id){
+  const name = document.getElementById("f-name").value.trim();
+  if(!name){ alert("Name is required."); return; }
+  const client = currentClientRecord();
+  const users = loadKey("clientUsers")||[];
+  const role = resolveRoleFromForm();
+  if(id){
+    const u = users.find(x=>x.id===id);
+    u.name = name; u.role = role;
+    saveKey("clientUsers", users);
+    logAudit("Client User Updated","Client Users", `${name}'s details updated`, client.id, null, null, currentClientUser().id);
+  } else {
+    const email = document.getElementById("f-email").value.trim();
+    if(!email){ alert("Email is required."); return; }
+    const record = { id: uid(), clientId: client.id, name, email, role, isAdmin:false, active:true, presence:"Active" };
+    users.push(record); saveKey("clientUsers", users);
+    logAudit("Client User Added","Client Users", `${name} added to ${client.name} (password: demo123)`, client.id, null, null, currentClientUser().id);
+  }
+  closeModal(); renderClientUsers();
+}
+function toggleClientUserActive(id){
+  const users = loadKey("clientUsers")||[]; const u = users.find(x=>x.id===id); u.active = !u.active; saveKey("clientUsers", users);
+  logAudit(u.active?"User Activated":"User Deactivated","Client Users", u.name, u.clientId, null, null, currentClientUser().id);
+  renderClientUsers();
+}
+function deleteClientUser(id){
+  const users = loadKey("clientUsers")||[]; const u = users.find(x=>x.id===id);
+  if(u.isAdmin){ alert("You can't remove the Client Admin. Transfer admin rights first."); return; }
+  if(!confirm(`Remove ${u.name} from this account?`)) return;
+  saveKey("clientUsers", users.filter(x=>x.id!==id));
+  logAudit("User Removed","Client Users", u.name, u.clientId, null, null, currentClientUser().id);
+  renderClientUsers();
+}
+function renderClientHistory(){
+  const client = currentClientRecord(), me = currentClientUser();
+  let history = (loadKey("audit")||[]).filter(a=>a.clientId===client.id);
+  if(!me.isAdmin){ history = history.filter(a => a.actorUserId===me.id || a.relatedUserId===me.id); }
+  history = history.sort((a,b)=>(b.at||"").localeCompare(a.at||""));
+  document.getElementById("main-content").innerHTML = `
+    <div class="topbar"><div><h2>History</h2><p>${me.isAdmin?"Full activity on your account":"Activity related to you"}</p></div></div>
+    <div class="card">${history.length ? history.map(h=>`<div class="history-item"><div class="time">${fmtDateTime(h.at)}</div><div>${escapeHtml(h.summary)}</div></div>`).join("") : `<p class="empty-row">No history yet.</p>`}</div>
+  `;
+}
+function renderClientOwnProfile(){
+  const user = currentClientUser(), client = currentClientRecord();
+  const team = (loadKey("clientUsers")||[]).filter(u=>u.clientId===client.id && u.id!==user.id);
+  document.getElementById("main-content").innerHTML = `
+    <div class="topbar"><div><h2>Profile</h2><p>Your account details</p></div></div>
+    <div class="card" style="max-width:480px;">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;"><div class="avatar" style="width:52px;height:52px;font-size:18px;">${initials(user.name)}</div><div><div style="font-weight:700;font-size:16px;">${escapeHtml(user.name)}${presenceDot(user.presence)}</div><div style="color:var(--muted);font-size:13px;">${escapeHtml(user.role)}${user.isAdmin?" · Client Admin":""}</div></div></div>
+      <div style="font-size:13.5px;line-height:2.1;">Email: ${escapeHtml(user.email)}<br>Organization: ${escapeHtml(client.name)}<br>Company: ${escapeHtml(client.company)}</div>
+    </div>
+    ${user.isAdmin ? `<div class="card" style="max-width:480px;"><h3>Your Team</h3>${team.length ? team.map(u=>`<div style="display:flex;align-items:center;gap:9px;padding:7px 0;"><div class="avatar">${initials(u.name)}</div><div style="flex:1;"><div style="font-size:13px;font-weight:600;">${escapeHtml(u.name)}${presenceDot(u.presence)}</div><div style="font-size:11.5px;color:var(--muted);">${escapeHtml(u.role)} · ${u.active?"Active":"Deactivated"}</div></div></div>`).join("") : `<p style="color:var(--muted);font-size:13px;margin:0;">No other users yet.</p>`}</div>` : ""}
+  `;
+}
+
+/* ---------------- Employee access into a client account ---------------- */
+function loginAsClient(clientId){
+  window.open(location.pathname + "?asClient=" + encodeURIComponent(clientId), "_blank");
+}
+function loginAsClientEmployeeAccess(clientId){
+  const users = loadKey("clientUsers")||[];
+  const admin = users.find(u=>u.clientId===clientId && u.isAdmin) || users.find(u=>u.clientId===clientId);
+  const client = (loadKey("clients")||[]).find(c=>c.id===clientId);
+  if(!admin || !client){ document.body.innerHTML = `<div style="padding:60px;text-align:center;font-family:sans-serif;">Client not found.</div>`; return; }
+  setSession({ type:"client", userId: admin.id, employeeAccess:true });
+  showApp();
+  const banner = document.getElementById("impersonation-banner");
+  banner.style.display = "block";
+  banner.innerHTML = `🔧 ${BRAND} Team Access — viewing <b>${escapeHtml(client.name)}</b>'s account with full permissions. This tab is separate from your normal login.`;
+}
+
+/* ---------------- Standalone package landing page (opened in a new tab) ---------------- */
+function renderPackageLandingPage(pkgId, forClientId){
+  document.getElementById("login-screen").style.display = "none";
+  document.getElementById("app").style.display = "none";
+  document.getElementById("demo-banner").style.display = "none";
+  const pkg = PACKAGE_CATALOG.find(p=>p.id===pkgId);
+  const client = (loadKey("clients")||[]).find(c=>c.id===forClientId);
+  const el = document.getElementById("package-landing");
+  el.style.display = "block";
+  if(!pkg){ el.innerHTML = `<div style="padding:60px;text-align:center;">Package not found.</div>`; return; }
+  el.innerHTML = `
+    <div style="max-width:560px;margin:0 auto;padding:60px 20px;">
+      <span class="back-link" onclick="window.location.href=location.pathname">&larr; Back to your account</span>
+      <div class="logo-badge" style="margin-bottom:16px;">ठ</div>
+      <h1 style="font-size:24px;margin:0 0 4px;">${escapeHtml(pkg.name)}</h1>
+      <p style="color:var(--muted);margin:0 0 20px;">${client?("For "+escapeHtml(client.name)+" · "):""}${BRAND} Ops</p>
+      <div class="card">
+        <div style="font-size:30px;font-weight:800;color:var(--accent);margin-bottom:14px;">${fmtMoney(pkg.price)}</div>
+        <div style="font-size:12.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">What's Included</div>
+        <ul style="margin:0 0 20px;padding-left:18px;font-size:14px;line-height:2;">${pkg.services.map(s=>`<li>${escapeHtml(s)}</li>`).join("")}</ul>
+        <button class="btn" style="width:100%;margin-bottom:10px;" onclick="mockBuyPackage('${pkg.id}','${forClientId||""}')">Buy This Package</button>
+        <div style="display:flex;gap:10px;">
+          <a class="btn secondary small" style="flex:1;text-align:center;text-decoration:none;box-sizing:border-box;" href="mailto:bhuvanesh@thikaana.co?subject=${encodeURIComponent("Interested in "+pkg.name)}">Connect with Bhuvanesh</a>
+          <a class="btn secondary small" style="flex:1;text-align:center;text-decoration:none;box-sizing:border-box;" href="mailto:irfan@thikaana.co?subject=${encodeURIComponent("Interested in "+pkg.name)}">Connect with Irfan</a>
+        </div>
+      </div>
+      <p style="font-size:11.5px;color:var(--muted);margin-top:16px;">Use the link above, or just close this tab, to return to your account anytime.</p>
+    </div>
+  `;
+  animateIn("#package-landing");
+}
+function mockBuyPackage(pkgId, clientId){
+  const pkg = PACKAGE_CATALOG.find(p=>p.id===pkgId);
+  logAudit("Package Interest","Packages", `Interested in upgrading to ${pkg.name}`, clientId||null);
+  alert("Thanks! This is a demo — in the live version this would start checkout. Our team will reach out to confirm.");
+}
+
+/* ---------------- Init / routing ---------------- */
+seedIfEmpty();
+populateDemoHint();
+const _urlParams = new URLSearchParams(window.location.search);
+if(_urlParams.get("viewPackage")){
+  renderPackageLandingPage(_urlParams.get("viewPackage"), _urlParams.get("forClient"));
+} else if(_urlParams.get("asClient")){
+  loginAsClientEmployeeAccess(_urlParams.get("asClient"));
+} else {
+  const _s = getSession();
+  if(_s){ showApp(); }
+}
+</script>
+</body>
+</html>
