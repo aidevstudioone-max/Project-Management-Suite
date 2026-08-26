@@ -41,7 +41,7 @@
   .sidebar .brand .logo-badge{width:34px;height:34px;font-size:16px;border-radius:9px;margin:0;}
   .sidebar .brand b{color:#fff;font-size:15px;}
   .sidebar .brand span{display:block;font-size:10.5px;color:#9497b3;}
-  .nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;color:var(--sidebar-text);font-size:13.3px;cursor:pointer;margin-bottom:2px;user-select:none;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;color:var(--sidebar-text);font-size:13.3px;cursor:pointer;margin-bottom:2px;user-select:none;text-decoration:none;}
   .nav-item:hover{background:#20233c;}
   .nav-item.active{background:var(--sidebar-active);color:#fff;font-weight:600;}
   .nav-item .ic{width:18px;text-align:center;}
@@ -153,6 +153,67 @@
   .field-row .field{flex:1;}
   .checkbox-group{display:flex;flex-wrap:wrap;gap:10px;}
   .checkbox-group label{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:400;color:var(--text);border:1px solid var(--border);padding:6px 10px;border-radius:7px;}
+  .wm-shell{display:flex;gap:24px;align-items:flex-start;}
+  .wm-nav{width:230px;flex-shrink:0;position:sticky;top:0;}
+  .wm-nav-group{margin-bottom:4px;}
+  .wm-nav-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:0 10px;margin:16px 0 6px;}
+  .wm-nav-label:first-child{margin-top:0;}
+  .wm-nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;font-size:13px;font-weight:600;color:var(--text);text-decoration:none;cursor:pointer;margin-bottom:2px;}
+  .wm-nav-item:hover{background:#f0f1f6;}
+  .wm-nav-item.active{background:var(--accent-soft);color:var(--accent);}
+  .wm-nav-item .ic{width:18px;text-align:center;font-size:14px;flex-shrink:0;}
+  .wm-nav-item .sub{display:block;font-weight:400;font-size:11px;color:var(--muted);margin-top:1px;}
+  .wm-nav-item.active .sub{color:var(--accent);opacity:.75;}
+  .wm-content{flex:1;min-width:0;}
+  .wm-section-head{margin-bottom:18px;}
+  .wm-section-head h3{margin:0 0 4px;font-size:17px;}
+  .wm-section-head p{margin:0;color:var(--muted);font-size:13px;}
+  .wm-photo-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;position:relative;}
+  .wm-photo-thumb{width:100%;height:130px;border-radius:8px;background:#eef0f5;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px;margin-bottom:8px;text-align:center;}
+  .wm-select{position:absolute;top:10px;right:10px;}
+  .wm-save-msg{font-size:12px;color:var(--success);margin-top:8px;min-height:16px;}
+  .wm-hint{font-size:12px;color:var(--muted);margin:-4px 0 14px;line-height:1.6;}
+  .wm-field-error{font-size:11.5px;color:var(--danger);margin-top:-8px;margin-bottom:12px;min-height:14px;}
+  .wm-field-error:empty{display:none;}
+  .field.has-error input,.field.has-error textarea,.field.has-error select{border-color:var(--danger);background:var(--danger-soft);}
+  .wm-counter{font-size:11px;color:var(--muted);text-align:right;margin-top:-8px;margin-bottom:10px;}
+  .wm-counter.over{color:var(--danger);font-weight:600;}
+  .wm-toast-wrap{position:fixed;bottom:22px;right:22px;z-index:200;display:flex;flex-direction:column;gap:8px;align-items:flex-end;}
+  .wm-toast{background:var(--dark);color:#fff;padding:12px 16px;border-radius:9px;font-size:13px;box-shadow:0 10px 30px rgba(0,0,0,.25);max-width:340px;display:flex;align-items:center;gap:10px;animation:wmToastIn .2s ease;}
+  .wm-toast.error{background:var(--danger);}
+  @keyframes wmToastIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  .wm-section-toggle-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin-top:6px;}
+  .wm-section-toggle{display:flex;align-items:flex-start;gap:8px;border:1px solid var(--border);border-radius:8px;padding:9px 10px;font-size:12.5px;}
+  .wm-section-toggle b{display:block;font-size:12.5px;}
+  .wm-section-toggle span{display:block;color:var(--muted);font-size:11px;margin-top:1px;line-height:1.4;}
+  .wm-banner-preview{background:linear-gradient(135deg,var(--dark),var(--dark2));color:#fff;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;}
+  .wm-banner-preview.off{background:#eef0f5;color:var(--muted);}
+  .wm-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--warn);margin-left:6px;position:relative;top:-1px;}
+  .wm-pending-bar{display:flex;justify-content:space-between;align-items:center;gap:14px;background:var(--warn-soft);border:1px solid #f0dca8;color:#8a5c00;padding:12px 16px;border-radius:10px;font-size:13px;margin-bottom:18px;flex-wrap:wrap;}
+  .wm-preview-section{border:1px solid var(--border);border-radius:var(--radius);margin-bottom:14px;overflow:hidden;}
+  .wm-preview-section-head{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#f7f8fc;border-bottom:1px solid var(--border);}
+  .wm-preview-section-head b{font-size:13.5px;}
+  .wm-preview-body{padding:14px 16px;font-size:13px;line-height:1.7;}
+  .wm-preview-body table{width:100%;}
+  .wm-changed-badge{background:var(--warn-soft);color:#8a5c00;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:20px;}
+  .wm-site-preview{background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden;}
+  .wm-site-banner{background:#ffcf70;color:#4a3300;padding:10px 16px;text-align:center;font-size:13px;font-weight:600;}
+  .wm-site-hero{background:linear-gradient(135deg,#171a2b,#2a2f6a);color:#fff;padding:48px 32px;text-align:center;}
+  .wm-site-hero h1{margin:0 0 10px;font-size:26px;}
+  .wm-site-hero p{margin:0 auto;font-size:14px;color:#c7c9db;max-width:520px;}
+  .wm-site-section{padding:26px 32px;border-top:1px solid #eef0f5;}
+  .wm-site-section.updated{background:#fef9ec;box-shadow:inset 3px 0 0 var(--warn);}
+  .wm-site-section h2{font-size:17px;margin:0 0 14px;display:flex;align-items:center;gap:8px;}
+  .wm-site-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;}
+  .wm-site-photo{aspect-ratio:1;border-radius:8px;background:#eef0f5;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--muted);text-align:center;padding:4px;}
+  .wm-site-menu-cat{margin-bottom:16px;}
+  .wm-site-menu-cat h4{font-size:13.5px;margin:0 0 8px;color:var(--accent);}
+  .wm-site-menu-item{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #eef0f5;font-size:13px;}
+  .wm-site-offer-card,.wm-site-testimonial{background:#f7f8fc;border-radius:10px;padding:14px 16px;margin-bottom:10px;font-size:13px;}
+  .wm-site-faq{margin-bottom:12px;}
+  .wm-site-faq b{display:block;font-size:13.5px;margin-bottom:3px;}
+  .wm-site-hours-row{display:flex;justify-content:space-between;gap:12px;font-size:13px;padding:8px 0;border-bottom:1px solid #f5f6fa;}
+  .wm-site-footer{background:#171a2b;color:#c7c9db;padding:22px 32px;text-align:center;font-size:12px;}
   .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;}
   .action-item-row{display:flex;gap:6px;margin-bottom:8px;align-items:center;}
   .action-item-row input[type=text]{flex:2;}
@@ -298,7 +359,7 @@ const TICKET_PRIORITIES = ["Low","Medium","High","Urgent"];
 const TICKET_STATUSES = ["New","Assigned","In Progress","Waiting for Client","Resolved","Closed"];
 
 const KEYS = ["clients","clientUsers","tickets","meetings","vault","expenses","audit","employees","customRoles"];
-const SEED_VERSION = "3";
+const SEED_VERSION = "4";
 
 function loadKey(k){ try{ return JSON.parse(localStorage.getItem("thikops_"+k)) || null; }catch(e){ return null; } }
 function saveKey(k, v){ localStorage.setItem("thikops_"+k, JSON.stringify(v)); }
@@ -326,31 +387,32 @@ function seedIfEmpty(){
   localStorage.setItem("thikops_seedVersion", SEED_VERSION);
 
   const ALL_TEAM = ["ankit","chandan","bhuvanesh","irfan"];
+  const ALL_WEB_SECTIONS = WEBSITE_SECTIONS.map(s=>s.id);
   const clients = [
     { id:"c-pavmantra", name:"Pav Mantra", company:"Pav Mantra Foods", website:"pavmantra.com", email:"hello@pavmantra.com", phone:"+91 98200 11221", status:"Active", onboardingDate:"2026-03-10", notes:"Food brand site — menu, story, ordering enquiries.",
       package:{ name:"Website Development + SEO", price:75000, services:["Website Development","Hosting","Domain Management","Monthly Maintenance","Technical Support","SEO"] },
       websiteStatus:{ url:"pavmantra.com", status:"Online", hosting:"Active", domain:"Active", ssl:"Valid", maintenance:"Up to date", lastChecked:"2026-08-20T09:00:00" },
-      assignedTeam: ALL_TEAM.slice() },
+      assignedTeam: ALL_TEAM.slice(), websiteSections: ALL_WEB_SECTIONS.slice() },
     { id:"c-apoorva", name:"Apoorva Auto Parts", company:"Apoorva Auto Parts Pvt Ltd", website:"apoorvaauto.com", email:"sales@apoorvaauto.com", phone:"+91 98110 44552", status:"Active", onboardingDate:"2026-02-18", notes:"Auto parts supplier — catalogue, coverage area, enquiries.",
       package:{ name:"Website + Maintenance", price:52000, services:["Website Development","Hosting","Monthly Maintenance"] },
       websiteStatus:{ url:"apoorvaauto.com", status:"Online", hosting:"Active", domain:"Active", ssl:"Valid", maintenance:"Up to date", lastChecked:"2026-08-20T09:00:00" },
-      assignedTeam: ALL_TEAM.slice() },
+      assignedTeam: ALL_TEAM.slice(), websiteSections: ALL_WEB_SECTIONS.filter(s=>s!=="testimonials" && s!=="banner") },
     { id:"c-hangout", name:"Hangout Cafe", company:"Hangout Cafe & Restaurant", website:"hangoutcafe.in", email:"contact@hangoutcafe.in", phone:"+91 90040 77332", status:"Active", onboardingDate:"2026-04-02", notes:"Cafe & restaurant site — menu, location, dine-in info.",
       package:{ name:"Website", price:38000, services:["Website Development","Hosting"] },
       websiteStatus:{ url:"hangoutcafe.in", status:"Online", hosting:"Active", domain:"Active", ssl:"Valid", maintenance:"Up to date", lastChecked:"2026-08-19T18:00:00" },
-      assignedTeam: ALL_TEAM.slice() },
+      assignedTeam: ALL_TEAM.slice(), websiteSections: ALL_WEB_SECTIONS.slice() },
     { id:"c-srima", name:"Srima Diagnostic & Medical", company:"Srima Diagnostic & Medical Centre", website:"srimadiagnostic.com", email:"info@srimadiagnostic.com", phone:"+91 97110 22990", status:"Active", onboardingDate:"2026-01-25", notes:"Diagnostic centre & pharmacy — test listings, reports, pharmacy.",
       package:{ name:"Website + Maintenance + Support", price:68000, services:["Website Development","Hosting","Domain Management","Monthly Maintenance","Technical Support"] },
       websiteStatus:{ url:"srimadiagnostic.com", status:"Online", hosting:"Active", domain:"Renewing Soon", ssl:"Valid", maintenance:"Up to date", lastChecked:"2026-08-20T07:30:00" },
-      assignedTeam: ALL_TEAM.slice() },
+      assignedTeam: ALL_TEAM.slice(), websiteSections: ALL_WEB_SECTIONS.filter(s=>s!=="offers" && s!=="banner") },
     { id:"c-sriram", name:"Sri Ram Gift Emporium", company:"Sri Ram Gift Emporium", website:"sriramgifts.com", email:"store@sriramgifts.com", phone:"+91 94350 66210", status:"Active", onboardingDate:"2026-05-14", notes:"Gift & home décor retailer in Mughalsarai — collections, store story.",
       package:{ name:"Website", price:31000, services:["Website Development","Hosting"] },
       websiteStatus:{ url:"sriramgifts.com", status:"Online", hosting:"Active", domain:"Active", ssl:"Valid", maintenance:"Up to date", lastChecked:"2026-08-19T12:00:00" },
-      assignedTeam: ALL_TEAM.slice() },
+      assignedTeam: ALL_TEAM.slice(), websiteSections: ALL_WEB_SECTIONS.filter(s=>s!=="testimonials") },
     { id:"c-shibpur", name:"Shibpur Hindu Girls School", company:"Shibpur Hindu Girls High School", website:"shghschool.edu.in", email:"office@shghschool.edu.in", phone:"+91 98300 55127", status:"Active", onboardingDate:"2026-03-28", notes:"School information site — Howrah institution, facilities & contact.",
       package:{ name:"Website + Maintenance", price:40000, services:["Website Development","Hosting","Monthly Maintenance"] },
       websiteStatus:{ url:"shghschool.edu.in", status:"Online", hosting:"Active", domain:"Active", ssl:"Valid", maintenance:"Up to date", lastChecked:"2026-08-20T08:00:00" },
-      assignedTeam: ALL_TEAM.slice() }
+      assignedTeam: ALL_TEAM.slice(), websiteSections: ["text","photos","hours","contact","faqs","seo"] }
   ];
   saveKey("clients", clients);
 
@@ -462,8 +524,11 @@ function nextAssignee(category){
 
 /* ================= AUTH / SESSION ================= */
 // session: { type:'employee', actingAs:id } or { type:'client', userId:id }
-function getSession(){ try{ return JSON.parse(sessionStorage.getItem("thikops_session")); }catch(e){ return null; } }
-function setSession(s){ sessionStorage.setItem("thikops_session", JSON.stringify(s)); }
+/* Session lives in localStorage (not sessionStorage) so it's shared across every tab —
+   sessionStorage is only inherited by a new tab in some open methods and not others,
+   which meant Ctrl/Cmd-clicking a link into a new tab could land back on the login screen. */
+function getSession(){ try{ return JSON.parse(localStorage.getItem("thikops_session")); }catch(e){ return null; } }
+function setSession(s){ localStorage.setItem("thikops_session", JSON.stringify(s)); }
 function currentActorName(){ const s=getSession(); if(s && s.type==="employee") return employeeName(s.actingAs); if(s && s.type==="client"){ const u=(loadKey("clientUsers")||[]).find(x=>x.id===s.userId); return u?u.name:"Client"; } return "System"; }
 function currentClientUser(){ const s=getSession(); if(!s||s.type!=="client") return null; return (loadKey("clientUsers")||[]).find(u=>u.id===s.userId); }
 function currentClientRecord(){ const u=currentClientUser(); if(!u) return null; return (loadKey("clients")||[]).find(c=>c.id===u.clientId); }
@@ -495,18 +560,18 @@ document.getElementById("login-pass").addEventListener("keydown", e => { if(e.ke
 document.getElementById("login-email").addEventListener("keydown", e => { if(e.key==="Enter") attemptLogin(); });
 
 function logout(){
-  sessionStorage.removeItem("thikops_session");
+  localStorage.removeItem("thikops_session");
   document.getElementById("app").style.display = "none";
   document.getElementById("login-screen").style.display = "flex";
   document.getElementById("login-email").value=""; document.getElementById("login-pass").value="";
 }
-function showApp(){
+function showApp(initialTab){
   seedIfEmpty();
   document.getElementById("login-screen").style.display = "none";
   document.getElementById("app").style.display = "block";
   buildSidebar();
   const s = getSession();
-  goToTab(s.type==="employee" ? "dashboard" : "cdashboard");
+  goToTab(initialTab || (s.type==="employee" ? "dashboard" : "cdashboard"));
 }
 
 /* ================= SIDEBAR ================= */
@@ -517,17 +582,17 @@ function buildSidebar(){
     sidebar.innerHTML = `
       <div class="brand"><div class="logo-badge">ठ</div><div><b>${BRAND}</b><span>Ops (Demo)</span></div></div>
       <div class="acting-as"><label>Acting as</label><select id="acting-as-select" onchange="setActingAs(this.value)">${EMPLOYEES.map(e=>`<option value="${e.id}">${e.name}</option>`).join("")}</select></div>
-      <div class="nav-item" data-tab="dashboard" onclick="goToTab('dashboard')"><span class="ic">&#9679;</span> Dashboard</div>
-      <div class="nav-item" data-tab="clients" onclick="goToTab('clients')"><span class="ic">&#128100;</span> Clients</div>
-      <div class="nav-item" data-tab="tickets" onclick="goToTab('tickets')"><span class="ic">&#127915;</span> Tickets</div>
+      <a href="#/dashboard" class="nav-item" data-tab="dashboard" onclick="return navClick(event,'dashboard')"><span class="ic">&#9679;</span> Dashboard</a>
+      <a href="#/clients" class="nav-item" data-tab="clients" onclick="return navClick(event,'clients')"><span class="ic">&#128100;</span> Clients</a>
+      <a href="#/tickets" class="nav-item" data-tab="tickets" onclick="return navClick(event,'tickets')"><span class="ic">&#127915;</span> Tickets</a>
       <div class="nav-label">${BRAND} Workspace</div>
-      <div class="nav-item nav-sub" data-tab="vault" onclick="goToTab('vault')"><span class="ic">&#128274;</span> Vault</div>
-      <div class="nav-item nav-sub" data-tab="expenses" onclick="goToTab('expenses')"><span class="ic">&#8377;</span> Expenses</div>
-      <div class="nav-item nav-sub" data-tab="meetings" onclick="goToTab('meetings')"><span class="ic">&#128221;</span> Meeting Notes</div>
+      <a href="#/vault" class="nav-item nav-sub" data-tab="vault" onclick="return navClick(event,'vault')"><span class="ic">&#128274;</span> Vault</a>
+      <a href="#/expenses" class="nav-item nav-sub" data-tab="expenses" onclick="return navClick(event,'expenses')"><span class="ic">&#8377;</span> Expenses</a>
+      <a href="#/meetings" class="nav-item nav-sub" data-tab="meetings" onclick="return navClick(event,'meetings')"><span class="ic">&#128221;</span> Meeting Notes</a>
       <div class="nav-item nav-sub" onclick="openLeadGen()" title="Opens the Lead Gen tool"><span class="ic">&#128269;</span> Lead Gen &#8599;</div>
-      <div class="nav-item" data-tab="employees" onclick="goToTab('employees')"><span class="ic">&#128101;</span> Employees</div>
-      <div class="nav-item" data-tab="history" onclick="goToTab('history')"><span class="ic">&#128203;</span> History</div>
-      <div class="nav-item" data-tab="settings" onclick="goToTab('settings')"><span class="ic">&#9881;</span> Settings</div>
+      <a href="#/employees" class="nav-item" data-tab="employees" onclick="return navClick(event,'employees')"><span class="ic">&#128101;</span> Employees</a>
+      <a href="#/history" class="nav-item" data-tab="history" onclick="return navClick(event,'history')"><span class="ic">&#128203;</span> History</a>
+      <a href="#/settings" class="nav-item" data-tab="settings" onclick="return navClick(event,'settings')"><span class="ic">&#9881;</span> Settings</a>
       <div class="sidebar-footer"><button onclick="logout()">Log Out</button></div>
     `;
     document.getElementById("acting-as-select").value = s.actingAs;
@@ -541,14 +606,14 @@ function buildSidebar(){
           <select class="presence-select" onchange="setMyPresence(this.value)">${PRESENCE_OPTIONS.map(p=>`<option value="${p}" ${p===user.presence?"selected":""}>${p}</option>`).join("")}</select>
         </div>
       </div>
-      <div class="nav-item" data-tab="cdashboard" onclick="goToTab('cdashboard')"><span class="ic">&#9679;</span> Dashboard</div>
-      <div class="nav-item" data-tab="cwebsite" onclick="goToTab('cwebsite')"><span class="ic">&#127760;</span> Website</div>
-      <div class="nav-item" data-tab="crequests" onclick="goToTab('crequests')"><span class="ic">&#128203;</span> My Requests</div>
-      <div class="nav-item" data-tab="craise" onclick="goToTab('craise')"><span class="ic">&#10133;</span> Raise Request</div>
-      <div class="nav-item" data-tab="cpackage" onclick="goToTab('cpackage')"><span class="ic">&#128230;</span> Package</div>
-      ${user.isAdmin?`<div class="nav-item" data-tab="cusers" onclick="goToTab('cusers')"><span class="ic">&#128101;</span> Users</div>`:""}
-      <div class="nav-item" data-tab="chistory" onclick="goToTab('chistory')"><span class="ic">&#128337;</span> History</div>
-      <div class="nav-item" data-tab="cprofile" onclick="goToTab('cprofile')"><span class="ic">&#128100;</span> Profile</div>
+      <a href="#/cdashboard" class="nav-item" data-tab="cdashboard" onclick="return navClick(event,'cdashboard')"><span class="ic">&#9679;</span> Dashboard</a>
+      <a href="#/cwebsite" class="nav-item" data-tab="cwebsite" onclick="return navClick(event,'cwebsite')"><span class="ic">&#127760;</span> Website</a>
+      <a href="#/crequests" class="nav-item" data-tab="crequests" onclick="return navClick(event,'crequests')"><span class="ic">&#128203;</span> My Requests</a>
+      <a href="#/craise" class="nav-item" data-tab="craise" onclick="return navClick(event,'craise')"><span class="ic">&#10133;</span> Raise Request</a>
+      <a href="#/cpackage" class="nav-item" data-tab="cpackage" onclick="return navClick(event,'cpackage')"><span class="ic">&#128230;</span> Package</a>
+      ${user.isAdmin?`<a href="#/cusers" class="nav-item" data-tab="cusers" onclick="return navClick(event,'cusers')"><span class="ic">&#128101;</span> Users</a>`:""}
+      <a href="#/chistory" class="nav-item" data-tab="chistory" onclick="return navClick(event,'chistory')"><span class="ic">&#128337;</span> History</a>
+      <a href="#/cprofile" class="nav-item" data-tab="cprofile" onclick="return navClick(event,'cprofile')"><span class="ic">&#128100;</span> Profile</a>
       <div class="sidebar-footer"><button onclick="logout()">Log Out</button></div>
     `;
   }
@@ -594,8 +659,9 @@ window.addEventListener("popstate", (e) => {
 
 function goToTab(tab){
   currentTab = tab; currentClientId=null; currentTicketId=null; currentPriorityFilter=null;
-  document.querySelectorAll(".nav-item").forEach(n => n.classList.toggle("active", n.dataset.tab===tab));
+  document.querySelectorAll(".nav-item").forEach(n => n.classList.toggle("active", n.dataset.tab===tab || (tab==="cwebsite-manage" && n.dataset.tab==="cwebsite")));
   render();
+  syncHash();
   pushHistoryState();
 }
 let pendingTicketFilter = null, pendingClientFilter = null;
@@ -604,7 +670,7 @@ function goToClientsFiltered(status){ pendingClientFilter = status; goToTab("cli
 function render(){
   const s = getSession();
   const empRenderers = { dashboard:renderDashboard, clients:renderClients, tickets:renderTickets, vault:renderVault, expenses:renderExpenses, meetings:renderMeetings, employees:renderEmployees, history:renderHistory, settings:renderSettings };
-  const clientRenderers = { cdashboard:renderClientDashboard, cwebsite:renderClientWebsite, crequests:renderClientRequests, craise:renderClientRaise, cpackage:renderClientPackage, cusers:renderClientUsers, chistory:renderClientHistory, cprofile:renderClientOwnProfile };
+  const clientRenderers = { cdashboard:renderClientDashboard, cwebsite:renderClientWebsite, "cwebsite-manage":renderManageWebsite, crequests:renderClientRequests, craise:renderClientRaise, cpackage:renderClientPackage, cusers:renderClientUsers, chistory:renderClientHistory, cprofile:renderClientOwnProfile };
   const map = s.type==="employee" ? empRenderers : clientRenderers;
   (map[currentTab]||map[Object.keys(map)[0]])();
   animateIn("#main-content");
@@ -720,6 +786,7 @@ function renderClients(){
 }
 function openClientForm(id){
   const items = loadKey("clients")||[]; const item = items.find(i=>i.id===id) || {};
+  const enabledSections = item.websiteSections || WEBSITE_SECTIONS.map(s=>s.id);
   openModal(`
     <h3>${id?"Edit":"Add"} Client</h3>
     <div class="field-row"><div class="field"><label>Client Name *</label><input type="text" id="f-name" value="${escapeHtml(item.name||"")}"></div><div class="field"><label>Company</label><input type="text" id="f-company" value="${escapeHtml(item.company||"")}"></div></div>
@@ -727,14 +794,19 @@ function openClientForm(id){
     <div class="field"><label>Website</label><input type="text" id="f-website" value="${escapeHtml(item.website||"")}"></div>
     <div class="field"><label>Status</label><select id="f-status">${CLIENT_STATUSES.map(s=>`<option ${s===item.status?"selected":""}>${s}</option>`).join("")}</select></div>
     <div class="field"><label>Notes</label><textarea id="f-notes">${escapeHtml(item.notes||"")}</textarea></div>
+    <div class="field"><label>Manage Website — Sections Available to This Client</label>
+      <p style="font-size:11.5px;color:var(--muted);margin:0 0 8px;">Pick what makes sense for this business — e.g. a school usually doesn't need Menu &amp; Prices or Offers. You can change this later.</p>
+      <div class="wm-section-toggle-grid">${WEBSITE_SECTIONS.map(s=>`<label class="wm-section-toggle"><input type="checkbox" class="f-section-check" value="${s.id}" ${enabledSections.includes(s.id)?"checked":""} style="margin-top:2px;"><span><b>${s.icon} ${s.label}</b><span>${s.desc}</span></span></label>`).join("")}</div>
+    </div>
     <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveClient('${id||""}')">Save</button></div>
-  `);
+  `, true);
 }
 function saveClient(id){
   const name = document.getElementById("f-name").value.trim();
   if(!name){ alert("Client name is required."); return; }
   const items = loadKey("clients")||[];
   const existing = items.find(i=>i.id===id);
+  const websiteSections = Array.from(document.querySelectorAll(".f-section-check:checked")).map(c=>c.value);
   const record = Object.assign({}, existing, {
     id: id || uid(), name,
     company: document.getElementById("f-company").value.trim(),
@@ -743,6 +815,7 @@ function saveClient(id){
     website: document.getElementById("f-website").value.trim(),
     status: document.getElementById("f-status").value,
     notes: document.getElementById("f-notes").value.trim(),
+    websiteSections,
     onboardingDate: existing ? existing.onboardingDate : new Date().toISOString().slice(0,10),
     package: existing ? existing.package : { name:"Not set", price:0, services:[] },
     websiteStatus: existing ? existing.websiteStatus : { url: document.getElementById("f-website").value.trim(), status:"Not checked", hosting:"—", domain:"—", ssl:"—", maintenance:"—", lastChecked:null },
@@ -1275,8 +1348,974 @@ function renderClientWebsite(){
         Last checked: ${fmtDateTime(w.lastChecked)}
       </div>
     </div>
+    <div class="card" style="max-width:480px;">
+      <h3 style="margin:0 0 6px;">Manage Website</h3>
+      <p style="font-size:12.5px;color:var(--muted);margin:0 0 14px;">Update your own text, photos, prices, offers and opening hours — no coding, no need to message us first.</p>
+      <a class="btn" href="#/cwebsite-manage" onclick="return navClick(event,'cwebsite-manage')" style="text-decoration:none;display:inline-block;">Manage Website &rarr;</a>
+    </div>
   `;
 }
+/* ================= CLIENT: MANAGE WEBSITE ================= */
+const WEBSITE_SECTIONS = [
+  { id:"text", label:"Text", icon:"&#128221;", group:"Content", desc:"Hero headline, about section and footer tagline." },
+  { id:"photos", label:"Photos", icon:"&#128247;", group:"Content", desc:"Gallery images, hero banner and menu photos." },
+  { id:"menu", label:"Menu & Prices", icon:"&#128230;", group:"Content", desc:"Categories and items, with optional pricing." },
+  { id:"testimonials", label:"Testimonials", icon:"&#128172;", group:"Content", desc:"Hand-picked customer quotes to feature." },
+  { id:"faqs", label:"FAQs", icon:"&#10067;", group:"Content", desc:"Common questions visitors ask, answered." },
+  { id:"offers", label:"Offers", icon:"&#127991;&#65039;", group:"Promote", desc:"Time-bound promotions and discounts." },
+  { id:"banner", label:"Announcement Banner", icon:"&#128227;", group:"Promote", desc:"One site-wide strip for urgent updates." },
+  { id:"hours", label:"Hours & Locations", icon:"&#128337;", group:"Business Info", desc:"Opening hours for one or more locations." },
+  { id:"contact", label:"Contact & Social", icon:"&#9742;&#65039;", group:"Business Info", desc:"Phone, WhatsApp, email and social links." },
+  { id:"seo", label:"Page Info (SEO)", icon:"&#128269;", group:"Settings", desc:"Page title and search engine description." }
+];
+const WEBSITE_SECTION_GROUPS = ["Content","Promote","Business Info","Settings"];
+let websiteMgmtSection = "text";
+const WC_SEED_VERSION = "2";
+
+/* ---- Toasts (replace bare alert()/inline text for save & error feedback) ---- */
+function wmToast(message, type){
+  let wrap = document.getElementById("wm-toast-wrap");
+  if(!wrap){ wrap = document.createElement("div"); wrap.id = "wm-toast-wrap"; wrap.className = "wm-toast-wrap"; document.body.appendChild(wrap); }
+  const el = document.createElement("div");
+  el.className = "wm-toast" + (type==="error" ? " error" : "");
+  el.textContent = message;
+  wrap.appendChild(el);
+  setTimeout(()=>{ el.remove(); }, type==="error" ? 5000 : 3500);
+}
+/* ---- Inline field validation helpers ---- */
+function wmSetFieldError(fieldId, msg){
+  const errEl = document.getElementById(fieldId+"-error");
+  const input = document.getElementById(fieldId);
+  if(errEl) errEl.textContent = msg||"";
+  if(input) input.closest(".field")?.classList.toggle("has-error", !!msg);
+}
+function wmClearErrors(ids){ ids.forEach(id=>wmSetFieldError(id, "")); }
+function wmIsValidEmail(v){ return !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+function seedWebsiteContentIfEmpty(){
+  if(loadKey("websiteContent") && localStorage.getItem("thikops_wcSeedVersion")===WC_SEED_VERSION) return;
+  localStorage.setItem("thikops_wcSeedVersion", WC_SEED_VERSION);
+  const mk = (name, description, price) => ({ id:uid(), name, description, price: (price===undefined?null:price) });
+  const wc = {
+    "c-pavmantra": {
+      text:{ heroTitle:"Mumbai's Streets, Served Fresh in Madhapur.", heroSubtitle:"In-house masalas. Freshly baked pav, every single day. Pav Mantra brings authentic Maharashtrian street food — Vada Pav, Misal Pav, Dabeli and more — straight to your plate.", aboutTitle:"Pav Mantra started with one mission — real Mumbai flavor, no shortcuts.", aboutBody:"Every masala is ground in-house, every pav is baked fresh on-site, and every plate is built the way it's done on the streets of Mumbai — quick, honest, and packed with flavor. It's a small, self-service kind of place, but the taste travels far.", footerTagline:"Authentic Maharashtrian street food in the heart of Madhapur, Hyderabad." },
+      photos:[ {id:uid(), url:"", caption:"Hero banner", tag:"Hero"}, {id:uid(), url:"", caption:"VIP Vada Pav", tag:"Gallery"}, {id:uid(), url:"", caption:"Misal Pav", tag:"Gallery"}, {id:uid(), url:"", caption:"Mango Mastani", tag:"Gallery"} ],
+      menu:[
+        { id:uid(), name:"Pav Corner", items:[ mk("Classic Vada Pav","Spiced potato vada, soft house-baked pav, garlic & tamarind chutney.",40), mk("VIP Vada Pav","Our signature — extra-crisp vada, three secret chutneys, fried green chilli.",60), mk("Cheese Vada Pav","Classic vada pav loaded with melted cheese.",70), mk("Schezwan Vada Pav","Vada pav tossed in a fiery schezwan glaze.",65) ] },
+        { id:uid(), name:"Misal & Pulao", items:[ mk("Kolhapuri Misal Pav","Sprouted moth beans in a fiery Kolhapuri gravy, farsan, pav on the side.",110), mk("Tawa Pulao","Mumbai-style buttery masala pulao tossed on a hot tawa.",130), mk("Pav Bhaji","Buttery mashed mixed-vegetable bhaji, toasted pav, onion & lime.",120), mk("Sabudana Khichdi","Classic Maharashtrian tapioca pearl khichdi with peanuts.",100) ] },
+        { id:uid(), name:"Snacks & Bhajji", items:[ mk("Dabeli","Sweet-tangy potato filling in a masala pav, topped with peanuts & pomegranate.",55), mk("Sabudana Vada","Crisp fried tapioca & peanut fritters, served with chutney.",90), mk("Bun Maska","Soft bun, generous butter, toasted golden.",45) ] },
+        { id:uid(), name:"Beverages & Mastani", items:[ mk("Ginger Chai","Hot masala chai brewed with fresh ginger.",25), mk("Mango Lassi","Thick, chilled yogurt lassi blended with mango pulp.",90), mk("Mango Mastani","Signature layered mango milkshake topped with ice cream & dry fruits.",140) ] }
+      ],
+      offers:[],
+      banner:{ enabled:true, text:"Now serving all-day breakfast on weekends!", linkLabel:"Order Now", linkUrl:"" },
+      hours:[ { id:uid(), label:"Pav Mantra, Madhapur", address:"Plot 326, Ayyappa Society, 100 Feet Road, opp. YSR Statue, Madhapur, Hyderabad – 500081", phone:"+91 89776 29720", days:"Monday – Sunday", open:"10:00 AM", close:"10:30 PM", note:"" } ],
+      contact:{ phone:"+91 89776 29720", whatsapp:"", email:"", instagram:"", facebook:"", youtube:"", zomato:"", swiggy:"", mapsUrl:"", website:"pavmantra.com" },
+      testimonials:[ { id:uid(), quote:"Best vada pav in Madhapur, hands down. The chutneys make it.", author:"Regular customer", source:"Zomato" } ],
+      faqs:[ { id:uid(), question:"Do you deliver?", answer:"Yes — order through Zomato or Swiggy for delivery, or walk in for dine-in and takeaway." }, { id:uid(), question:"Is everything vegetarian?", answer:"Yes, the entire menu is 100% pure vegetarian." } ],
+      seo:{ pageTitle:"Pav Mantra | Authentic Maharashtrian Street Food, Madhapur", metaDescription:"In-house masalas, freshly baked pav, every single day. Authentic Vada Pav, Misal Pav and Dabeli in Madhapur, Hyderabad." }
+    },
+    "c-apoorva": {
+      text:{ heroTitle:"Genuine Car Parts & Accessories, All Makes & Models.", heroSubtitle:"From essential filters and engine components to electrical parts, maintenance items, and other car accessories — Apoorva Auto Parts helps you find the right fit for your vehicle, at competitive prices with friendly, expert service.", aboutTitle:"A trusted auto parts shop, right in Sasaram.", aboutBody:"We are a trusted auto parts shop offering a wide range of genuine and quality replacement parts and accessories for cars of various makes and models. Whether you need parts for regular maintenance, repairs, or replacement, our team is here to help you find the right fit.", footerTagline:"Genuine and quality replacement parts and accessories for cars of various makes and models." },
+      photos:[ {id:uid(), url:"", caption:"Shop front", tag:"Hero"}, {id:uid(), url:"", caption:"Filters aisle", tag:"Gallery"} ],
+      menu:[
+        { id:uid(), name:"Filters", items:[ mk("Oil Filter","For regular servicing across most car models."), mk("Air & Fuel Filters","Keep your engine running clean and efficient.") ] },
+        { id:uid(), name:"Engine", items:[ mk("Engine Components","Gaskets, belts and core components for repairs."), mk("Belts & Hoses","Timing, fan and drive belts for various models.") ] },
+        { id:uid(), name:"Electrical", items:[ mk("Car Battery","Reliable starting power for your vehicle."), mk("Headlight & Bulbs","Lighting parts for clear, safe visibility.") ] },
+        { id:uid(), name:"Maintenance", items:[ mk("Brake Parts","Pads, shoes and related brake components."), mk("Lubricants & Fluids","Engine oil and fluids for routine maintenance.") ] },
+        { id:uid(), name:"Accessories", items:[ mk("Wipers & Mirrors","Replacement wiper blades and mirror parts."), mk("Car Accessories","A range of accessories to complete your vehicle.") ] }
+      ],
+      offers:[],
+      hours:[ { id:uid(), label:"Apoorva Auto Parts", address:"New Area, Kanodia Petrol Pump, Near Old G.T. Road, Sasaram, Rohtas, Bihar 821115", phone:"94318 44035", days:"", open:"", close:"", note:"Call ahead to confirm today's hours." } ],
+      contact:{ phone:"94318 44035 · 79032 21974", whatsapp:"94318 44035", email:"amod.shantiautoparts@gmail.com", instagram:"", facebook:"", youtube:"", zomato:"", swiggy:"", mapsUrl:"", website:"apoorvaauto.com" },
+      faqs:[ { id:uid(), question:"Do you have parts for my car model?", answer:"Call or WhatsApp us the make, model and part you need — we'll confirm availability and price." }, { id:uid(), question:"Do you fit the parts too?", answer:"We supply genuine parts; ask in-store about fitting recommendations." } ],
+      seo:{ pageTitle:"Apoorva Auto Parts | Genuine Car Spare Parts & Accessories, Sasaram", metaDescription:"Genuine car parts and accessories for all makes and models in Sasaram — filters, engine components, electrical parts and more." }
+    },
+    "c-hangout": {
+      text:{ heroTitle:"HANGOUT CAFE & RESTAURANT", heroSubtitle:"Good food, good company — right next to campus. Veg & Non-Veg, all your favourites under one roof.", aboutTitle:"Veg & Non-Veg, All in One Place", aboutBody:"From sizzling starters to comfort curries, rolls, Chinese and chilled drinks — Hangout Cafe & Restaurant serves it all, freshly made to order. Whether you're grabbing a quick bite between classes or settling in with friends, there's a plate for everyone here.", footerTagline:"Hangout Cafe & Restaurant, Mahadeva Road, Ghari, Jamuhar, Bihar." },
+      photos:[ {id:uid(), url:"", caption:"Hero banner", tag:"Hero"}, {id:uid(), url:"", caption:"Dine-in seating", tag:"Gallery"} ],
+      menu:[
+        { id:uid(), name:"Starters & Snacks", items:[ mk("Veg Cheese Momos","",90), mk("Paneer Tikka","",150), mk("Chilli Potato","",100), mk("French Fries","",80), mk("Veg Spring Roll","",90), mk("Chicken Momos","",110), mk("Chicken Lollipop","",180), mk("Chicken 65","",170), mk("Egg Roll","",70) ] }
+      ],
+      offers:[],
+      banner:{ enabled:false, text:"", linkLabel:"", linkUrl:"" },
+      hours:[ { id:uid(), label:"Hangout Cafe & Restaurant", address:"Near Gopal Narayan Singh University & Medical College, Mahadeva Road, Ghari, Jamuhar, Bihar 821305", phone:"+91 90000 00000", days:"All days", open:"8:00 AM", close:"11:00 PM", note:"Placeholder — update with actual hours" } ],
+      contact:{ phone:"+91 90000 00000 (placeholder — update with the real number)", whatsapp:"", email:"", instagram:"", facebook:"", youtube:"", zomato:"", swiggy:"", mapsUrl:"", website:"hangoutcafe.in" },
+      testimonials:[ { id:uid(), quote:"Go-to spot after class — quick, tasty, and something for everyone.", author:"GNSU student", source:"" } ],
+      faqs:[ { id:uid(), question:"Do you have both veg and non-veg?", answer:"Yes — the full menu is split clearly between veg and non-veg options." }, { id:uid(), question:"Can I book a table?", answer:"Yes, use the Reserve section on the site to send your details via WhatsApp." } ],
+      seo:{ pageTitle:"Hangout Cafe & Restaurant | Jamuhar, Near GNSU", metaDescription:"Veg & Non-Veg food near GNSU, Jamuhar — starters, Chinese, South Indian, fast food and more, freshly made to order." }
+    },
+    "c-srima": {
+      text:{ heroTitle:"Two doors on the same road. One family looking after your health.", heroSubtitle:"Srima Diagnostic Centre runs the tests. Srima Medical fills the prescription. Same people, five minutes' walk apart, both run by the same family that's known this neighbourhood for years.", aboutTitle:"Why it helps that it's one family running both.", aboutBody:"Your report from the diagnostic centre and your prescription at the pharmacy are read by people who talk to each other daily. Home sample collection on the diagnostic side means an elderly patient can get tested without leaving the house.", footerTagline:"Srima Diagnostic Centre & Medical Store, Kidderpore." },
+      photos:[ {id:uid(), url:"", caption:"Diagnostic Centre entrance", tag:"Hero"}, {id:uid(), url:"", caption:"Medical Store counter", tag:"Gallery"} ],
+      menu:[
+        { id:uid(), name:"Diagnostic Centre Services", items:[ mk("Pathology & Blood Work",""), mk("X-Ray",""), mk("ECG",""), mk("EEG",""), mk("3D Echo",""), mk("Full Health Check-ups",""), mk("Home Sample Collection","") ] },
+        { id:uid(), name:"Medical Store", items:[ mk("Prescription Medicine","Dispensing what's actually prescribed."), mk("Genuine Brands","Not substitutes.") ] }
+      ],
+      offers:[],
+      hours:[
+        { id:uid(), label:"Srima Diagnostic Centre", address:"32A, Hari Sava St, Kidderpore, Kolkata, West Bengal 700023", phone:"+91 91631 89426", days:"Mon–Sat", open:"8:00 AM", close:"8:00 PM", note:"Closed Sunday" },
+        { id:uid(), label:"Srima Medical", address:"92, Diamond Harbour Rd, Kidderpore, Kolkata, West Bengal 700023", phone:"+91 97486 71821", days:"Mon–Sat", open:"9:00 AM", close:"11:00 PM", note:"Closed Sunday" }
+      ],
+      contact:{ phone:"+91 91631 89426 / +91 97486 71821", whatsapp:"", email:"", instagram:"", facebook:"", youtube:"", zomato:"", swiggy:"", mapsUrl:"", website:"srimadiagnostic.com" },
+      testimonials:[ { id:uid(), quote:"Careful, clean-handed staff and the reports came back right on time.", author:"Patient", source:"Google review" } ],
+      faqs:[ { id:uid(), question:"Do you offer home sample collection?", answer:"Yes — call the Diagnostic Centre to arrange a home visit for sample collection." }, { id:uid(), question:"Are you open on Sundays?", answer:"No, both the Diagnostic Centre and Medical Store are closed on Sundays." } ],
+      seo:{ pageTitle:"Srima — Diagnostic Centre & Medical Store, Kidderpore", metaDescription:"Pathology, X-ray, ECG, EEG, 3D Echo and a full-service pharmacy — two doors, one family, in Kidderpore, Kolkata." }
+    },
+    "c-sriram": {
+      text:{ heroTitle:"Gifting made royal, every single time.", heroSubtitle:"From engagement thalis to travel bags, décor to kids' favourites — one trusted address on G.T. Road for every celebration. Quality • Variety • Trust.", aboutTitle:"Quality • Variety • Trust", aboutBody:"Every piece checked and packed with care before it reaches you. Five collections under one roof — no need to shop around. A familiar, friendly face on G.T. Road for the whole community.", footerTagline:"Shri Ram Royal Bags & Comforts Zone, G.T. Road, Parmar Katra." },
+      photos:[ {id:uid(), url:"", caption:"Engagement thali display", tag:"Hero"} ],
+      menu:[
+        { id:uid(), name:"Collections", items:[ mk("Engagement Thali","Ring platters & ceremony trays styled to shine."), mk("Decor & Flowers","Bouquets and event décor for every occasion."), mk("Bags & Trolleys","Travel bags, trolleys & handbags built to last."), mk("Kids Products","Toys & playful picks that little ones love."), mk("Gifts & Hampers","Curated hampers for every celebration & festival.") ] }
+      ],
+      offers:[],
+      banner:{ enabled:false, text:"", linkLabel:"", linkUrl:"" },
+      hours:[],
+      contact:{ phone:"", whatsapp:"+91 79054 86878", email:"", instagram:"@shriramroyalbags_comforts_zone", facebook:"", youtube:"", zomato:"", swiggy:"", mapsUrl:"", website:"sriramgifts.com", address:"G.T. Road, Parmar Katra" },
+      faqs:[ { id:uid(), question:"Can I order without visiting the store?", answer:"Yes — message us on WhatsApp with what you need and we'll help you put it together." }, { id:uid(), question:"Do you customize engagement thalis?", answer:"Yes, thalis are custom-styled to match your function — drapes, florals and gold accents included." } ],
+      seo:{ pageTitle:"Shri Ram Royal Bags & Comforts Zone | Engagement Thali, Gifts, Bags & Decor", metaDescription:"Engagement thalis, décor, travel bags and gift hampers — one trusted address on G.T. Road, Parmar Katra." }
+    },
+    "c-shibpur": {
+      text:{ heroTitle:"Shibpur Hindu Girls High School", heroSubtitle:"A neighbourhood institution in the heart of Shibtala, Naora — shaping confident, capable young women through education, discipline and community, right here in Shibpur.", aboutTitle:"Rooted in Shibpur, focused on every girl's future", aboutBody:"Shibpur Hindu Girls High School is a higher secondary school serving girl students from Shibtala, Naora and the wider Shibpur neighbourhood of Howrah, providing a focused, supportive environment where students can learn, grow and build confidence.", footerTagline:"Shibpur Hindu Girls High School, Shibpur, Howrah." },
+      photos:[],
+      menu:[],
+      offers:[],
+      hours:[ { id:uid(), label:"Shibpur Hindu Girls High School", address:"45, Shibpur Rd, Shibtala, Naora, Shibpur, Howrah, West Bengal 711102", phone:"096741 21135", days:"", open:"", close:"5:30 PM", note:"Call ahead to confirm daily timings" } ],
+      contact:{ phone:"096741 21135", whatsapp:"", email:"", instagram:"", facebook:"", youtube:"", zomato:"", swiggy:"", mapsUrl:"", website:"shghschool.edu.in" },
+      faqs:[ { id:uid(), question:"Is the school wheelchair accessible?", answer:"Yes, the campus is wheelchair accessible." }, { id:uid(), question:"How do I get admission information?", answer:"Call the school office at 096741 21135 for admission details." } ],
+      seo:{ pageTitle:"Shibpur Hindu Girls High School | Shibpur, Howrah", metaDescription:"Higher secondary school for girls in Shibtala, Naora, Shibpur, Howrah — education, discipline and community." }
+    }
+  };
+  const wrapped = {};
+  Object.keys(wc).forEach(cid => { wrapped[cid] = { published: wc[cid], draft: JSON.parse(JSON.stringify(wc[cid])) }; });
+  saveKey("websiteContent", wrapped);
+}
+const EMPTY_WEBSITE_CONTENT = { text:{}, photos:[], menu:[], offers:[], hours:[], contact:{}, testimonials:[], faqs:[], banner:{}, seo:{} };
+function websiteRecordFor(clientId){
+  seedWebsiteContentIfEmpty();
+  const all = loadKey("websiteContent")||{};
+  if(!all[clientId]) all[clientId] = { published: JSON.parse(JSON.stringify(EMPTY_WEBSITE_CONTENT)), draft: JSON.parse(JSON.stringify(EMPTY_WEBSITE_CONTENT)) };
+  return all[clientId];
+}
+/* The DRAFT copy — every Manage Website edit reads and writes here, never touching what's published. */
+function currentClientWebsiteContent(){
+  return websiteRecordFor(currentClientRecord().id).draft;
+}
+function saveClientWebsiteContent(content){
+  const client = currentClientRecord();
+  const all = loadKey("websiteContent")||{};
+  all[client.id].draft = content;
+  saveKey("websiteContent", all);
+}
+function currentClientWebsitePublished(){
+  return websiteRecordFor(currentClientRecord().id).published;
+}
+function websiteHasPendingChanges(clientId){
+  const rec = websiteRecordFor(clientId);
+  return JSON.stringify(rec.draft) !== JSON.stringify(rec.published);
+}
+function sectionHasPendingChanges(clientId, sectionId){
+  const rec = websiteRecordFor(clientId);
+  return JSON.stringify(rec.draft[sectionId]) !== JSON.stringify(rec.published[sectionId]);
+}
+function publishWebsiteDraft(){
+  const client = currentClientRecord();
+  const all = loadKey("websiteContent")||{};
+  all[client.id].published = JSON.parse(JSON.stringify(all[client.id].draft));
+  saveKey("websiteContent", all);
+  logAudit("Website Published","Website","Draft changes published to the live site", client.id, null, null, currentClientUser().id);
+  wmToast("Published ✓ — once your database is connected, this is what visitors will see.");
+}
+function discardWebsiteDraft(){
+  if(!confirm("Discard all unpublished changes and revert to what's currently live? This can't be undone.")) return;
+  const client = currentClientRecord();
+  const all = loadKey("websiteContent")||{};
+  all[client.id].draft = JSON.parse(JSON.stringify(all[client.id].published));
+  saveKey("websiteContent", all);
+  logAudit("Draft Discarded","Website","Unpublished changes discarded", client.id, null, null, currentClientUser().id);
+  wmToast("Draft discarded — back to the published version.");
+  renderManageWebsite();
+}
+function myWebsiteAccessSections(){
+  const me = currentClientUser();
+  if(me.isAdmin) return WEBSITE_SECTIONS.map(s=>s.id);
+  return me.websiteAccess || [];
+}
+function clientEnabledSections(client){
+  return client.websiteSections || WEBSITE_SECTIONS.map(s=>s.id);
+}
+function flashSaved(){ wmToast("Saved ✓ — showing here now. Once your database is connected, this publishes straight to the live site."); }
+
+/* ---- Hash routing: keeps the address bar in sync so Ctrl/Cmd/middle-click on any
+   nav item opens that exact tab in a new tab (sessionStorage carries over to it). ---- */
+function navClick(e, tab){
+  if(e.ctrlKey || e.metaKey || e.shiftKey || e.button===1) return true;
+  e.preventDefault(); goToTab(tab); return false;
+}
+function wmNavClick(e, section){
+  if(e.ctrlKey || e.metaKey || e.shiftKey || e.button===1) return true;
+  e.preventDefault(); goToWebsiteSection(section); return false;
+}
+function syncHash(){
+  const hash = currentTab==="cwebsite-manage" ? `#/cwebsite-manage/${websiteMgmtSection}` : `#/${currentTab}`;
+  if(location.hash!==hash){ try{ history.replaceState(history.state, "", location.pathname+location.search+hash); }catch(e){} }
+}
+function applyHashRoute(){
+  const h = location.hash.replace(/^#\/?/, "");
+  if(!h) return null;
+  const parts = h.split("/");
+  if(parts[0]==="cwebsite-manage"){ if(parts[1]) websiteMgmtSection = parts[1]; return "cwebsite-manage"; }
+  return parts[0] || null;
+}
+
+function renderManageWebsite(){
+  const client = currentClientRecord(), me = currentClientUser();
+  document.querySelectorAll(".nav-item").forEach(n => n.classList.toggle("active", n.dataset.tab==="cwebsite"));
+  const allowed = myWebsiteAccessSections();
+  const enabled = clientEnabledSections(client);
+  const visibleSections = WEBSITE_SECTIONS.filter(s=>allowed.includes(s.id) && enabled.includes(s.id));
+  if(!visibleSections.length && !me.isAdmin){
+    document.getElementById("main-content").innerHTML = `
+      <div class="topbar"><div><h2>Manage Website</h2><p>${escapeHtml(client.name)}</p></div><button class="btn secondary" onclick="goToTab('cwebsite')">&larr; Website Overview</button></div>
+      <div class="card"><p class="empty-row">You don't have access to update any part of the website yet. Ask your Client Admin to grant you access under Access.</p></div>`;
+    return;
+  }
+  const sectionIsValid = (websiteMgmtSection==="access" ? me.isAdmin : websiteMgmtSection==="preview" ? true : visibleSections.some(s=>s.id===websiteMgmtSection));
+  if(!sectionIsValid) websiteMgmtSection = visibleSections[0] ? visibleSections[0].id : "text";
+  syncHash();
+  const pending = websiteHasPendingChanges(client.id);
+  const navHtml = WEBSITE_SECTION_GROUPS.map(group=>{
+    const items = visibleSections.filter(s=>s.group===group);
+    if(!items.length) return "";
+    return `<div class="wm-nav-label">${group}</div>` + items.map(s=>`<a href="#/cwebsite-manage/${s.id}" class="wm-nav-item ${websiteMgmtSection===s.id?"active":""}" onclick="return wmNavClick(event,'${s.id}')"><span class="ic">${s.icon}</span> ${s.label}${sectionHasPendingChanges(client.id,s.id)?`<span class="wm-dot" title="Unpublished changes"></span>`:""}</a>`).join("");
+  }).join("")
+    + `<div class="wm-nav-label">Review</div><a href="#/cwebsite-manage/preview" class="wm-nav-item ${websiteMgmtSection==="preview"?"active":""}" onclick="return wmNavClick(event,'preview')"><span class="ic">&#128065;</span> Preview${pending?` <span class="wm-dot" title="Unpublished changes"></span>`:""}</a>`
+    + (me.isAdmin ? `<div class="wm-nav-label">Admin</div><a href="#/cwebsite-manage/access" class="wm-nav-item ${websiteMgmtSection==="access"?"active":""}" onclick="return wmNavClick(event,'access')"><span class="ic">&#128274;</span> Access</a><a href="#/cwebsite" class="wm-nav-item" onclick="return navClick(event,'cwebsite')"><span class="ic">&#8630;</span> Website Overview</a>` : "");
+  document.getElementById("main-content").innerHTML = `
+    <div class="topbar"><div><h2>Manage Website</h2><p>Update what's live on ${escapeHtml(client.website)} — no coding, no need to message us first. Ctrl/Cmd-click any section to open it in a new tab.</p></div></div>
+    ${pending && websiteMgmtSection!=="preview" ? `
+    <div class="wm-pending-bar">
+      <div><b>You have unpublished changes.</b> They're saved here, but won't show on the live site until published.</div>
+      <div style="display:flex;gap:8px;"><a href="#/cwebsite-manage/preview" class="btn secondary small" onclick="return wmNavClick(event,'preview')" style="text-decoration:none;">Preview Changes</a></div>
+    </div>` : ""}
+    <div class="wm-shell"><div class="wm-nav">${navHtml}</div><div class="wm-content" id="wm-body"></div></div>
+  `;
+  const renderers = { text:renderWmText, photos:renderWmPhotos, menu:renderWmMenu, offers:renderWmOffers, banner:renderWmBanner, hours:renderWmHours, contact:renderWmContact, testimonials:renderWmTestimonials, faqs:renderWmFaqs, seo:renderWmSeo, access:renderWmAccess, preview:renderWmPreviewScreen };
+  (renderers[websiteMgmtSection]||renderWmText)();
+}
+function goToWebsiteSection(section){ websiteMgmtSection = section; renderManageWebsite(); pushHistoryState(); }
+
+/* ---- Text ---- */
+function renderWmText(){
+  const t = currentClientWebsiteContent().text || {};
+  document.getElementById("wm-body").innerHTML = `
+    <div class="wm-section-head"><h3>Site Text</h3><p>The headline and story visitors read first. Keep the hero title short — it's the biggest text on the page.</p></div>
+    <div class="card" style="max-width:640px;">
+      <div class="field"><label>Hero Title</label><input type="text" id="wm-heroTitle" maxlength="90" oninput="wmCountChars('wm-heroTitle',70)" value="${escapeHtml(t.heroTitle||"")}"></div>
+      <div class="wm-field-error" id="wm-heroTitle-error"></div>
+      <div class="wm-counter" id="wm-heroTitle-counter"></div>
+      <div class="field"><label>Hero Subtitle</label><textarea id="wm-heroSubtitle">${escapeHtml(t.heroSubtitle||"")}</textarea></div>
+      <div class="field"><label>About Title</label><input type="text" id="wm-aboutTitle" value="${escapeHtml(t.aboutTitle||"")}"></div>
+      <div class="field"><label>About Body</label><textarea id="wm-aboutBody">${escapeHtml(t.aboutBody||"")}</textarea></div>
+      <div class="field"><label>Footer Tagline</label><input type="text" id="wm-footerTagline" value="${escapeHtml(t.footerTagline||"")}"></div>
+      <button class="btn" onclick="saveWmText()">Save Changes</button>
+      <div class="wm-save-msg" id="wm-save-msg"></div>
+    </div>`;
+  wmCountChars("wm-heroTitle", 70);
+}
+function wmCountChars(fieldId, recommendedMax){
+  const el = document.getElementById(fieldId), counter = document.getElementById(fieldId+"-counter");
+  if(!el || !counter) return;
+  const len = el.value.length;
+  counter.textContent = `${len} characters${len>recommendedMax ? " — long titles may wrap awkwardly on mobile" : ""}`;
+  counter.classList.toggle("over", len>recommendedMax);
+}
+function saveWmText(){
+  const heroTitle = document.getElementById("wm-heroTitle").value.trim();
+  wmClearErrors(["wm-heroTitle"]);
+  if(!heroTitle){ wmSetFieldError("wm-heroTitle","Hero title can't be empty — it's the first thing visitors see."); wmToast("Please fix the highlighted field.","error"); return; }
+  const content = currentClientWebsiteContent();
+  content.text = {
+    heroTitle,
+    heroSubtitle: document.getElementById("wm-heroSubtitle").value.trim(),
+    aboutTitle: document.getElementById("wm-aboutTitle").value.trim(),
+    aboutBody: document.getElementById("wm-aboutBody").value.trim(),
+    footerTagline: document.getElementById("wm-footerTagline").value.trim()
+  };
+  saveClientWebsiteContent(content);
+  logAudit("Website Text Updated","Website","Text content updated", currentClientRecord().id, null, null, currentClientUser().id);
+  flashSaved();
+}
+
+/* ---- Photos ---- */
+function renderWmPhotos(){
+  const photos = currentClientWebsiteContent().photos||[];
+  document.getElementById("wm-body").innerHTML = `
+    <div class="wm-section-head"><h3>Photos</h3><p>Images used in your gallery, hero banner and menu. Large photos are resized automatically when you upload them.</p></div>
+    <div class="topbar" style="margin-bottom:14px;"><div class="wm-save-msg" id="wm-save-msg"></div><div style="display:flex;gap:8px;">
+      <button class="btn secondary small" id="wm-bulk-del-photos" style="display:none;" onclick="bulkDeletePhotos()">Delete Selected</button>
+      <button class="btn small" onclick="openPhotoForm()">+ Add Photo</button>
+    </div></div>
+    <div class="team-grid">
+      ${photos.length ? photos.map(p=>`
+        <div class="wm-photo-card">
+          <input type="checkbox" class="wm-select wm-photo-check" value="${p.id}" onchange="updatePhotoBulkBar()">
+          <div class="wm-photo-thumb" style="${p.url?`background-image:url('${p.url}');color:transparent;`:""}">${p.url?"":"No image uploaded"}</div>
+          <div style="font-size:12.5px;font-weight:600;">${escapeHtml(p.caption||"Untitled")}</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">${escapeHtml(p.tag||"")}</div>
+          <div class="row-actions"><button class="icon-btn" onclick="openPhotoForm('${p.id}')">Edit</button><button class="icon-btn" onclick="deletePhoto('${p.id}')">Delete</button></div>
+        </div>`).join("") : `<div class="card empty-row" style="grid-column:1/-1;">No photos yet — add your first one.</div>`}
+    </div>`;
+}
+function updatePhotoBulkBar(){
+  const any = document.querySelectorAll(".wm-photo-check:checked").length > 0;
+  document.getElementById("wm-bulk-del-photos").style.display = any ? "inline-block" : "none";
+}
+function bulkDeletePhotos(){
+  const ids = Array.from(document.querySelectorAll(".wm-photo-check:checked")).map(c=>c.value);
+  if(!ids.length) return;
+  if(!confirm(`Delete ${ids.length} photo(s)?`)) return;
+  const content = currentClientWebsiteContent();
+  content.photos = (content.photos||[]).filter(p=>!ids.includes(p.id));
+  saveClientWebsiteContent(content);
+  logAudit("Photos Deleted","Website",`${ids.length} photo(s) removed`, currentClientRecord().id, null, null, currentClientUser().id);
+  renderWmPhotos();
+}
+function resizeImageFile(file, cb){
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      const maxW = 900;
+      const scale = Math.min(1, maxW / img.width);
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width * scale; canvas.height = img.height * scale;
+      canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+      cb(canvas.toDataURL("image/jpeg", 0.82));
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function openPhotoForm(id){
+  const photos = currentClientWebsiteContent().photos||[];
+  const item = id ? photos.find(p=>p.id===id) : { url:"", caption:"", tag:"Gallery" };
+  openModal(`
+    <h3>${id?"Edit":"Add"} Photo</h3>
+    <div class="field"><label>Image File</label><input type="file" accept="image/*" id="wm-photo-file"></div>
+    <div id="wm-photo-preview" style="margin:8px 0;">${item.url?`<img src="${item.url}" style="max-width:100%;max-height:160px;border-radius:8px;">`:""}</div>
+    <div class="field"><label>Caption</label><input type="text" id="wm-photo-caption" value="${escapeHtml(item.caption||"")}"></div>
+    <div class="field"><label>Where it's used</label><select id="wm-photo-tag"><option ${item.tag==="Hero"?"selected":""}>Hero</option><option ${item.tag==="Gallery"?"selected":""}>Gallery</option><option ${item.tag==="Menu"?"selected":""}>Menu</option></select></div>
+    <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="savePhoto('${id||""}')">Save</button></div>
+  `);
+  window._wmPhotoUrl = item.url || "";
+  document.getElementById("wm-photo-file").addEventListener("change", e => {
+    const file = e.target.files[0]; if(!file) return;
+    resizeImageFile(file, dataUrl => {
+      window._wmPhotoUrl = dataUrl;
+      document.getElementById("wm-photo-preview").innerHTML = `<img src="${dataUrl}" style="max-width:100%;max-height:160px;border-radius:8px;">`;
+    });
+  });
+}
+function savePhoto(id){
+  const content = currentClientWebsiteContent();
+  content.photos = content.photos || [];
+  const caption = document.getElementById("wm-photo-caption").value.trim();
+  const tag = document.getElementById("wm-photo-tag").value;
+  const url = window._wmPhotoUrl || "";
+  if(id){
+    const p = content.photos.find(x=>x.id===id); p.caption=caption; p.tag=tag; p.url=url;
+  } else {
+    content.photos.push({ id:uid(), caption, tag, url });
+  }
+  saveClientWebsiteContent(content);
+  logAudit(id?"Photo Updated":"Photo Added","Website", caption||"Untitled", currentClientRecord().id, null, null, currentClientUser().id);
+  closeModal(); renderWmPhotos();
+}
+function deletePhoto(id){
+  if(!confirm("Delete this photo?")) return;
+  const content = currentClientWebsiteContent();
+  content.photos = (content.photos||[]).filter(p=>p.id!==id);
+  saveClientWebsiteContent(content);
+  logAudit("Photo Deleted","Website", id, currentClientRecord().id, null, null, currentClientUser().id);
+  renderWmPhotos();
+}
+
+/* ---- Menu & Prices ---- */
+function renderWmMenu(){
+  const menu = currentClientWebsiteContent().menu||[];
+  document.getElementById("wm-body").innerHTML = `
+    <div class="wm-section-head"><h3>Menu &amp; Prices</h3><p>Organize items into categories. Leave a price blank to show "Enquire" instead of a number.</p></div>
+    <div class="topbar" style="margin-bottom:14px;"><div class="wm-save-msg" id="wm-save-msg"></div><button class="btn small" onclick="openCategoryForm()">+ Add Category</button></div>
+    ${menu.length ? menu.map(cat=>`
+      <div class="card">
+        <div class="topbar" style="margin-bottom:10px;">
+          <div><h3 style="margin:0;">${escapeHtml(cat.name)}</h3></div>
+          <div style="display:flex;gap:6px;">
+            <button class="btn secondary small" id="wm-bulk-del-${cat.id}" style="display:none;" onclick="bulkDeleteItems('${cat.id}')">Delete Selected</button>
+            <button class="icon-btn" onclick="openCategoryForm('${cat.id}')">Edit Category</button>
+            <button class="icon-btn" onclick="deleteCategory('${cat.id}')">Delete Category</button>
+            <button class="btn small" onclick="openItemForm('${cat.id}')">+ Add Item</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+        <table><thead><tr><th></th><th>Name</th><th>Description</th><th>Price</th><th></th></tr></thead>
+        <tbody>${cat.items.length ? cat.items.map(it=>`<tr>
+          <td><input type="checkbox" class="wm-item-check wm-item-check-${cat.id}" value="${it.id}" onchange="updateItemBulkBar('${cat.id}')"></td>
+          <td><b>${escapeHtml(it.name)}</b></td>
+          <td style="color:var(--muted);">${escapeHtml(it.description||"")}</td>
+          <td>${it.price!=null && it.price!=="" ? "₹"+escapeHtml(String(it.price)) : `<span style="color:var(--muted);">Enquire</span>`}</td>
+          <td class="row-actions"><button class="icon-btn" onclick="openItemForm('${cat.id}','${it.id}')">Edit</button><button class="icon-btn" onclick="deleteItem('${cat.id}','${it.id}')">Delete</button></td>
+        </tr>`).join("") : `<tr><td colspan="5" class="empty-row">No items in this category yet.</td></tr>`}</tbody></table>
+        </div>
+      </div>`).join("") : `<div class="card empty-row">No menu categories yet — add your first one.</div>`}
+  `;
+}
+function openCategoryForm(id){
+  const menu = currentClientWebsiteContent().menu||[];
+  const cat = id ? menu.find(c=>c.id===id) : {};
+  openModal(`
+    <h3>${id?"Edit":"Add"} Category</h3>
+    <div class="field"><label>Category Name *</label><input type="text" id="wm-cat-name" value="${escapeHtml(cat.name||"")}"></div>
+    <div class="wm-field-error" id="wm-cat-name-error"></div>
+    <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveCategory('${id||""}')">Save</button></div>
+  `);
+}
+function saveCategory(id){
+  const name = document.getElementById("wm-cat-name").value.trim();
+  wmClearErrors(["wm-cat-name"]);
+  if(!name){ wmSetFieldError("wm-cat-name","Category name is required."); return; }
+  const content = currentClientWebsiteContent();
+  content.menu = content.menu || [];
+  if(id){ content.menu.find(c=>c.id===id).name = name; }
+  else { content.menu.push({ id:uid(), name, items:[] }); }
+  saveClientWebsiteContent(content);
+  logAudit(id?"Category Updated":"Category Added","Website", name, currentClientRecord().id, null, null, currentClientUser().id);
+  closeModal(); renderWmMenu();
+}
+function deleteCategory(id){
+  if(!confirm("Delete this category and all its items?")) return;
+  const content = currentClientWebsiteContent();
+  content.menu = (content.menu||[]).filter(c=>c.id!==id);
+  saveClientWebsiteContent(content);
+  logAudit("Category Deleted","Website", id, currentClientRecord().id, null, null, currentClientUser().id);
+  renderWmMenu();
+}
+function updateItemBulkBar(catId){
+  const any = document.querySelectorAll(`.wm-item-check-${catId}:checked`).length > 0;
+  const btn = document.getElementById("wm-bulk-del-"+catId); if(btn) btn.style.display = any ? "inline-block" : "none";
+}
+function bulkDeleteItems(catId){
+  const ids = Array.from(document.querySelectorAll(`.wm-item-check-${catId}:checked`)).map(c=>c.value);
+  if(!ids.length) return;
+  if(!confirm(`Delete ${ids.length} item(s)?`)) return;
+  const content = currentClientWebsiteContent();
+  const cat = (content.menu||[]).find(c=>c.id===catId);
+  cat.items = cat.items.filter(it=>!ids.includes(it.id));
+  saveClientWebsiteContent(content);
+  logAudit("Items Deleted","Website",`${ids.length} item(s) removed from ${cat.name}`, currentClientRecord().id, null, null, currentClientUser().id);
+  renderWmMenu();
+}
+function openItemForm(catId, itemId){
+  const content = currentClientWebsiteContent();
+  const cat = content.menu.find(c=>c.id===catId);
+  const item = itemId ? cat.items.find(i=>i.id===itemId) : {};
+  openModal(`
+    <h3>${itemId?"Edit":"Add"} Item — ${escapeHtml(cat.name)}</h3>
+    <div class="field"><label>Name *</label><input type="text" id="wm-item-name" value="${escapeHtml(item.name||"")}"></div>
+    <div class="wm-field-error" id="wm-item-name-error"></div>
+    <div class="field"><label>Description</label><textarea id="wm-item-desc">${escapeHtml(item.description||"")}</textarea></div>
+    <div class="field"><label>Price (₹) — leave blank for "Enquire"</label><input type="number" min="0" step="0.01" id="wm-item-price" value="${item.price!=null?item.price:""}"></div>
+    <div class="wm-field-error" id="wm-item-price-error"></div>
+    <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveItem('${catId}','${itemId||""}')">Save</button></div>
+  `);
+}
+function saveItem(catId, itemId){
+  wmClearErrors(["wm-item-name","wm-item-price"]);
+  const name = document.getElementById("wm-item-name").value.trim();
+  if(!name){ wmSetFieldError("wm-item-name","Item name is required."); return; }
+  const description = document.getElementById("wm-item-desc").value.trim();
+  const priceRaw = document.getElementById("wm-item-price").value;
+  if(priceRaw!=="" && (isNaN(Number(priceRaw)) || Number(priceRaw)<0)){ wmSetFieldError("wm-item-price","Price must be a positive number, or blank for \"Enquire\"."); return; }
+  const price = priceRaw==="" ? null : Number(priceRaw);
+  const content = currentClientWebsiteContent();
+  const cat = content.menu.find(c=>c.id===catId);
+  if(itemId){ const it = cat.items.find(i=>i.id===itemId); it.name=name; it.description=description; it.price=price; }
+  else { cat.items.push({ id:uid(), name, description, price }); }
+  saveClientWebsiteContent(content);
+  logAudit(itemId?"Item Updated":"Item Added","Website", name, currentClientRecord().id, null, null, currentClientUser().id);
+  closeModal(); renderWmMenu();
+}
+function deleteItem(catId, itemId){
+  if(!confirm("Delete this item?")) return;
+  const content = currentClientWebsiteContent();
+  const cat = content.menu.find(c=>c.id===catId);
+  cat.items = cat.items.filter(i=>i.id!==itemId);
+  saveClientWebsiteContent(content);
+  logAudit("Item Deleted","Website", itemId, currentClientRecord().id, null, null, currentClientUser().id);
+  renderWmMenu();
+}
+
+/* ---- Offers ---- */
+function renderWmOffers(){
+  const offers = currentClientWebsiteContent().offers||[];
+  document.getElementById("wm-body").innerHTML = `
+    <div class="wm-section-head"><h3>Offers</h3><p>Time-bound promotions. Only offers marked active and within their date range should appear on the site.</p></div>
+    <div class="topbar" style="margin-bottom:14px;"><div class="wm-save-msg" id="wm-save-msg"></div><div style="display:flex;gap:8px;">
+      <button class="btn secondary small" id="wm-bulk-del-offers" style="display:none;" onclick="bulkDeleteOffers()">Delete Selected</button>
+      <button class="btn small" onclick="openOfferForm()">+ Add Offer</button>
+    </div></div>
+    <div class="card" style="padding:0;overflow-x:auto;">
+      <table><thead><tr><th></th><th>Title</th><th>Description</th><th>Valid</th><th>Status</th><th></th></tr></thead>
+      <tbody>${offers.length ? offers.map(o=>`<tr>
+        <td><input type="checkbox" class="wm-offer-check" value="${o.id}" onchange="updateOfferBulkBar()"></td>
+        <td><b>${escapeHtml(o.title)}</b></td>
+        <td style="color:var(--muted);">${escapeHtml(o.description||"")}</td>
+        <td>${o.startDate||"—"} ${o.endDate?("→ "+o.endDate):""}</td>
+        <td><span class="pill ${o.active?"green":"gray"}">${o.active?"Active":"Inactive"}</span></td>
+        <td class="row-actions"><button class="icon-btn" onclick="openOfferForm('${o.id}')">Edit</button><button class="icon-btn" onclick="deleteOffer('${o.id}')">Delete</button></td>
+      </tr>`).join("") : `<tr><td colspan="6" class="empty-row">No offers yet — post your first promotion.</td></tr>`}</tbody></table>
+    </div>`;
+}
+function updateOfferBulkBar(){
+  const any = document.querySelectorAll(".wm-offer-check:checked").length > 0;
+  document.getElementById("wm-bulk-del-offers").style.display = any ? "inline-block" : "none";
+}
+function bulkDeleteOffers(){
+  const ids = Array.from(document.querySelectorAll(".wm-offer-check:checked")).map(c=>c.value);
+  if(!ids.length) return;
+  if(!confirm(`Delete ${ids.length} offer(s)?`)) return;
+  const content = currentClientWebsiteContent();
+  content.offers = (content.offers||[]).filter(o=>!ids.includes(o.id));
+  saveClientWebsiteContent(content);
+  logAudit("Offers Deleted","Website",`${ids.length} offer(s) removed`, currentClientRecord().id, null, null, currentClientUser().id);
+  renderWmOffers();
+}
+function openOfferForm(id){
+  const offers = currentClientWebsiteContent().offers||[];
+  const o = id ? offers.find(x=>x.id===id) : { active:true };
+  openModal(`
+    <h3>${id?"Edit":"Add"} Offer</h3>
+    <div class="field"><label>Title *</label><input type="text" id="wm-offer-title" value="${escapeHtml(o.title||"")}"></div>
+    <div class="wm-field-error" id="wm-offer-title-error"></div>
+    <div class="field"><label>Description</label><textarea id="wm-offer-desc">${escapeHtml(o.description||"")}</textarea></div>
+    <div class="field-row"><div class="field"><label>Start Date</label><input type="date" id="wm-offer-start" value="${o.startDate||""}"></div><div class="field"><label>End Date</label><input type="date" id="wm-offer-end" value="${o.endDate||""}"></div></div>
+    <div class="wm-field-error" id="wm-offer-end-error"></div>
+    <div class="field"><label><input type="checkbox" id="wm-offer-active" ${o.active?"checked":""}> Show this offer on the website now</label></div>
+    <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveOffer('${id||""}')">Save</button></div>
+  `);
+}
+function saveOffer(id){
+  wmClearErrors(["wm-offer-title","wm-offer-end"]);
+  const title = document.getElementById("wm-offer-title").value.trim();
+  if(!title){ wmSetFieldError("wm-offer-title","Offer title is required."); return; }
+  const startDate = document.getElementById("wm-offer-start").value, endDate = document.getElementById("wm-offer-end").value;
+  if(startDate && endDate && endDate<startDate){ wmSetFieldError("wm-offer-end","End date can't be before the start date."); return; }
+  const record = {
+    title, description: document.getElementById("wm-offer-desc").value.trim(),
+    startDate, endDate,
+    active: document.getElementById("wm-offer-active").checked
+  };
+  const content = currentClientWebsiteContent();
+  content.offers = content.offers || [];
+  if(id){ Object.assign(content.offers.find(o=>o.id===id), record); }
+  else { content.offers.push(Object.assign({ id:uid() }, record)); }
+  saveClientWebsiteContent(content);
+  logAudit(id?"Offer Updated":"Offer Added","Website", title, currentClientRecord().id, null, null, currentClientUser().id);
+  closeModal(); renderWmOffers();
+}
+function deleteOffer(id){
+  if(!confirm("Delete this offer?")) return;
+  const content = currentClientWebsiteContent();
+  content.offers = (content.offers||[]).filter(o=>o.id!==id);
+  saveClientWebsiteContent(content);
+  logAudit("Offer Deleted","Website", id, currentClientRecord().id, null, null, currentClientUser().id);
+  renderWmOffers();
+}
+
+/* ---- Opening Hours (doubles as Locations for multi-location clients) ---- */
+function renderWmHours(){
+  const hours = currentClientWebsiteContent().hours||[];
+  document.getElementById("wm-body").innerHTML = `
+    <div class="wm-section-head"><h3>Hours &amp; Locations</h3><p>Add one entry per location — this covers businesses with a single address or several.</p></div>
+    <div class="topbar" style="margin-bottom:14px;"><div class="wm-save-msg" id="wm-save-msg"></div><button class="btn small" onclick="openHoursForm()">+ Add Location / Hours</button></div>
+    ${hours.length ? hours.map(h=>`
+      <div class="card">
+        <div class="topbar"><div><h3 style="margin:0 0 4px;">${escapeHtml(h.label)}</h3><p style="margin:0;">${escapeHtml(h.address||"")}</p></div><div class="row-actions"><button class="icon-btn" onclick="openHoursForm('${h.id}')">Edit</button><button class="icon-btn" onclick="deleteHours('${h.id}')">Delete</button></div></div>
+        <div style="font-size:13px;line-height:1.9;">
+          ${h.phone?("Phone: "+escapeHtml(h.phone)+"<br>"):""}
+          ${h.days?("Days: "+escapeHtml(h.days)+"<br>"):""}
+          ${(h.open||h.close)?("Hours: "+escapeHtml(h.open||"—")+" – "+escapeHtml(h.close||"—")+"<br>"):""}
+          ${h.note?(`<span style="color:var(--muted);">${escapeHtml(h.note)}</span>`):""}
+        </div>
+      </div>`).join("") : `<div class="card empty-row">No locations yet — add your first one.</div>`}
+  `;
+}
+function openHoursForm(id){
+  const hours = currentClientWebsiteContent().hours||[];
+  const h = id ? hours.find(x=>x.id===id) : {};
+  openModal(`
+    <h3>${id?"Edit":"Add"} Location / Hours</h3>
+    <div class="field"><label>Location Name *</label><input type="text" id="wm-hours-label" value="${escapeHtml(h.label||"")}"></div>
+    <div class="wm-field-error" id="wm-hours-label-error"></div>
+    <div class="field"><label>Address</label><input type="text" id="wm-hours-address" value="${escapeHtml(h.address||"")}"></div>
+    <div class="field"><label>Phone</label><input type="text" id="wm-hours-phone" value="${escapeHtml(h.phone||"")}"></div>
+    <div class="field"><label>Days Open</label><input type="text" id="wm-hours-days" placeholder="e.g. Monday – Sunday" value="${escapeHtml(h.days||"")}"></div>
+    <div class="field-row"><div class="field"><label>Opens</label><input type="text" id="wm-hours-open" placeholder="e.g. 10:00 AM" value="${escapeHtml(h.open||"")}"></div><div class="field"><label>Closes</label><input type="text" id="wm-hours-close" placeholder="e.g. 10:00 PM" value="${escapeHtml(h.close||"")}"></div></div>
+    <div class="field"><label>Note</label><input type="text" id="wm-hours-note" placeholder="e.g. Closed Sundays" value="${escapeHtml(h.note||"")}"></div>
+    <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveHours('${id||""}')">Save</button></div>
+  `);
+}
+function saveHours(id){
+  wmClearErrors(["wm-hours-label"]);
+  const label = document.getElementById("wm-hours-label").value.trim();
+  if(!label){ wmSetFieldError("wm-hours-label","Location name is required."); return; }
+  const record = {
+    label, address: document.getElementById("wm-hours-address").value.trim(), phone: document.getElementById("wm-hours-phone").value.trim(),
+    days: document.getElementById("wm-hours-days").value.trim(), open: document.getElementById("wm-hours-open").value.trim(),
+    close: document.getElementById("wm-hours-close").value.trim(), note: document.getElementById("wm-hours-note").value.trim()
+  };
+  const content = currentClientWebsiteContent();
+  content.hours = content.hours || [];
+  if(id){ Object.assign(content.hours.find(h=>h.id===id), record); }
+  else { content.hours.push(Object.assign({ id:uid() }, record)); }
+  saveClientWebsiteContent(content);
+  logAudit(id?"Hours Updated":"Location Added","Website", label, currentClientRecord().id, null, null, currentClientUser().id);
+  closeModal(); renderWmHours();
+}
+function deleteHours(id){
+  if(!confirm("Delete this location?")) return;
+  const content = currentClientWebsiteContent();
+  content.hours = (content.hours||[]).filter(h=>h.id!==id);
+  saveClientWebsiteContent(content);
+  logAudit("Location Deleted","Website", id, currentClientRecord().id, null, null, currentClientUser().id);
+  renderWmHours();
+}
+
+/* ---- Contact ---- */
+function renderWmContact(){
+  const c = currentClientWebsiteContent().contact || {};
+  document.getElementById("wm-body").innerHTML = `
+    <div class="wm-section-head"><h3>Contact &amp; Social</h3><p>How visitors reach you, and the social/ordering links shown on your site.</p></div>
+    <div class="card" style="max-width:560px;">
+      <div class="field"><label>Phone</label><input type="text" id="wm-contact-phone" value="${escapeHtml(c.phone||"")}"></div>
+      <div class="field"><label>WhatsApp</label><input type="text" id="wm-contact-whatsapp" value="${escapeHtml(c.whatsapp||"")}"></div>
+      <div class="field"><label>Email</label><input type="text" id="wm-contact-email" value="${escapeHtml(c.email||"")}"></div>
+      <div class="wm-field-error" id="wm-contact-email-error"></div>
+      <div class="field"><label>Instagram</label><input type="text" id="wm-contact-instagram" value="${escapeHtml(c.instagram||"")}"></div>
+      <div class="field"><label>Facebook</label><input type="text" id="wm-contact-facebook" value="${escapeHtml(c.facebook||"")}"></div>
+      <div class="field"><label>YouTube</label><input type="text" id="wm-contact-youtube" value="${escapeHtml(c.youtube||"")}"></div>
+      <div class="field-row"><div class="field"><label>Zomato Link</label><input type="text" id="wm-contact-zomato" value="${escapeHtml(c.zomato||"")}"></div><div class="field"><label>Swiggy Link</label><input type="text" id="wm-contact-swiggy" value="${escapeHtml(c.swiggy||"")}"></div></div>
+      <div class="field"><label>Google Maps Link</label><input type="text" id="wm-contact-maps" value="${escapeHtml(c.mapsUrl||"")}"></div>
+      <button class="btn" onclick="saveWmContact()">Save Changes</button>
+      <div class="wm-save-msg" id="wm-save-msg"></div>
+    </div>`;
+}
+function saveWmContact(){
+  wmClearErrors(["wm-contact-email"]);
+  const email = document.getElementById("wm-contact-email").value.trim();
+  if(!wmIsValidEmail(email)){ wmSetFieldError("wm-contact-email","That doesn't look like a valid email address."); wmToast("Please fix the highlighted field.","error"); return; }
+  const content = currentClientWebsiteContent();
+  content.contact = Object.assign({}, content.contact, {
+    phone: document.getElementById("wm-contact-phone").value.trim(),
+    whatsapp: document.getElementById("wm-contact-whatsapp").value.trim(),
+    email,
+    instagram: document.getElementById("wm-contact-instagram").value.trim(),
+    facebook: document.getElementById("wm-contact-facebook").value.trim(),
+    youtube: document.getElementById("wm-contact-youtube").value.trim(),
+    zomato: document.getElementById("wm-contact-zomato").value.trim(),
+    swiggy: document.getElementById("wm-contact-swiggy").value.trim(),
+    mapsUrl: document.getElementById("wm-contact-maps").value.trim()
+  });
+  saveClientWebsiteContent(content);
+  logAudit("Contact Updated","Website","Contact details updated", currentClientRecord().id, null, null, currentClientUser().id);
+  flashSaved();
+}
+
+/* ---- Testimonials ---- */
+function renderWmTestimonials(){
+  const items = currentClientWebsiteContent().testimonials||[];
+  document.getElementById("wm-body").innerHTML = `
+    <div class="wm-section-head"><h3>Testimonials</h3><p>Quotes you choose to feature — separate from your aggregated Google/Zomato rating, which updates on its own.</p></div>
+    <div class="topbar" style="margin-bottom:14px;"><div class="wm-save-msg" id="wm-save-msg"></div><div style="display:flex;gap:8px;">
+      <button class="btn secondary small" id="wm-bulk-del-testimonials" style="display:none;" onclick="bulkDeleteTestimonials()">Delete Selected</button>
+      <button class="btn small" onclick="openTestimonialForm()">+ Add Testimonial</button>
+    </div></div>
+    <div class="team-grid">
+      ${items.length ? items.map(t=>`
+        <div class="wm-photo-card">
+          <input type="checkbox" class="wm-select wm-testimonial-check" value="${t.id}" onchange="updateTestimonialBulkBar()">
+          <div style="font-size:13px;line-height:1.6;margin-bottom:10px;">&ldquo;${escapeHtml(t.quote)}&rdquo;</div>
+          <div style="font-size:12px;font-weight:600;">${escapeHtml(t.author)}</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">${escapeHtml(t.source||"")}</div>
+          <div class="row-actions"><button class="icon-btn" onclick="openTestimonialForm('${t.id}')">Edit</button><button class="icon-btn" onclick="deleteTestimonial('${t.id}')">Delete</button></div>
+        </div>`).join("") : `<div class="card empty-row" style="grid-column:1/-1;">No testimonials yet — add one worth showing off.</div>`}
+    </div>`;
+}
+function updateTestimonialBulkBar(){
+  const any = document.querySelectorAll(".wm-testimonial-check:checked").length > 0;
+  document.getElementById("wm-bulk-del-testimonials").style.display = any ? "inline-block" : "none";
+}
+function bulkDeleteTestimonials(){
+  const ids = Array.from(document.querySelectorAll(".wm-testimonial-check:checked")).map(c=>c.value);
+  if(!ids.length) return;
+  if(!confirm(`Delete ${ids.length} testimonial(s)?`)) return;
+  const content = currentClientWebsiteContent();
+  content.testimonials = (content.testimonials||[]).filter(t=>!ids.includes(t.id));
+  saveClientWebsiteContent(content);
+  logAudit("Testimonials Deleted","Website",`${ids.length} removed`, currentClientRecord().id, null, null, currentClientUser().id);
+  renderWmTestimonials();
+}
+function openTestimonialForm(id){
+  const items = currentClientWebsiteContent().testimonials||[];
+  const t = id ? items.find(x=>x.id===id) : {};
+  openModal(`
+    <h3>${id?"Edit":"Add"} Testimonial</h3>
+    <div class="field"><label>Quote *</label><textarea id="wm-t-quote">${escapeHtml(t.quote||"")}</textarea></div>
+    <div class="wm-field-error" id="wm-t-quote-error"></div>
+    <div class="field"><label>Author *</label><input type="text" id="wm-t-author" value="${escapeHtml(t.author||"")}"></div>
+    <div class="wm-field-error" id="wm-t-author-error"></div>
+    <div class="field"><label>Source (optional)</label><input type="text" id="wm-t-source" placeholder="e.g. Google review, regular customer" value="${escapeHtml(t.source||"")}"></div>
+    <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveTestimonial('${id||""}')">Save</button></div>
+  `);
+}
+function saveTestimonial(id){
+  wmClearErrors(["wm-t-quote","wm-t-author"]);
+  const quote = document.getElementById("wm-t-quote").value.trim();
+  const author = document.getElementById("wm-t-author").value.trim();
+  if(!quote){ wmSetFieldError("wm-t-quote","The quote can't be empty."); return; }
+  if(!author){ wmSetFieldError("wm-t-author","Let visitors know who said this."); return; }
+  const record = { quote, author, source: document.getElementById("wm-t-source").value.trim() };
+  const content = currentClientWebsiteContent();
+  content.testimonials = content.testimonials || [];
+  if(id){ Object.assign(content.testimonials.find(t=>t.id===id), record); }
+  else { content.testimonials.push(Object.assign({ id:uid() }, record)); }
+  saveClientWebsiteContent(content);
+  logAudit(id?"Testimonial Updated":"Testimonial Added","Website", author, currentClientRecord().id, null, null, currentClientUser().id);
+  closeModal(); renderWmTestimonials();
+}
+function deleteTestimonial(id){
+  if(!confirm("Delete this testimonial?")) return;
+  const content = currentClientWebsiteContent();
+  content.testimonials = (content.testimonials||[]).filter(t=>t.id!==id);
+  saveClientWebsiteContent(content);
+  logAudit("Testimonial Deleted","Website", id, currentClientRecord().id, null, null, currentClientUser().id);
+  renderWmTestimonials();
+}
+
+/* ---- FAQs ---- */
+function renderWmFaqs(){
+  const items = currentClientWebsiteContent().faqs||[];
+  document.getElementById("wm-body").innerHTML = `
+    <div class="wm-section-head"><h3>FAQs</h3><p>Answer the questions visitors ask most, so they don't have to message you first.</p></div>
+    <div class="topbar" style="margin-bottom:14px;"><div class="wm-save-msg" id="wm-save-msg"></div><div style="display:flex;gap:8px;">
+      <button class="btn secondary small" id="wm-bulk-del-faqs" style="display:none;" onclick="bulkDeleteFaqs()">Delete Selected</button>
+      <button class="btn small" onclick="openFaqForm()">+ Add FAQ</button>
+    </div></div>
+    ${items.length ? items.map(f=>`
+      <div class="card">
+        <div class="topbar"><div><input type="checkbox" class="wm-faq-check" value="${f.id}" onchange="updateFaqBulkBar()" style="margin-right:8px;"><b>${escapeHtml(f.question)}</b></div><div class="row-actions"><button class="icon-btn" onclick="openFaqForm('${f.id}')">Edit</button><button class="icon-btn" onclick="deleteFaq('${f.id}')">Delete</button></div></div>
+        <p style="font-size:13px;color:var(--muted);margin:8px 0 0;">${escapeHtml(f.answer)}</p>
+      </div>`).join("") : `<div class="card empty-row">No FAQs yet — add your first one.</div>`}
+  `;
+}
+function updateFaqBulkBar(){
+  const any = document.querySelectorAll(".wm-faq-check:checked").length > 0;
+  document.getElementById("wm-bulk-del-faqs").style.display = any ? "inline-block" : "none";
+}
+function bulkDeleteFaqs(){
+  const ids = Array.from(document.querySelectorAll(".wm-faq-check:checked")).map(c=>c.value);
+  if(!ids.length) return;
+  if(!confirm(`Delete ${ids.length} FAQ(s)?`)) return;
+  const content = currentClientWebsiteContent();
+  content.faqs = (content.faqs||[]).filter(f=>!ids.includes(f.id));
+  saveClientWebsiteContent(content);
+  logAudit("FAQs Deleted","Website",`${ids.length} removed`, currentClientRecord().id, null, null, currentClientUser().id);
+  renderWmFaqs();
+}
+function openFaqForm(id){
+  const items = currentClientWebsiteContent().faqs||[];
+  const f = id ? items.find(x=>x.id===id) : {};
+  openModal(`
+    <h3>${id?"Edit":"Add"} FAQ</h3>
+    <div class="field"><label>Question *</label><input type="text" id="wm-faq-q" value="${escapeHtml(f.question||"")}"></div>
+    <div class="wm-field-error" id="wm-faq-q-error"></div>
+    <div class="field"><label>Answer *</label><textarea id="wm-faq-a">${escapeHtml(f.answer||"")}</textarea></div>
+    <div class="wm-field-error" id="wm-faq-a-error"></div>
+    <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveFaq('${id||""}')">Save</button></div>
+  `);
+}
+function saveFaq(id){
+  wmClearErrors(["wm-faq-q","wm-faq-a"]);
+  const question = document.getElementById("wm-faq-q").value.trim();
+  const answer = document.getElementById("wm-faq-a").value.trim();
+  if(!question){ wmSetFieldError("wm-faq-q","Enter the question visitors ask."); return; }
+  if(!answer){ wmSetFieldError("wm-faq-a","Enter an answer."); return; }
+  const content = currentClientWebsiteContent();
+  content.faqs = content.faqs || [];
+  if(id){ Object.assign(content.faqs.find(f=>f.id===id), { question, answer }); }
+  else { content.faqs.push({ id:uid(), question, answer }); }
+  saveClientWebsiteContent(content);
+  logAudit(id?"FAQ Updated":"FAQ Added","Website", question, currentClientRecord().id, null, null, currentClientUser().id);
+  closeModal(); renderWmFaqs();
+}
+function deleteFaq(id){
+  if(!confirm("Delete this FAQ?")) return;
+  const content = currentClientWebsiteContent();
+  content.faqs = (content.faqs||[]).filter(f=>f.id!==id);
+  saveClientWebsiteContent(content);
+  logAudit("FAQ Deleted","Website", id, currentClientRecord().id, null, null, currentClientUser().id);
+  renderWmFaqs();
+}
+
+/* ---- Announcement Banner (single site-wide strip) ---- */
+function renderWmBanner(){
+  const b = currentClientWebsiteContent().banner || {};
+  document.getElementById("wm-body").innerHTML = `
+    <div class="wm-section-head"><h3>Announcement Banner</h3><p>One strip shown site-wide for urgent, short-lived updates — a closure, a new launch, a festival notice.</p></div>
+    <div class="wm-banner-preview ${b.enabled?"":"off"}">${b.enabled && b.text ? escapeHtml(b.text) : "Banner is currently off — visitors won't see a strip."}</div>
+    <div class="card" style="max-width:560px;">
+      <div class="field"><label><input type="checkbox" id="wm-banner-enabled" ${b.enabled?"checked":""}> Show this banner on the website now</label></div>
+      <div class="field"><label>Banner Text *</label><input type="text" id="wm-banner-text" maxlength="140" value="${escapeHtml(b.text||"")}"></div>
+      <div class="wm-field-error" id="wm-banner-text-error"></div>
+      <div class="field-row"><div class="field"><label>Link Label (optional)</label><input type="text" id="wm-banner-link-label" placeholder="e.g. Order Now" value="${escapeHtml(b.linkLabel||"")}"></div><div class="field"><label>Link URL (optional)</label><input type="text" id="wm-banner-link-url" value="${escapeHtml(b.linkUrl||"")}"></div></div>
+      <button class="btn" onclick="saveWmBanner()">Save Changes</button>
+      <div class="wm-save-msg" id="wm-save-msg"></div>
+    </div>`;
+}
+function saveWmBanner(){
+  wmClearErrors(["wm-banner-text"]);
+  const enabled = document.getElementById("wm-banner-enabled").checked;
+  const text = document.getElementById("wm-banner-text").value.trim();
+  if(enabled && !text){ wmSetFieldError("wm-banner-text","Add the banner text, or turn the banner off."); wmToast("Please fix the highlighted field.","error"); return; }
+  const content = currentClientWebsiteContent();
+  content.banner = { enabled, text, linkLabel: document.getElementById("wm-banner-link-label").value.trim(), linkUrl: document.getElementById("wm-banner-link-url").value.trim() };
+  saveClientWebsiteContent(content);
+  logAudit("Banner Updated","Website", enabled?"Banner turned on":"Banner turned off", currentClientRecord().id, null, null, currentClientUser().id);
+  flashSaved();
+  renderWmBanner();
+}
+
+/* ---- Page Info (SEO) ---- */
+function renderWmSeo(){
+  const s = currentClientWebsiteContent().seo || {};
+  document.getElementById("wm-body").innerHTML = `
+    <div class="wm-section-head"><h3>Page Info (SEO)</h3><p>What shows up as your page title and description in Google search results.</p></div>
+    <div class="card" style="max-width:560px;">
+      <div class="field"><label>Page Title</label><input type="text" id="wm-seo-title" maxlength="70" oninput="wmCountChars('wm-seo-title',60)" value="${escapeHtml(s.pageTitle||"")}"></div>
+      <div class="wm-counter" id="wm-seo-title-counter"></div>
+      <div class="field"><label>Meta Description</label><textarea id="wm-seo-desc" maxlength="200" oninput="wmCountChars('wm-seo-desc',160)">${escapeHtml(s.metaDescription||"")}</textarea></div>
+      <div class="wm-counter" id="wm-seo-desc-counter"></div>
+      <button class="btn" onclick="saveWmSeo()">Save Changes</button>
+      <div class="wm-save-msg" id="wm-save-msg"></div>
+    </div>`;
+  wmCountChars("wm-seo-title", 60); wmCountChars("wm-seo-desc", 160);
+}
+function saveWmSeo(){
+  const content = currentClientWebsiteContent();
+  content.seo = { pageTitle: document.getElementById("wm-seo-title").value.trim(), metaDescription: document.getElementById("wm-seo-desc").value.trim() };
+  saveClientWebsiteContent(content);
+  logAudit("Page Info Updated","Website","SEO title/description updated", currentClientRecord().id, null, null, currentClientUser().id);
+  flashSaved();
+}
+
+function wmSitePreviewSection(id, label, innerHtml, draft, published){
+  const changed = JSON.stringify(draft[id]) !== JSON.stringify(published[id]);
+  return `<div class="wm-site-section ${changed?"updated":""}"><h2>${escapeHtml(label)}${changed?`<span class="wm-changed-badge">Updated</span>`:""}</h2>${innerHtml}</div>`;
+}
+function renderWmSitePreview(client, draft, published, enabled){
+  const t = draft.text||{}, b = draft.banner||{};
+  let html = `<div class="wm-site-preview">`;
+  if(enabled.includes("banner") && b.enabled && b.text){
+    html += `<div class="wm-site-banner">${escapeHtml(b.text)}${b.linkLabel?(" — "+escapeHtml(b.linkLabel)):""}</div>`;
+  }
+  html += `<div class="wm-site-hero"><h1>${escapeHtml(t.heroTitle||client.name)}</h1><p>${escapeHtml(t.heroSubtitle||"")}</p></div>`;
+  if(enabled.includes("text") && (t.aboutTitle||t.aboutBody)){
+    html += wmSitePreviewSection("text","About", `<b>${escapeHtml(t.aboutTitle||"")}</b><p style="font-size:13px;color:var(--muted);">${escapeHtml(t.aboutBody||"")}</p>`, draft, published);
+  }
+  if(enabled.includes("photos")){
+    const photos = draft.photos||[];
+    const inner = photos.length ? `<div class="wm-site-gallery">${photos.map(p=>`<div class="wm-site-photo" style="${p.url?`background-image:url('${p.url}');`:""}">${p.url?"":escapeHtml(p.caption||"Photo")}</div>`).join("")}</div>` : `<p style="font-size:13px;color:var(--muted);">No photos yet.</p>`;
+    html += wmSitePreviewSection("photos","Photos", inner, draft, published);
+  }
+  if(enabled.includes("menu")){
+    const menu = draft.menu||[];
+    const inner = menu.length ? menu.map(c=>`<div class="wm-site-menu-cat"><h4>${escapeHtml(c.name)}</h4>${c.items.map(it=>`<div class="wm-site-menu-item"><span>${escapeHtml(it.name)}</span><span>${it.price!=null?("₹"+it.price):"Enquire"}</span></div>`).join("")}</div>`).join("") : `<p style="font-size:13px;color:var(--muted);">No menu yet.</p>`;
+    html += wmSitePreviewSection("menu","Menu & Prices", inner, draft, published);
+  }
+  if(enabled.includes("offers")){
+    const offers = (draft.offers||[]).filter(o=>o.active);
+    const inner = offers.length ? offers.map(o=>`<div class="wm-site-offer-card"><b>${escapeHtml(o.title)}</b><br>${escapeHtml(o.description||"")}</div>`).join("") : `<p style="font-size:13px;color:var(--muted);">No active offers.</p>`;
+    html += wmSitePreviewSection("offers","Offers", inner, draft, published);
+  }
+  if(enabled.includes("testimonials")){
+    const items = draft.testimonials||[];
+    const inner = items.length ? items.map(x=>`<div class="wm-site-testimonial">&ldquo;${escapeHtml(x.quote)}&rdquo;<br><b style="font-size:12px;">— ${escapeHtml(x.author)}</b></div>`).join("") : `<p style="font-size:13px;color:var(--muted);">No testimonials yet.</p>`;
+    html += wmSitePreviewSection("testimonials","Testimonials", inner, draft, published);
+  }
+  if(enabled.includes("faqs")){
+    const items = draft.faqs||[];
+    const inner = items.length ? items.map(x=>`<div class="wm-site-faq"><b>${escapeHtml(x.question)}</b><span style="font-size:13px;color:var(--muted);">${escapeHtml(x.answer)}</span></div>`).join("") : `<p style="font-size:13px;color:var(--muted);">No FAQs yet.</p>`;
+    html += wmSitePreviewSection("faqs","FAQs", inner, draft, published);
+  }
+  if(enabled.includes("hours")){
+    const rows = draft.hours||[];
+    const inner = rows.length ? rows.map(h=>`<div class="wm-site-hours-row"><span><b>${escapeHtml(h.label)}</b><br><span style="color:var(--muted);">${escapeHtml(h.address||"")}</span></span><span>${escapeHtml(h.open||"—")} – ${escapeHtml(h.close||"—")}</span></div>`).join("") : `<p style="font-size:13px;color:var(--muted);">No hours listed.</p>`;
+    html += wmSitePreviewSection("hours","Hours & Locations", inner, draft, published);
+  }
+  if(enabled.includes("contact")){
+    const c = draft.contact||{};
+    const bits = [c.phone&&("Phone: "+escapeHtml(c.phone)), c.whatsapp&&("WhatsApp: "+escapeHtml(c.whatsapp)), c.email&&("Email: "+escapeHtml(c.email)), c.instagram&&("Instagram: "+escapeHtml(c.instagram))].filter(Boolean).join("<br>") || `<span style="color:var(--muted);">No contact details set.</span>`;
+    html += wmSitePreviewSection("contact","Contact", `<p style="font-size:13px;">${bits}</p>`, draft, published);
+  }
+  html += `<div class="wm-site-footer">${escapeHtml(t.footerTagline||client.name)}</div>`;
+  html += `</div>`;
+  return html;
+}
+function renderWmPreviewScreen(){
+  const client = currentClientRecord(), me = currentClientUser();
+  const draft = currentClientWebsiteContent(), published = currentClientWebsitePublished();
+  const enabled = clientEnabledSections(client);
+  const pending = websiteHasPendingChanges(client.id);
+  document.getElementById("wm-body").innerHTML = `
+    <div class="wm-section-head"><h3>Preview</h3><p>This is what your website will look like with your unpublished changes. Sections outlined in amber are the ones that changed. Nothing here is visible to visitors until it's published.</p></div>
+    ${pending ? `
+      <div class="wm-pending-bar">
+        <div>${me.isAdmin ? "<b>Review the changes below, then publish when you're ready.</b>" : "<b>Your changes are saved as a draft.</b> Your Client Admin needs to review and publish them before they go live."}</div>
+        ${me.isAdmin ? `<div style="display:flex;gap:8px;"><button class="btn secondary small" onclick="discardWebsiteDraft()">Discard Draft</button><button class="btn small" onclick="publishWebsiteDraft(); renderManageWebsite();">Publish Changes</button></div>` : ""}
+      </div>` : `<div class="card" style="text-align:center;color:var(--muted);margin-bottom:18px;">No unpublished changes — this matches what's live.</div>`}
+    ${renderWmSitePreview(client, draft, published, enabled)}
+  `;
+}
+
+/* ---- Access (Client Admin only) ---- */
+function renderWmAccess(){
+  const client = currentClientRecord(), me = currentClientUser();
+  const others = (loadKey("clientUsers")||[]).filter(u=>u.clientId===client.id && u.id!==me.id);
+  document.getElementById("wm-body").innerHTML = `
+    <div class="wm-section-head"><h3>Section Access</h3><p>Choose which parts of Manage Website each team member can edit. You, as Client Admin, always have full access.</p></div>
+    <div class="card">
+      ${others.length ? others.map(u=>`
+        <div style="border-bottom:1px solid #eef0f5;padding:12px 0;">
+          <div style="font-weight:600;font-size:13.5px;margin-bottom:8px;">${escapeHtml(u.name)} <span style="font-weight:400;color:var(--muted);font-size:12px;">${escapeHtml(u.email)}</span></div>
+          <div class="checkbox-group">${WEBSITE_SECTIONS.map(s=>`<label><input type="checkbox" data-user="${u.id}" data-section="${s.id}" class="wm-access-check" ${((u.websiteAccess||[]).includes(s.id))?"checked":""}> ${s.label}</label>`).join("")}</div>
+        </div>`).join("") : `<p class="empty-row">No other team members on this account yet — add them under Users.</p>`}
+      ${others.length ? `<button class="btn" style="margin-top:14px;" onclick="saveWmAccess()">Save Access</button><div class="wm-save-msg" id="wm-save-msg"></div>` : ""}
+    </div>`;
+}
+function saveWmAccess(){
+  const users = loadKey("clientUsers")||[];
+  document.querySelectorAll(".wm-access-check").forEach(cb=>{
+    const u = users.find(x=>x.id===cb.dataset.user);
+    u.websiteAccess = u.websiteAccess || [];
+    const sec = cb.dataset.section;
+    if(cb.checked && !u.websiteAccess.includes(sec)) u.websiteAccess.push(sec);
+    if(!cb.checked) u.websiteAccess = u.websiteAccess.filter(s=>s!==sec);
+  });
+  saveKey("clientUsers", users);
+  logAudit("Website Access Updated","Website","Section access updated for team members", currentClientRecord().id, null, null, currentClientUser().id);
+  flashSaved();
+}
+
 function renderClientRequests(){
   if(currentTicketId){ renderClientTicketDetail(currentTicketId); return; }
   let tickets = myClientTickets().slice();
@@ -1539,7 +2578,7 @@ if(_urlParams.get("viewPackage")){
   loginAsClientEmployeeAccess(_urlParams.get("asClient"));
 } else {
   const _s = getSession();
-  if(_s){ showApp(); }
+  if(_s){ showApp(applyHashRoute()); }
 }
 </script>
 </body>
