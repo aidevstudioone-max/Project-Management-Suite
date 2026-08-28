@@ -2019,16 +2019,20 @@ function mockBuyPackage(pkgId, clientId){
 restoreRedirectedPath();
 seedIfEmpty();
 const _urlParams = new URLSearchParams(window.location.search);
+const _route = resolveRoute();
 if(_urlParams.get("viewPackage")){
   populateDemoHint();
   renderPackageLandingPage(_urlParams.get("viewPackage"), _urlParams.get("forClient"));
-} else if(getSession()){
+} else if(getSession() && _route.type !== "demo"){
+  /* Only auto-resume a stored session when the URL already points at a specific
+     client/user. A bare /portal.html, /index or /demo URL is a prospect landing —
+     always show the login screen there, even if a stale session is in localStorage. */
   const initialTab = applyHashRoute();
   const sessionUser = currentClientUser();
   if(sessionUser){ try{ history.replaceState(null, "", urlForUser(sessionUser) + location.hash); }catch(e){} }
   showApp(initialTab);
 } else {
-  applyLoginScreenForRoute(resolveRoute());
+  applyLoginScreenForRoute(_route);
 }
 </script>
 </body>
