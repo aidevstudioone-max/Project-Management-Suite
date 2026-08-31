@@ -333,7 +333,7 @@
 </head>
 <body>
 
-<div id="demo-banner">DEMO MODE — running on this browser's local data (shared database not configured yet). Login: <b>support@thikaana.co</b> / <b>Findmenow@123</b> (Thikaana team) — client demo logins shown on the login screen.</div>
+<div id="demo-banner">Running on this browser's local data — shared database not configured yet.</div>
 <div id="impersonation-banner"></div>
 
 <div id="package-landing"></div>
@@ -713,7 +713,6 @@ function currentClientRecord(){ const u=currentClientUser(); if(!u) return null;
 function populateDemoHint(){
   const users = loadKey("clientUsers")||[];
   document.getElementById("demo-hint").innerHTML =
-    `<b>ठिkaana team</b>support@thikaana.co / Findmenow@123<br>` +
     `<b>Client demo logins (password demo123)</b>` +
     users.map(u=>`${escapeHtml(u.email)} — ${escapeHtml(u.name)}${u.isAdmin?" (Admin)":""}`).join("<br>");
 }
@@ -2790,7 +2789,7 @@ function mockBuyPackage(pkgId, clientId){
 function reflectCloudStatus(){
   const banner = document.getElementById("demo-banner");
   if(_cloudReady && banner){
-    banner.innerHTML = "SHARED TEAM WORKSPACE — live data synced across the ठिkaana team via Supabase. Login: <b>support@thikaana.co</b> / <b>Findmenow@123</b> — client demo logins shown on the login screen.";
+    banner.innerHTML = "SHARED TEAM WORKSPACE — live data synced across the ठिkaana team via Supabase.";
   }
 }
 (async function boot(){
