@@ -118,3 +118,68 @@ Not synced (deliberately): `thikops_session` (per-device login) and `thikops_wmD
 Supabase dashboard → **Table Editor → thikops_state**. Each row's `value` is
 editable JSON. Editing it there propagates to the team within 20s (or instantly
 with Realtime on).
+
+---
+
+# Footfall — website visitor analytics for thikaana.co
+
+The **Footfall** section (under ठिkaana Workspace) shows live visitor stats for
+`https://www.thikaana.co/`. It uses its own table, separate from the shared state.
+
+## 1. Create the footfall table
+
+**SQL Editor → New query → Run:**
+
+```sql
+create table public.thikops_footfall (
+  id         bigint generated always as identity primary key,
+  site       text not null default 'thikaana.co',
+  path       text,
+  referrer   text,
+  visitor_id text,
+  session_id text,
+  user_agent text,
+  ts         timestamptz not null default now()
+);
+create index thikops_footfall_ts_idx on public.thikops_footfall (ts desc);
+
+alter table public.thikops_footfall enable row level security;
+
+-- Anyone can record a page view (INSERT only) ...
+create policy "anon insert footfall" on public.thikops_footfall
+  for insert to anon with check (true);
+-- ... and the Ops app (anon key) can read the stats.
+create policy "anon read footfall" on public.thikops_footfall
+  for select to anon using (true);
+```
+
+> Open anon INSERT means anyone who finds the key could push fake rows. For a small
+> business marketing site that's an acceptable trade-off; if it's ever abused,
+> rotate the anon key or add a stricter policy.
+
+## 2. Add the tracker to thikaana.co
+
+Put this in the `<head>` of every page on `thikaana.co` (or in the site's shared
+template / footer include):
+
+```html
+<script src="https://aidevstudioone-max.github.io/Project-Management-Suite/track.js" data-site="thikaana.co"></script>
+```
+
+`track.js` lives in this repo and is served by GitHub Pages. It writes one row per
+page view: path, referrer, a per-browser `visitor_id` (localStorage) and a
+per-tab `session_id` (sessionStorage). No cookies, no personal data.
+
+## 3. Watch it in the app
+
+Open **Footfall** in ठिkaana Ops. It shows page views, unique visitors, sessions,
+a per-day chart, top pages, top referrers and a live "recent visits" feed. It
+auto-refreshes every 30 seconds while the tab is open. Ranges: 7 / 30 / 90 days.
+
+Until the snippet is live on thikaana.co the section just says "no visits recorded
+yet" — that's expected, not an error.
+
+## Inspecting / clearing footfall data
+
+Table Editor → **thikops_footfall**. To wipe it: `delete from public.thikops_footfall;`
+in the SQL Editor.

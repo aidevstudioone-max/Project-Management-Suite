@@ -65,9 +65,28 @@
   .sidebar-org{background:#1a1c33;border-radius:9px;padding:10px 11px;margin-bottom:10px;font-size:12px;border:1px solid #262a44;}
   .sidebar-org b{display:block;color:#fff;font-size:13px;}
 
-  .sidebar-footer{margin-top:auto;padding-top:8px;border-top:1px solid #262a44;}
+  .sidebar-footer{margin-top:14px;padding-top:10px;border-top:1px solid #262a44;}
   .sidebar-footer button{width:100%;padding:9px;background:#1e2038;color:#fff;border:1px solid #2c2f4d;border-radius:8px;font-size:12.5px;font-weight:500;transition:background .12s ease;}
   .sidebar-footer button:hover{background:#282b48;}
+
+  /* Sample (dummy) data cues */
+  tr.dummy-row > td{background:#fff1f1;}
+  .card.dummy-card{background:#fff5f5;border-color:#f3cccc;}
+  .sample-pill{display:inline-block;background:#fde3e3;color:#b3261e;font-size:10px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:1px 7px;border-radius:20px;vertical-align:middle;}
+  .sample-note{display:flex;align-items:center;gap:8px;background:#fff5f5;border:1px solid #f3cccc;color:#a5342b;font-size:12.5px;border-radius:10px;padding:8px 12px;margin-bottom:14px;}
+  .sample-note .sample-pill{flex-shrink:0;}
+
+  /* Footfall analytics */
+  .ff-range{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+  .ff-range button{padding:6px 12px;border:1px solid var(--border);background:var(--card);border-radius:8px;font-size:12.5px;color:var(--muted);}
+  .ff-range button.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .ff-chart{width:100%;height:180px;display:block;}
+  .ff-bar{fill:var(--accent);}
+  .ff-bar:hover{fill:var(--accent-hover);}
+  .ff-axis{fill:var(--muted);font-size:10px;}
+  .ff-live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--success);margin-right:6px;animation:ffpulse 1.8s ease-in-out infinite;}
+  @keyframes ffpulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+  .ff-snippet{background:#0f1122;color:#d8dcff;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;padding:12px 14px;border-radius:10px;overflow-x:auto;white-space:pre;}
 
   .main{flex:1;padding:28px 34px;overflow-y:auto;}
   .topbar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;flex-wrap:wrap;gap:10px;}
@@ -385,6 +404,7 @@ const ICONS = {
   vault:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="16" r="1.5"/></svg>',
   expenses:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 8h5a2 2 0 0 1 0 4H9m0 0h6m-6 0-1 4 8-4"/></svg>',
   meetings:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2v3M15 2v3"/><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 14h5"/></svg>',
+  footfall:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="4" width="3" height="14"/></svg>',
   search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>',
   employees:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
   history:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 7v5l3 3"/></svg>',
@@ -423,6 +443,12 @@ const SUPABASE_URL = "https://vdxojmbcridrxkphewkl.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkeG9qbWJjcmlkcnhrcGhld2tsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxOTkzNDMsImV4cCI6MjEwMzc3NTM0M30.4hwBumjsLE3mWqwxIYNW5vDlnJB0D0WSf01P-dErWCY";
 const SUPABASE_TABLE = "thikops_state";
 const CLOUD_ENABLED = /^https:\/\/.+\.supabase\.co\/?$/.test(SUPABASE_URL) && SUPABASE_ANON_KEY.length > 20;
+
+/* Footfall: website visitor analytics. Page views land in their own Supabase table
+   (thikops_footfall) via track.js embedded on the site. See SUPABASE_SETUP.md. */
+const FOOTFALL_TABLE = "thikops_footfall";
+const FOOTFALL_SITE = "thikaana.co";
+const TRACK_SNIPPET = `<script src="https://aidevstudioone-max.github.io/Project-Management-Suite/track.js" data-site="thikaana.co"><\/script>`;
 
 // Static page in this same repo — calls Google Places directly from the browser
 // using a key entered on that page (saved in that page's own localStorage).
@@ -468,7 +494,7 @@ const TICKET_PRIORITIES = ["Low","Medium","High","Urgent"];
 const TICKET_STATUSES = ["New","Assigned","In Progress","Waiting for Client","Resolved","Closed"];
 
 const KEYS = ["clients","clientUsers","tickets","meetings","vault","expenses","audit","employees","customRoles"];
-const SEED_VERSION = "4";
+const SEED_VERSION = "6";
 
 /* ---------------- Data layer: in-memory cache, localStorage mirror, Supabase sync ----------------
    loadKey / saveKey stay synchronous so none of the ~100 call sites change. On boot,
@@ -479,6 +505,8 @@ const SEED_VERSION = "4";
 const STATE = Object.create(null);   // key -> parsed value, the source of truth at runtime
 let _sb = null;                      // Supabase client (null until configured)
 let _cloudReady = false;             // true once hydrated and writes are going through
+const _localWriteAt = Object.create(null);  // key -> ts of last local saveKey (write-wins grace)
+const LOCAL_WRITE_GRACE_MS = 8000;   // ignore stale remote values for a key this long after we wrote it
 
 function loadKey(k){
   if(k in STATE){ const v = STATE[k]; return (v===undefined || v===null) ? null : v; }
@@ -486,11 +514,15 @@ function loadKey(k){
 }
 function saveKey(k, v){
   STATE[k] = v;
+  _localWriteAt[k] = Date.now();
   try{ localStorage.setItem("thikops_"+k, JSON.stringify(v)); }catch(e){}
   if(_cloudReady && _sb){
     _sb.from(SUPABASE_TABLE)
       .upsert({ key:k, value:v, updated_at:new Date().toISOString() }, { onConflict:"key" })
-      .then(({ error }) => { if(error) console.warn("[cloud] save failed for", k, error.message); });
+      .then(({ error }) => {
+        if(error) console.warn("[cloud] save failed for", k, error.message);
+        else _localWriteAt[k] = Math.min(_localWriteAt[k], Date.now() - LOCAL_WRITE_GRACE_MS + 1200); // committed: let remote catch up shortly
+      });
   }
 }
 
@@ -513,8 +545,11 @@ async function initCloud(){
 }
 function _applyRemote(rows){
   let changed = false;
+  const now = Date.now();
   (rows||[]).forEach(row => {
     if(!row || !row.key) return;
+    // Don't let a stale remote read clobber a local write that may not have committed yet.
+    if(now - (_localWriteAt[row.key] || 0) < LOCAL_WRITE_GRACE_MS) return;
     if(JSON.stringify(STATE[row.key]) !== JSON.stringify(row.value)){
       STATE[row.key] = row.value;
       try{ localStorage.setItem("thikops_"+row.key, JSON.stringify(row.value)); }catch(e){}
@@ -551,6 +586,11 @@ function initials(name){ return (name||"?").split(" ").map(w=>w[0]).slice(0,2).j
 function priorityPill(p){ return {Low:"gray",Medium:"blue",High:"orange",Urgent:"red"}[p]||"gray"; }
 function statusPill(s){ return {New:"blue","Assigned":"yellow","In Progress":"orange","Waiting for Client":"gray",Resolved:"green",Closed:"gray"}[s]||"gray"; }
 function statusPillClass(s){ return {Active:"green",Lead:"blue",Prospect:"blue",Completed:"gray","On Hold":"yellow",Inactive:"red"}[s] || "gray"; }
+
+/* Sample vs real data: seeded records carry seed:true. Real entries the team adds do not. */
+function isDummy(rec){ return !!(rec && rec.seed === true); }
+const SAMPLE_PILL = `<span class="sample-pill">Sample</span>`;
+function sampleNote(text){ return `<div class="sample-note">${SAMPLE_PILL}<span>${escapeHtml(text || "This section is pre-filled with demo data. Rows tinted red are samples — your real entries appear normally.")}</span></div>`; }
 
 /* ---------------- Seed data ---------------- */
 function seedIfEmpty(){
@@ -647,34 +687,34 @@ function seedIfEmpty(){
   saveKey("tickets", tickets);
 
   const meetings = [
-    { id:"m-1", clientId:"c-srima", title:"Client Website Review", date:"2026-08-14", attendees:["ankit","bhuvanesh"], notes:"Reviewed homepage redesign, contact form reliability, and SEO improvements for the diagnostic centre site.", decisions:"Proceed with homepage redesign; move contact form to a monitored inbox; start basic on-page SEO next sprint.", actionItems:[
+    { id:"m-1", seed:true, clientId:"c-srima", title:"Client Website Review", date:"2026-08-14", attendees:["ankit","bhuvanesh"], notes:"Reviewed homepage redesign, contact form reliability, and SEO improvements for the diagnostic centre site.", decisions:"Proceed with homepage redesign; move contact form to a monitored inbox; start basic on-page SEO next sprint.", actionItems:[
         {task:"Fix contact form reliability", owner:"ankit", due:"2026-08-20", done:true},
         {task:"Review site architecture for SEO", owner:"chandan", due:"2026-08-24", done:false},
         {task:"Confirm new homepage content with client", owner:"bhuvanesh", due:"2026-08-22", done:false}
     ]},
-    { id:"m-2", clientId:null, title:"Weekly Internal Sync", date:"2026-08-17", attendees:["ankit","chandan","bhuvanesh","irfan"], notes:"Reviewed open ticket load across clients, flagged Srima domain renewal as time-sensitive.", decisions:"Ankit to personally handle domain renewals going forward.", actionItems:[
+    { id:"m-2", seed:true, clientId:null, title:"Weekly Internal Sync", date:"2026-08-17", attendees:["ankit","chandan","bhuvanesh","irfan"], notes:"Reviewed open ticket load across clients, flagged Srima domain renewal as time-sensitive.", decisions:"Ankit to personally handle domain renewals going forward.", actionItems:[
         {task:"Set calendar reminders for all client domain renewals", owner:"ankit", due:"2026-08-25", done:false}
     ]}
   ];
   saveKey("meetings", meetings);
 
   saveKey("vault", [
-    { id:"v-1", service:"GoDaddy — Domain Registrar", category:"Domain & Hosting", username:"support@thikaana.co", password:"Demo-Only-Not-Real", url:"godaddy.com", notes:"Renews annually.", updatedAt:daysAgo(20) },
-    { id:"v-2", service:"Google Workspace Admin", category:"Google Workspace", username:"support@thikaana.co", password:"Demo-Only-Not-Real", url:"admin.google.com", notes:"", updatedAt:daysAgo(15) }
+    { id:"v-1", seed:true, service:"GoDaddy — Domain Registrar", category:"Domain & Hosting", username:"support@thikaana.co", password:"Demo-Only-Not-Real", url:"godaddy.com", notes:"Renews annually.", updatedAt:daysAgo(20) },
+    { id:"v-2", seed:true, service:"Google Workspace Admin", category:"Google Workspace", username:"support@thikaana.co", password:"Demo-Only-Not-Real", url:"admin.google.com", notes:"", updatedAt:daysAgo(15) }
   ]);
   saveKey("expenses", [
-    { id:"e-1", date:"2026-08-05", category:"Domain & Hosting", description:"Domain renewal — thikaana.co", amount:1200, paidBy:"ankit", notes:"" },
-    { id:"e-2", date:"2026-08-10", category:"Software & Subscriptions", description:"Design tool subscription", amount:1999, paidBy:"chandan", notes:"" },
-    { id:"e-3", date:"2026-08-15", category:"Marketing & Ads", description:"Instagram ad boost", amount:3000, paidBy:"bhuvanesh", notes:"" }
+    { id:"e-1", seed:true, date:"2026-08-05", category:"Domain & Hosting", description:"Domain renewal — thikaana.co", amount:1200, paidBy:"ankit", notes:"" },
+    { id:"e-2", seed:true, date:"2026-08-10", category:"Software & Subscriptions", description:"Design tool subscription", amount:1999, paidBy:"chandan", notes:"" },
+    { id:"e-3", seed:true, date:"2026-08-15", category:"Marketing & Ads", description:"Instagram ad boost", amount:3000, paidBy:"bhuvanesh", notes:"" }
   ]);
 
   const audit = [];
   clients.forEach(c=>{
-    audit.push({ id:uid(), action:"Client Onboarded", module:"Clients", clientId:c.id, summary:`${c.name} onboarded`, performedBy:"System", at:c.onboardingDate+"T10:00:00" });
-    audit.push({ id:uid(), action:"Package Added", module:"Packages", clientId:c.id, summary:`${c.package.name} — ${fmtMoney(c.package.price)}`, performedBy:"System", at:c.onboardingDate+"T10:05:00" });
+    audit.push({ id:uid(), seed:true, action:"Client Onboarded", module:"Clients", clientId:c.id, summary:`${c.name} onboarded`, performedBy:"System", at:c.onboardingDate+"T10:00:00" });
+    audit.push({ id:uid(), seed:true, action:"Package Added", module:"Packages", clientId:c.id, summary:`${c.package.name} — ${fmtMoney(c.package.price)}`, performedBy:"System", at:c.onboardingDate+"T10:05:00" });
   });
   clientUsers.filter(u=>u.isAdmin).forEach(u=>{
-    audit.push({ id:uid(), action:"Client Admin Set", module:"Client Users", clientId:u.clientId, summary:`${u.name} added as Client Admin`, performedBy:"System", at:daysAgo(25) });
+    audit.push({ id:uid(), seed:true, action:"Client Admin Set", module:"Client Users", clientId:u.clientId, summary:`${u.name} added as Client Admin`, performedBy:"System", at:daysAgo(25) });
   });
   saveKey("audit", audit.sort((a,b)=>(a.at||"").localeCompare(b.at||"")));
 }
@@ -765,6 +805,7 @@ function buildSidebar(){
       <a href="#/vault" class="nav-item nav-sub" data-tab="vault" onclick="return navClick(event,'vault')"><span class="ic">${ICONS.vault}</span> Vault</a>
       <a href="#/expenses" class="nav-item nav-sub" data-tab="expenses" onclick="return navClick(event,'expenses')"><span class="ic">${ICONS.expenses}</span> Expenses</a>
       <a href="#/meetings" class="nav-item nav-sub" data-tab="meetings" onclick="return navClick(event,'meetings')"><span class="ic">${ICONS.meetings}</span> Meeting Notes</a>
+      <a href="#/footfall" class="nav-item nav-sub" data-tab="footfall" onclick="return navClick(event,'footfall')"><span class="ic">${ICONS.footfall}</span> Footfall</a>
       <div class="nav-item nav-sub" onclick="openLeadGen()" title="Opens the Lead Gen tool"><span class="ic">${ICONS.search}</span> Lead Gen &#8599;</div>
       <a href="#/employees" class="nav-item" data-tab="employees" onclick="return navClick(event,'employees')"><span class="ic">${ICONS.employees}</span> Employees</a>
       <a href="#/history" class="nav-item" data-tab="history" onclick="return navClick(event,'history')"><span class="ic">${ICONS.history}</span> History</a>
@@ -845,7 +886,7 @@ function goToTicketsFiltered(filter){ pendingTicketFilter = filter; goToTab("tic
 function goToClientsFiltered(status){ pendingClientFilter = status; goToTab("clients"); }
 function render(){
   const s = getSession();
-  const empRenderers = { dashboard:renderDashboard, clients:renderClients, tickets:renderTickets, vault:renderVault, expenses:renderExpenses, meetings:renderMeetings, employees:renderEmployees, history:renderHistory, settings:renderSettings };
+  const empRenderers = { dashboard:renderDashboard, clients:renderClients, tickets:renderTickets, vault:renderVault, expenses:renderExpenses, meetings:renderMeetings, footfall:renderFootfall, employees:renderEmployees, history:renderHistory, settings:renderSettings };
   const clientRenderers = { cdashboard:renderClientDashboard, cwebsite:renderClientWebsite, "cwebsite-manage":renderManageWebsite, crequests:renderClientRequests, craise:renderClientRaise, cpackage:renderClientPackage, cusers:renderClientUsers, chistory:renderClientHistory, cprofile:renderClientOwnProfile };
   const map = s.type==="employee" ? empRenderers : clientRenderers;
   (map[currentTab]||map[Object.keys(map)[0]])();
@@ -898,6 +939,7 @@ function renderDashboard(){
 
   document.getElementById("main-content").innerHTML = `
     <div class="topbar"><div><h2>Dashboard</h2><p>${BRAND} Ops overview</p></div></div>
+    ${sampleNote("Dashboard, Clients and Tickets run on demo data by design. Real data lives in the " + BRAND + " Workspace sections (Vault, Expenses, Meeting Notes, Footfall).")}
     <div class="stat-grid">
       <div class="stat-card clickable accent" onclick="goToTab('clients')"><div class="label">Total Clients</div><div class="value">${clients.length}</div></div>
       <div class="stat-card clickable accent-success" onclick="goToClientsFiltered('Active')"><div class="label">Active Clients</div><div class="value">${activeClients}</div></div>
@@ -933,6 +975,7 @@ function renderClients(){
 
   document.getElementById("main-content").innerHTML = `
     <div class="topbar"><div><h2>Clients</h2><p>Every account ${BRAND} manages</p></div><button class="btn" onclick="openClientForm()">+ Add Client</button></div>
+    ${sampleNote("Demo client accounts — not real data.")}
     <div class="toolbar">
       <input type="search" id="client-search" placeholder="Search clients..." class="grow" oninput="renderClients()">
       <select id="client-status" onchange="renderClients()"><option value="">All statuses</option>${CLIENT_STATUSES.map(s=>`<option ${s===statusFilter?"selected":""}>${s}</option>`).join("")}</select>
@@ -1146,6 +1189,7 @@ function renderTickets(){
   });
   document.getElementById("main-content").innerHTML = `
     <div class="topbar"><div><h2>Tickets</h2><p>All client requests across every account</p></div><button class="btn" onclick="openTicketForm()">+ New Ticket</button></div>
+    ${sampleNote("Demo tickets — not real data.")}
     <div class="toolbar">
       <input type="search" id="tk-search" placeholder="Search subject, ID or client..." class="grow" oninput="renderTickets()">
       <select id="tk-status" onchange="renderTickets()"><option value="">All statuses</option>${TICKET_STATUSES.map(s=>`<option ${s===statusFilter?"selected":""}>${s}</option>`).join("")}</select>
@@ -1253,11 +1297,12 @@ function renderVault(){
   const filtered = items.filter(i => !search || (i.service+i.username+i.category).toLowerCase().includes(search));
   document.getElementById("main-content").innerHTML = `
     <div class="topbar"><div><h2>Vault</h2><p>Credentials the business depends on</p></div><button class="btn" onclick="openVaultForm()">+ Add Credential</button></div>
+    ${items.some(isDummy) ? sampleNote() : ""}
     <div class="toolbar"><input type="search" id="vault-search" placeholder="Search..." class="grow" oninput="renderVault()"></div>
     <div class="card" style="padding:0;overflow-x:auto;">
       <table><thead><tr><th>Service</th><th>Category</th><th>Username</th><th>Password</th><th>Notes</th><th></th></tr></thead>
       <tbody>
-        ${filtered.length ? filtered.map(i => `<tr><td><b>${escapeHtml(i.service)}</b></td><td><span class="pill blue">${escapeHtml(i.category)}</span></td><td>${escapeHtml(i.username)}</td><td><div class="pw-cell"><span class="mono" id="pw-${i.id}" data-pw="${escapeHtml(i.password)}">••••••••</span><button class="icon-btn" onclick="togglePw('${i.id}')">Show</button></div></td><td style="color:var(--muted);font-size:12.5px;">${escapeHtml(i.notes||"—")}</td><td class="row-actions"><button class="icon-btn" onclick="openVaultForm('${i.id}')">Edit</button><button class="icon-btn" onclick="deleteItem('vault','${i.id}')">Delete</button></td></tr>`).join("") : `<tr><td colspan="6" class="empty-row">No credentials saved yet.</td></tr>`}
+        ${filtered.length ? filtered.map(i => `<tr class="${isDummy(i)?"dummy-row":""}"><td><b>${escapeHtml(i.service)}</b> ${isDummy(i)?SAMPLE_PILL:""}</td><td><span class="pill blue">${escapeHtml(i.category)}</span></td><td>${escapeHtml(i.username)}</td><td><div class="pw-cell"><span class="mono" id="pw-${i.id}" data-pw="${escapeHtml(i.password)}">••••••••</span><button class="icon-btn" onclick="togglePw('${i.id}')">Show</button></div></td><td style="color:var(--muted);font-size:12.5px;">${escapeHtml(i.notes||"—")}</td><td class="row-actions"><button class="icon-btn" onclick="openVaultForm('${i.id}')">Edit</button><button class="icon-btn" onclick="deleteItem('vault','${i.id}')">Delete</button></td></tr>`).join("") : `<tr><td colspan="6" class="empty-row">No credentials saved yet.</td></tr>`}
       </tbody></table>
     </div>
   `;
@@ -1294,12 +1339,13 @@ function renderExpenses(){
   const byCategory = {}; filtered.forEach(e => { byCategory[e.category] = (byCategory[e.category]||0) + Number(e.amount||0); });
   document.getElementById("main-content").innerHTML = `
     <div class="topbar"><div><h2>Expenses</h2><p>Business spending</p></div><button class="btn" onclick="openExpenseForm()">+ Add Expense</button></div>
+    ${items.some(isDummy) ? sampleNote() : ""}
     <div class="stat-grid"><div class="stat-card"><div class="label">Total</div><div class="value">${fmtMoney(total)}</div></div><div class="stat-card"><div class="label">Entries</div><div class="value">${filtered.length}</div></div></div>
     ${Object.keys(byCategory).length?`<div class="card"><h3>By Category</h3>${Object.entries(byCategory).sort((a,b)=>b[1]-a[1]).map(([c,v])=>`<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid #f0f1f5;"><span>${escapeHtml(c)}</span><b>${fmtMoney(v)}</b></div>`).join("")}</div>`:""}
     <div class="toolbar"><label style="font-size:12.5px;color:var(--muted);">Month:</label><input type="month" id="exp-month" value="${monthFilter}" onchange="renderExpenses()">${monthFilter?`<button class="btn secondary small" onclick="document.getElementById('exp-month').value='';renderExpenses();">Clear</button>`:""}</div>
     <div class="card" style="padding:0;overflow-x:auto;">
       <table><thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Paid By</th><th></th></tr></thead>
-      <tbody>${filtered.length ? filtered.map(e => `<tr><td>${fmtDate(e.date)}</td><td><span class="pill gray">${escapeHtml(e.category)}</span></td><td>${escapeHtml(e.description)}</td><td><b>${fmtMoney(e.amount)}</b></td><td>${employeeName(e.paidBy)}</td><td class="row-actions"><button class="icon-btn" onclick="openExpenseForm('${e.id}')">Edit</button><button class="icon-btn" onclick="deleteItem('expenses','${e.id}')">Delete</button></td></tr>`).join("") : `<tr><td colspan="6" class="empty-row">No expenses recorded yet.</td></tr>`}</tbody></table>
+      <tbody>${filtered.length ? filtered.map(e => `<tr class="${isDummy(e)?"dummy-row":""}"><td>${fmtDate(e.date)}</td><td><span class="pill gray">${escapeHtml(e.category)}</span></td><td>${escapeHtml(e.description)} ${isDummy(e)?SAMPLE_PILL:""}</td><td><b>${fmtMoney(e.amount)}</b></td><td>${employeeName(e.paidBy)}</td><td class="row-actions"><button class="icon-btn" onclick="openExpenseForm('${e.id}')">Edit</button><button class="icon-btn" onclick="deleteItem('expenses','${e.id}')">Delete</button></td></tr>`).join("") : `<tr><td colspan="6" class="empty-row">No expenses recorded yet.</td></tr>`}</tbody></table>
     </div>
   `;
 }
@@ -1332,8 +1378,9 @@ function renderMeetings(){
   const clients = loadKey("clients")||[];
   document.getElementById("main-content").innerHTML = `
     <div class="topbar"><div><h2>Meeting Notes</h2><p>What we discussed and decided</p></div><button class="btn" onclick="openMeetingForm()">+ Log Meeting</button></div>
+    ${items.some(isDummy) ? sampleNote() : ""}
     ${items.length ? items.map(m => { const client = clients.find(c=>c.id===m.clientId);
-      return `<div class="card"><h3 style="margin-bottom:4px;">${escapeHtml(m.title)}</h3><p style="margin:0 0 10px;color:var(--muted);font-size:12.5px;">${fmtDate(m.date)}${client?" · "+escapeHtml(client.name):""} · ${(m.attendees||[]).map(employeeName).join(", ")}</p>${m.notes?`<p style="font-size:13.5px;white-space:pre-wrap;margin:0 0 10px;"><b>Discussion:</b><br>${escapeHtml(m.notes)}</p>`:""}${m.decisions?`<p style="font-size:13.5px;white-space:pre-wrap;margin:0 0 10px;"><b>Decisions:</b><br>${escapeHtml(m.decisions)}</p>`:""}${(m.actionItems&&m.actionItems.length)?`<b style="font-size:13.5px;">Action Items:</b><table style="margin-top:6px;"><thead><tr><th>Task</th><th>Owner</th><th>Due</th><th>Status</th></tr></thead><tbody>${m.actionItems.map(a=>`<tr><td>${escapeHtml(a.task)}</td><td>${employeeName(a.owner)}</td><td>${a.due?fmtDate(a.due):"—"}</td><td><span class="pill ${a.done?"green":"yellow"}">${a.done?"Done":"Pending"}</span></td></tr>`).join("")}</tbody></table>`:""}</div>`;
+      return `<div class="card ${isDummy(m)?"dummy-card":""}"><h3 style="margin-bottom:4px;">${escapeHtml(m.title)} ${isDummy(m)?SAMPLE_PILL:""}</h3><p style="margin:0 0 10px;color:var(--muted);font-size:12.5px;">${fmtDate(m.date)}${client?" · "+escapeHtml(client.name):""} · ${(m.attendees||[]).map(employeeName).join(", ")}</p>${m.notes?`<p style="font-size:13.5px;white-space:pre-wrap;margin:0 0 10px;"><b>Discussion:</b><br>${escapeHtml(m.notes)}</p>`:""}${m.decisions?`<p style="font-size:13.5px;white-space:pre-wrap;margin:0 0 10px;"><b>Decisions:</b><br>${escapeHtml(m.decisions)}</p>`:""}${(m.actionItems&&m.actionItems.length)?`<b style="font-size:13.5px;">Action Items:</b><table style="margin-top:6px;"><thead><tr><th>Task</th><th>Owner</th><th>Due</th><th>Status</th></tr></thead><tbody>${m.actionItems.map(a=>`<tr><td>${escapeHtml(a.task)}</td><td>${employeeName(a.owner)}</td><td>${a.due?fmtDate(a.due):"—"}</td><td><span class="pill ${a.done?"green":"yellow"}">${a.done?"Done":"Pending"}</span></td></tr>`).join("")}</tbody></table>`:""}</div>`;
     }).join("") : `<div class="card"><p class="empty-row">No meetings logged yet.</p></div>`}
   `;
 }
@@ -1366,6 +1413,118 @@ function saveMeeting(){
   items.push(record); saveKey("meetings", items);
   logAudit("Meeting Logged","Meeting Notes", title, record.clientId);
   closeModal(); renderMeetings();
+}
+
+/* ================= EMPLOYEE: FOOTFALL (website traffic) ================= */
+let _ffRangeDays = 30, _ffTimer = null;
+function ffSetRange(d){ _ffRangeDays = d; renderFootfall(); }
+function ffCopySnippet(){
+  try{ navigator.clipboard.writeText(TRACK_SNIPPET); if(typeof wmToast==="function") wmToast("Snippet copied"); else alert("Snippet copied"); }
+  catch(e){ alert("Copy failed — select the text and copy manually."); }
+}
+function ffRefHost(r){ if(!r) return "Direct"; try{ return new URL(r).hostname.replace(/^www\./,"") || "Direct"; }catch(e){ return String(r).slice(0,50); } }
+function ffGroupTop(rows, keyFn, n){
+  const m = {}; rows.forEach(r=>{ const k = keyFn(r) || "—"; m[k] = (m[k]||0)+1; });
+  return Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,n);
+}
+function ffMiniTable(pairs, kh, vh){
+  if(!pairs.length) return `<p class="empty-row">Nothing yet.</p>`;
+  return `<table><thead><tr><th>${kh}</th><th style="text-align:right;">${vh}</th></tr></thead><tbody>${pairs.map(([k,v])=>`<tr><td style="word-break:break-all;">${escapeHtml(k)}</td><td style="text-align:right;"><b>${v.toLocaleString("en-IN")}</b></td></tr>`).join("")}</tbody></table>`;
+}
+function ffDayBuckets(rows, days){
+  const out = []; const now = new Date();
+  for(let i=days-1;i>=0;i--){ const d = new Date(now); d.setDate(d.getDate()-i); d.setHours(0,0,0,0);
+    out.push({ key:d.toISOString().slice(0,10), label:d.toLocaleDateString("en-IN",{day:"numeric",month:"short"}), count:0 }); }
+  const idx = {}; out.forEach((b,i)=>idx[b.key]=i);
+  rows.forEach(r=>{ const k=(r.ts||"").slice(0,10); if(k in idx) out[idx[k]].count++; });
+  return out;
+}
+function ffBarChart(days){
+  const max = Math.max(1, ...days.map(d=>d.count));
+  const n = days.length, W = 760, H = 170, padX = 8, padB = 16;
+  const slot = (W - padX*2) / n, bw = Math.max(1, slot - (n>45?1:2));
+  let bars = "", labels = "";
+  days.forEach((d,i)=>{
+    const h = Math.round((d.count/max) * (H - padB - 6));
+    const x = padX + i*slot, y = H - padB - h;
+    bars += `<rect class="ff-bar" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(h,0)}" rx="1"><title>${d.label}: ${d.count} view${d.count===1?"":"s"}</title></rect>`;
+    if(i===0 || i===n-1 || i===Math.floor(n/2)) labels += `<text class="ff-axis" x="${(x+bw/2).toFixed(1)}" y="${H-3}" text-anchor="middle">${d.label}</text>`;
+  });
+  return `<svg class="ff-chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">${bars}${labels}</svg>`;
+}
+async function ffFetch(days){
+  if(!_cloudReady || !_sb) return { error:"nocloud" };
+  const since = new Date(Date.now() - days*86400000).toISOString();
+  const { data, error } = await _sb.from(FOOTFALL_TABLE)
+    .select("path,referrer,visitor_id,session_id,ts")
+    .eq("site", FOOTFALL_SITE).gte("ts", since)
+    .order("ts", { ascending:false }).limit(20000);
+  if(error) return { error: error.message || String(error) };
+  return { rows: data || [] };
+}
+function renderFootfall(){
+  const R = _ffRangeDays;
+  document.getElementById("main-content").innerHTML = `
+    <div class="topbar"><div><h2>Footfall</h2><p>Live visitor analytics for ${FOOTFALL_SITE}</p></div>
+      <button class="btn secondary" onclick="ffLoad()">Refresh</button></div>
+    <div class="ff-range">${[7,30,90].map(d=>`<button class="${d===R?"active":""}" onclick="ffSetRange(${d})">Last ${d} days</button>`).join("")}</div>
+    <div id="ff-body"><div class="card"><p class="empty-row">Loading…</p></div></div>
+    <details class="card" style="margin-top:14px;">
+      <summary style="cursor:pointer;font-weight:600;">Setup — add tracking to ${FOOTFALL_SITE}</summary>
+      <p style="font-size:13px;color:var(--muted);margin:10px 0;">Run the <code>thikops_footfall</code> table SQL from <b>SUPABASE_SETUP.md</b> once, then paste this into the <code>&lt;head&gt;</code> of every page on ${FOOTFALL_SITE}. One row is written per page view and shows up here within seconds.</p>
+      <div class="ff-snippet">${escapeHtml(TRACK_SNIPPET)}</div>
+      <button class="btn secondary small" style="margin-top:8px;" onclick="ffCopySnippet()">Copy snippet</button>
+    </details>
+  `;
+  ffLoad();
+  if(_ffTimer) clearInterval(_ffTimer);
+  _ffTimer = setInterval(()=>{ if(currentTab==="footfall") ffLoad(); else { clearInterval(_ffTimer); _ffTimer=null; } }, 30000);
+}
+async function ffLoad(){
+  const body = document.getElementById("ff-body");
+  if(!body) return;
+  const res = await ffFetch(_ffRangeDays);
+  const bodyNow = document.getElementById("ff-body");
+  if(!bodyNow) return;
+  if(res.error === "nocloud"){ bodyNow.innerHTML = `<div class="card"><p class="empty-row">Footfall needs the shared database, which isn't connected in this browser.</p></div>`; return; }
+  if(res.error){
+    const missing = /relation|does not exist|find the table|schema cache|not exist/i.test(res.error);
+    bodyNow.innerHTML = `<div class="card"><p class="empty-row">${missing ? "The <b>thikops_footfall</b> table doesn't exist yet — run its SQL from SUPABASE_SETUP.md (see Setup below)." : escapeHtml("Couldn't load footfall: " + res.error)}</p></div>`;
+    return;
+  }
+  const rows = res.rows;
+  if(!rows.length){
+    bodyNow.innerHTML = `<div class="card"><p class="empty-row">No visits recorded yet for ${FOOTFALL_SITE}. Add the snippet from Setup below — views appear here within seconds.</p></div>`;
+    return;
+  }
+  const dayStart = new Date(); dayStart.setHours(0,0,0,0);
+  const todayCount = rows.filter(r=> new Date(r.ts) >= dayStart).length;
+  const uniqVis = new Set(rows.map(r=>r.visitor_id).filter(Boolean)).size;
+  const uniqSess = new Set(rows.map(r=>r.session_id).filter(Boolean)).size;
+  const buckets = ffDayBuckets(rows, _ffRangeDays);
+  const avg = Math.round(rows.length / _ffRangeDays);
+  const byPath = ffGroupTop(rows, r=> r.path || "/", 8);
+  const byRef  = ffGroupTop(rows, r=> ffRefHost(r.referrer), 8);
+  const recent = rows.slice(0, 15);
+  bodyNow.innerHTML = `
+    <div class="stat-grid">
+      <div class="stat-card"><div class="label">Page views</div><div class="value">${rows.length.toLocaleString("en-IN")}</div></div>
+      <div class="stat-card"><div class="label">Unique visitors</div><div class="value">${uniqVis.toLocaleString("en-IN")}</div></div>
+      <div class="stat-card"><div class="label">Sessions</div><div class="value">${uniqSess.toLocaleString("en-IN")}</div></div>
+      <div class="stat-card"><div class="label">Views today</div><div class="value">${todayCount.toLocaleString("en-IN")}</div></div>
+      <div class="stat-card"><div class="label">Avg / day</div><div class="value">${avg.toLocaleString("en-IN")}</div></div>
+    </div>
+    <div class="card"><h3>Views per day — last ${_ffRangeDays} days</h3>${ffBarChart(buckets)}</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;">
+      <div class="card"><h3>Top pages</h3>${ffMiniTable(byPath, "Page", "Views")}</div>
+      <div class="card"><h3>Top referrers</h3>${ffMiniTable(byRef, "Source", "Views")}</div>
+    </div>
+    <div class="card" style="padding:0;overflow-x:auto;">
+      <div style="padding:14px 16px 0;"><h3 style="margin:0;"><span class="ff-live-dot"></span>Recent visits</h3></div>
+      <table><thead><tr><th>When</th><th>Page</th><th>Referrer</th></tr></thead>
+      <tbody>${recent.map(r=>`<tr><td style="white-space:nowrap;">${fmtDateTime(r.ts)}</td><td style="word-break:break-all;">${escapeHtml(r.path||"/")}</td><td>${escapeHtml(ffRefHost(r.referrer))}</td></tr>`).join("")}</tbody></table>
+    </div>
+  `;
 }
 
 /* ================= EMPLOYEE: EMPLOYEES ================= */
@@ -1415,10 +1574,11 @@ function renderHistory(){
   const filtered = moduleFilter ? logs.filter(l=>l.module===moduleFilter) : logs;
   document.getElementById("main-content").innerHTML = `
     <div class="topbar"><div><h2>History</h2><p>Complete audit trail across ${BRAND} Ops</p></div></div>
+    ${logs.some(isDummy) ? sampleNote("Rows tinted red are seeded demo activity. Everything the team does from now on is recorded here in real time.") : ""}
     <div class="toolbar"><select id="audit-module" onchange="renderHistory()"><option value="">All modules</option>${modules.map(m=>`<option ${m===moduleFilter?"selected":""}>${m}</option>`).join("")}</select></div>
     <div class="card" style="padding:0;overflow-x:auto;">
       <table><thead><tr><th>When</th><th>User</th><th>Action</th><th>Module</th><th>Details</th></tr></thead>
-      <tbody>${filtered.length ? filtered.map(l=>`<tr><td style="white-space:nowrap;">${fmtDateTime(l.at)}</td><td>${escapeHtml(l.performedBy)}</td><td><span class="pill blue">${escapeHtml(l.action)}</span></td><td>${escapeHtml(l.module)}</td><td style="font-size:12.5px;">${escapeHtml(l.summary)}${l.prevVal?`<br><span style="color:var(--muted);">${escapeHtml(l.prevVal)} &rarr; ${escapeHtml(l.newVal)}</span>`:""}</td></tr>`).join("") : `<tr><td colspan="5" class="empty-row">No history yet.</td></tr>`}</tbody></table>
+      <tbody>${filtered.length ? filtered.map(l=>`<tr class="${isDummy(l)?"dummy-row":""}"><td style="white-space:nowrap;">${fmtDateTime(l.at)}</td><td>${escapeHtml(l.performedBy)}</td><td><span class="pill blue">${escapeHtml(l.action)}</span> ${isDummy(l)?SAMPLE_PILL:""}</td><td>${escapeHtml(l.module)}</td><td style="font-size:12.5px;">${escapeHtml(l.summary)}${l.prevVal?`<br><span style="color:var(--muted);">${escapeHtml(l.prevVal)} &rarr; ${escapeHtml(l.newVal)}</span>`:""}</td></tr>`).join("") : `<tr><td colspan="5" class="empty-row">No history yet.</td></tr>`}</tbody></table>
     </div>
   `;
 }
