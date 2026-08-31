@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@600;700&family=Karla:wght@400;600&family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600;700;800&family=Mukta:wght@400;600;700&family=IBM+Plex+Sans:wght@400;600&family=Cormorant+Garamond:wght@600;700&family=Jost:wght@400;500&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
   :root{
     --bg:#f5f6fa; --card:#ffffff; --border:#e5e7f0; --text:#181a2e; --muted:#686d84;
@@ -332,7 +333,7 @@
 </head>
 <body>
 
-<div id="demo-banner">DEMO MODE — dummy data only, nothing here is connected to a real database yet. Login: <b>support@thikaana.co</b> / <b>demo123</b> (Thikaana team) — client demo logins shown on the login screen.</div>
+<div id="demo-banner">DEMO MODE — running on this browser's local data (shared database not configured yet). Login: <b>support@thikaana.co</b> / <b>Findmenow@123</b> (Thikaana team) — client demo logins shown on the login screen.</div>
 <div id="impersonation-banner"></div>
 
 <div id="package-landing"></div>
@@ -410,8 +411,18 @@ const ICONS = {
 
 /* ================= CONFIG ================= */
 const BRAND = "ठिkaana";
-const SHARED_LOGIN = { email: "support@thikaana.co", password: "demo123" };
+const SHARED_LOGIN = { email: "support@thikaana.co", password: "Findmenow@123" };
 const DEMO_PASSWORD = "demo123";
+
+/* ================= SUPABASE (shared team database) =================
+   Paste the two values from your Supabase project:
+     Project Settings -> API -> Project URL   and   Project API keys -> "anon" "public"
+   The anon key is safe to commit publicly (see SUPABASE_SETUP.md). Until both are
+   filled in, the app keeps running exactly as before, on this browser's localStorage. */
+const SUPABASE_URL = "https://vdxojmbcridrxkphewkl.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkeG9qbWJjcmlkcnhrcGhld2tsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxOTkzNDMsImV4cCI6MjEwMzc3NTM0M30.4hwBumjsLE3mWqwxIYNW5vDlnJB0D0WSf01P-dErWCY";
+const SUPABASE_TABLE = "thikops_state";
+const CLOUD_ENABLED = /^https:\/\/.+\.supabase\.co\/?$/.test(SUPABASE_URL) && SUPABASE_ANON_KEY.length > 20;
 
 // Static page in this same repo — calls Google Places directly from the browser
 // using a key entered on that page (saved in that page's own localStorage).
@@ -459,8 +470,76 @@ const TICKET_STATUSES = ["New","Assigned","In Progress","Waiting for Client","Re
 const KEYS = ["clients","clientUsers","tickets","meetings","vault","expenses","audit","employees","customRoles"];
 const SEED_VERSION = "4";
 
-function loadKey(k){ try{ return JSON.parse(localStorage.getItem("thikops_"+k)) || null; }catch(e){ return null; } }
-function saveKey(k, v){ localStorage.setItem("thikops_"+k, JSON.stringify(v)); }
+/* ---------------- Data layer: in-memory cache, localStorage mirror, Supabase sync ----------------
+   loadKey / saveKey stay synchronous so none of the ~100 call sites change. On boot,
+   initCloud() hydrates STATE from the shared Supabase table (one round trip). Every
+   saveKey updates STATE, mirrors to localStorage (offline fallback), and upserts to
+   Supabase. Realtime + polling keep the 4 team members' views in sync.
+   The login session (thikops_session) is deliberately NOT synced — it stays per device. */
+const STATE = Object.create(null);   // key -> parsed value, the source of truth at runtime
+let _sb = null;                      // Supabase client (null until configured)
+let _cloudReady = false;             // true once hydrated and writes are going through
+
+function loadKey(k){
+  if(k in STATE){ const v = STATE[k]; return (v===undefined || v===null) ? null : v; }
+  try{ return JSON.parse(localStorage.getItem("thikops_"+k)) || null; }catch(e){ return null; }
+}
+function saveKey(k, v){
+  STATE[k] = v;
+  try{ localStorage.setItem("thikops_"+k, JSON.stringify(v)); }catch(e){}
+  if(_cloudReady && _sb){
+    _sb.from(SUPABASE_TABLE)
+      .upsert({ key:k, value:v, updated_at:new Date().toISOString() }, { onConflict:"key" })
+      .then(({ error }) => { if(error) console.warn("[cloud] save failed for", k, error.message); });
+  }
+}
+
+async function initCloud(){
+  if(!CLOUD_ENABLED || !window.supabase){ return; }
+  try{
+    _sb = window.supabase.createClient(SUPABASE_URL.replace(/\/$/,""), SUPABASE_ANON_KEY);
+    const { data, error } = await _sb.from(SUPABASE_TABLE).select("key,value");
+    if(error) throw error;
+    (data||[]).forEach(row => {
+      STATE[row.key] = row.value;
+      try{ localStorage.setItem("thikops_"+row.key, JSON.stringify(row.value)); }catch(e){}
+    });
+    _cloudReady = true;
+    _subscribeCloud();
+    console.info("[cloud] connected — shared Thikaana team workspace is live");
+  }catch(e){
+    console.warn("[cloud] unavailable, running on local data only:", e.message||e);
+  }
+}
+function _applyRemote(rows){
+  let changed = false;
+  (rows||[]).forEach(row => {
+    if(!row || !row.key) return;
+    if(JSON.stringify(STATE[row.key]) !== JSON.stringify(row.value)){
+      STATE[row.key] = row.value;
+      try{ localStorage.setItem("thikops_"+row.key, JSON.stringify(row.value)); }catch(e){}
+      changed = true;
+    }
+  });
+  if(changed && typeof render === "function" && getSession()){ try{ render(); }catch(e){} }
+}
+function _subscribeCloud(){
+  try{
+    _sb.channel("thikops_state_changes")
+      .on("postgres_changes", { event:"*", schema:"public", table:SUPABASE_TABLE },
+          payload => _applyRemote([payload.new]))
+      .subscribe();
+  }catch(e){ console.warn("[cloud] realtime unavailable, polling only", e.message||e); }
+  setInterval(refreshFromCloud, 20000);
+  window.addEventListener("focus", refreshFromCloud);
+}
+async function refreshFromCloud(){
+  if(!_cloudReady || !_sb) return;
+  try{
+    const { data, error } = await _sb.from(SUPABASE_TABLE).select("key,value");
+    if(!error) _applyRemote(data);
+  }catch(e){}
+}
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
 function fmtMoney(n){ return "₹" + Number(n||0).toLocaleString("en-IN",{maximumFractionDigits:2}); }
 function fmtDate(d){ if(!d) return "—"; const dt=new Date(d+"T00:00:00"); if(isNaN(dt)) return d; return dt.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}); }
@@ -475,14 +554,14 @@ function statusPillClass(s){ return {Active:"green",Lead:"blue",Prospect:"blue",
 
 /* ---------------- Seed data ---------------- */
 function seedIfEmpty(){
-  if(loadKey("clients") && localStorage.getItem("thikops_seedVersion")===SEED_VERSION){
+  if(loadKey("clients") && loadKey("seedVersion")===SEED_VERSION){
     EMPLOYEES = loadKey("employees") || SEED_EMPLOYEES.slice();
     return;
   }
 
   EMPLOYEES = SEED_EMPLOYEES.slice();
   persistEmployees();
-  localStorage.setItem("thikops_seedVersion", SEED_VERSION);
+  saveKey("seedVersion", SEED_VERSION);
 
   const ALL_TEAM = ["ankit","chandan","bhuvanesh","irfan"];
   const ALL_WEB_SECTIONS = WEBSITE_SECTIONS.map(s=>s.id);
@@ -634,7 +713,7 @@ function currentClientRecord(){ const u=currentClientUser(); if(!u) return null;
 function populateDemoHint(){
   const users = loadKey("clientUsers")||[];
   document.getElementById("demo-hint").innerHTML =
-    `<b>ठिkaana team</b>support@thikaana.co / demo123<br>` +
+    `<b>ठिkaana team</b>support@thikaana.co / Findmenow@123<br>` +
     `<b>Client demo logins (password demo123)</b>` +
     users.map(u=>`${escapeHtml(u.email)} — ${escapeHtml(u.name)}${u.isAdmin?" (Admin)":""}`).join("<br>");
 }
@@ -1349,14 +1428,23 @@ function renderHistory(){
 function renderSettings(){
   document.getElementById("main-content").innerHTML = `
     <div class="topbar"><div><h2>Settings</h2><p>Application configuration</p></div></div>
-    <div class="card"><h3>Data</h3><p style="font-size:13px;color:var(--muted);margin:0 0 10px;">This demo runs entirely on dummy data stored in this browser. There is no real database connected yet.</p><button class="btn danger small" onclick="wipeAllData()">Reset Demo Data</button></div>
+    <div class="card"><h3>Data</h3><p style="font-size:13px;color:var(--muted);margin:0 0 10px;">${_cloudReady
+      ? "Connected to the shared Supabase database — changes you make here sync to every ठिkaana team member in real time."
+      : "Shared database not configured — running on this browser's local data only. See SUPABASE_SETUP.md to connect it."}</p><button class="btn danger small" onclick="wipeAllData()">Reset ${_cloudReady ? "Shared " : "Demo "}Data</button></div>
     <div class="card"><h3>Branding</h3><p style="font-size:13px;color:var(--muted);margin:0;">Product name: ${BRAND} Ops</p></div>
   `;
 }
-function wipeAllData(){
-  if(!confirm("Reset all demo data back to the original seed? This clears everything you've added.")) return;
-  KEYS.forEach(k=>localStorage.removeItem("thikops_"+k));
+async function wipeAllData(){
+  const shared = _cloudReady ? "\n\nThis resets the SHARED workspace — it clears the data for all Thikaana team members, not just you." : "";
+  if(!confirm("Reset all demo data back to the original seed? This clears everything you've added."+shared)) return;
+  const resetKeys = KEYS.concat(["websiteContent","seedVersion","wcSeedVersion"]);
+  resetKeys.forEach(k=>{ delete STATE[k]; try{ localStorage.removeItem("thikops_"+k); }catch(e){} });
+  if(_cloudReady && _sb){
+    try{ await _sb.from(SUPABASE_TABLE).delete().in("key", resetKeys); }
+    catch(e){ console.warn("[cloud] reset failed", e.message||e); }
+  }
   seedIfEmpty();
+  seedWebsiteContentIfEmpty();
   render();
 }
 
@@ -1491,8 +1579,8 @@ function wmClearErrors(ids){ ids.forEach(id=>wmSetFieldError(id, "")); }
 function wmIsValidEmail(v){ return !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
 
 function seedWebsiteContentIfEmpty(){
-  if(loadKey("websiteContent") && localStorage.getItem("thikops_wcSeedVersion")===WC_SEED_VERSION) return;
-  localStorage.setItem("thikops_wcSeedVersion", WC_SEED_VERSION);
+  if(loadKey("websiteContent") && loadKey("wcSeedVersion")===WC_SEED_VERSION) return;
+  saveKey("wcSeedVersion", WC_SEED_VERSION);
   const mk = (name, description, price) => ({ id:uid(), name, description, price: (price===undefined?null:price) });
   const wc = {
     "c-pavmantra": {
@@ -2699,17 +2787,27 @@ function mockBuyPackage(pkgId, clientId){
 }
 
 /* ---------------- Init / routing ---------------- */
-seedIfEmpty();
-populateDemoHint();
-const _urlParams = new URLSearchParams(window.location.search);
-if(_urlParams.get("viewPackage")){
-  renderPackageLandingPage(_urlParams.get("viewPackage"), _urlParams.get("forClient"));
-} else if(_urlParams.get("asClient")){
-  loginAsClientEmployeeAccess(_urlParams.get("asClient"));
-} else {
-  const _s = getSession();
-  if(_s){ showApp(applyHashRoute()); }
+function reflectCloudStatus(){
+  const banner = document.getElementById("demo-banner");
+  if(_cloudReady && banner){
+    banner.innerHTML = "SHARED TEAM WORKSPACE — live data synced across the ठिkaana team via Supabase. Login: <b>support@thikaana.co</b> / <b>Findmenow@123</b> — client demo logins shown on the login screen.";
+  }
 }
+(async function boot(){
+  await initCloud();
+  reflectCloudStatus();
+  seedIfEmpty();
+  populateDemoHint();
+  const _urlParams = new URLSearchParams(window.location.search);
+  if(_urlParams.get("viewPackage")){
+    renderPackageLandingPage(_urlParams.get("viewPackage"), _urlParams.get("forClient"));
+  } else if(_urlParams.get("asClient")){
+    loginAsClientEmployeeAccess(_urlParams.get("asClient"));
+  } else {
+    const _s = getSession();
+    if(_s){ showApp(applyHashRoute()); }
+  }
+})();
 </script>
 </body>
 </html>
