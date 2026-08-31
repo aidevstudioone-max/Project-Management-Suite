@@ -494,7 +494,7 @@ const TICKET_PRIORITIES = ["Low","Medium","High","Urgent"];
 const TICKET_STATUSES = ["New","Assigned","In Progress","Waiting for Client","Resolved","Closed"];
 
 const KEYS = ["clients","clientUsers","tickets","meetings","vault","expenses","audit","employees","customRoles"];
-const SEED_VERSION = "6";
+const SEED_VERSION = "7";
 
 /* ---------------- Data layer: in-memory cache, localStorage mirror, Supabase sync ----------------
    loadKey / saveKey stay synchronous so none of the ~100 call sites change. On boot,
@@ -686,37 +686,12 @@ function seedIfEmpty(){
   ];
   saveKey("tickets", tickets);
 
-  const meetings = [
-    { id:"m-1", seed:true, clientId:"c-srima", title:"Client Website Review", date:"2026-08-14", attendees:["ankit","bhuvanesh"], notes:"Reviewed homepage redesign, contact form reliability, and SEO improvements for the diagnostic centre site.", decisions:"Proceed with homepage redesign; move contact form to a monitored inbox; start basic on-page SEO next sprint.", actionItems:[
-        {task:"Fix contact form reliability", owner:"ankit", due:"2026-08-20", done:true},
-        {task:"Review site architecture for SEO", owner:"chandan", due:"2026-08-24", done:false},
-        {task:"Confirm new homepage content with client", owner:"bhuvanesh", due:"2026-08-22", done:false}
-    ]},
-    { id:"m-2", seed:true, clientId:null, title:"Weekly Internal Sync", date:"2026-08-17", attendees:["ankit","chandan","bhuvanesh","irfan"], notes:"Reviewed open ticket load across clients, flagged Srima domain renewal as time-sensitive.", decisions:"Ankit to personally handle domain renewals going forward.", actionItems:[
-        {task:"Set calendar reminders for all client domain renewals", owner:"ankit", due:"2026-08-25", done:false}
-    ]}
-  ];
-  saveKey("meetings", meetings);
-
-  saveKey("vault", [
-    { id:"v-1", seed:true, service:"GoDaddy — Domain Registrar", category:"Domain & Hosting", username:"support@thikaana.co", password:"Demo-Only-Not-Real", url:"godaddy.com", notes:"Renews annually.", updatedAt:daysAgo(20) },
-    { id:"v-2", seed:true, service:"Google Workspace Admin", category:"Google Workspace", username:"support@thikaana.co", password:"Demo-Only-Not-Real", url:"admin.google.com", notes:"", updatedAt:daysAgo(15) }
-  ]);
-  saveKey("expenses", [
-    { id:"e-1", seed:true, date:"2026-08-05", category:"Domain & Hosting", description:"Domain renewal — thikaana.co", amount:1200, paidBy:"ankit", notes:"" },
-    { id:"e-2", seed:true, date:"2026-08-10", category:"Software & Subscriptions", description:"Design tool subscription", amount:1999, paidBy:"chandan", notes:"" },
-    { id:"e-3", seed:true, date:"2026-08-15", category:"Marketing & Ads", description:"Instagram ad boost", amount:3000, paidBy:"bhuvanesh", notes:"" }
-  ]);
-
-  const audit = [];
-  clients.forEach(c=>{
-    audit.push({ id:uid(), seed:true, action:"Client Onboarded", module:"Clients", clientId:c.id, summary:`${c.name} onboarded`, performedBy:"System", at:c.onboardingDate+"T10:00:00" });
-    audit.push({ id:uid(), seed:true, action:"Package Added", module:"Packages", clientId:c.id, summary:`${c.package.name} — ${fmtMoney(c.package.price)}`, performedBy:"System", at:c.onboardingDate+"T10:05:00" });
-  });
-  clientUsers.filter(u=>u.isAdmin).forEach(u=>{
-    audit.push({ id:uid(), seed:true, action:"Client Admin Set", module:"Client Users", clientId:u.clientId, summary:`${u.name} added as Client Admin`, performedBy:"System", at:daysAgo(25) });
-  });
-  saveKey("audit", audit.sort((a,b)=>(a.at||"").localeCompare(b.at||"")));
+  /* Workspace sections (Vault, Expenses, Meeting Notes) and the audit log start EMPTY —
+     only real team data lives here. Dashboard / Clients / Tickets keep the demo dataset. */
+  saveKey("meetings", []);
+  saveKey("vault", []);
+  saveKey("expenses", []);
+  saveKey("audit", []);
 }
 
 /* ---------------- Audit & history helpers ---------------- */
@@ -777,6 +752,10 @@ document.getElementById("login-email").addEventListener("keydown", e => { if(e.k
 
 function logout(){
   localStorage.removeItem("thikops_session");
+  currentTab = "dashboard";
+  /* Drop the #/section hash (and any ?asClient= etc.) so logging out always lands on
+     the clean login URL, not e.g. .../Thikaana_ops#/expenses. */
+  try{ history.replaceState(null, "", location.pathname); }catch(e){}
   document.getElementById("app").style.display = "none";
   document.getElementById("login-screen").style.display = "flex";
   document.getElementById("login-email").value=""; document.getElementById("login-pass").value="";
@@ -806,7 +785,7 @@ function buildSidebar(){
       <a href="#/expenses" class="nav-item nav-sub" data-tab="expenses" onclick="return navClick(event,'expenses')"><span class="ic">${ICONS.expenses}</span> Expenses</a>
       <a href="#/meetings" class="nav-item nav-sub" data-tab="meetings" onclick="return navClick(event,'meetings')"><span class="ic">${ICONS.meetings}</span> Meeting Notes</a>
       <a href="#/footfall" class="nav-item nav-sub" data-tab="footfall" onclick="return navClick(event,'footfall')"><span class="ic">${ICONS.footfall}</span> Footfall</a>
-      <div class="nav-item nav-sub" onclick="openLeadGen()" title="Opens the Lead Gen tool"><span class="ic">${ICONS.search}</span> Lead Gen &#8599;</div>
+      <a class="nav-item nav-sub" href="${LEAD_GEN_URL}" target="_blank" rel="noopener" title="Opens the Lead Gen tool in a new tab"><span class="ic">${ICONS.search}</span> Lead Gen &#8599;</a>
       <a href="#/employees" class="nav-item" data-tab="employees" onclick="return navClick(event,'employees')"><span class="ic">${ICONS.employees}</span> Employees</a>
       <a href="#/history" class="nav-item" data-tab="history" onclick="return navClick(event,'history')"><span class="ic">${ICONS.history}</span> History</a>
       <a href="#/settings" class="nav-item" data-tab="settings" onclick="return navClick(event,'settings')"><span class="ic">${ICONS.settings}</span> Settings</a>
