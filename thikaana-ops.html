@@ -457,8 +457,8 @@ const LEAD_GEN_URL = "leadgen.html";
 const SEED_EMPLOYEES = [
   { id:"ankit", name:"Ankit Prakash", email:"ankit@thikaana.co", phone:"+91 98100 00001", title:"Founder", department:"Leadership", role:"Administrator", type:"technical", permissions:"full", active:true },
   { id:"chandan", name:"Chandan Jha", email:"chandan@thikaana.co", phone:"+91 98100 00002", title:"Chief Technology Officer", department:"Technology", role:"CTO", type:"technical", permissions:"full", active:true },
-  { id:"bhuvanesh", name:"Bhuvanesh Meethal", email:"bhuvanesh@thikaana.co", phone:"+91 98100 00003", title:"Director – Client Relations", department:"Client Relations", role:"Client Relations", type:"nontechnical", permissions:"full", active:true },
-  { id:"irfan", name:"Irfan Azmi", email:"irfan@thikaana.co", phone:"+91 98100 00004", title:"Director – Customer Success", department:"Customer Success", role:"Customer Success", type:"nontechnical", permissions:"full", active:true }
+  { id:"bhuvanesh", name:"Sameer Joshi", email:"sameer@thikaana.co", phone:"+91 98100 00003", title:"Director – Client Relations", department:"Client Relations", role:"Client Relations", type:"nontechnical", permissions:"full", active:true },
+  { id:"irfan", name:"Tanvi Desai", email:"tanvi@thikaana.co", phone:"+91 98100 00004", title:"Director – Customer Success", department:"Customer Success", role:"Customer Success", type:"nontechnical", permissions:"full", active:true }
 ];
 let EMPLOYEES = [];
 function persistEmployees(){ saveKey("employees", EMPLOYEES); }
@@ -494,7 +494,7 @@ const TICKET_PRIORITIES = ["Low","Medium","High","Urgent"];
 const TICKET_STATUSES = ["New","Assigned","In Progress","Waiting for Client","Resolved","Closed"];
 
 const KEYS = ["clients","clientUsers","tickets","meetings","vault","expenses","audit","employees","customRoles"];
-const SEED_VERSION = "7";
+const SEED_VERSION = "9";
 
 /* ---------------- Data layer: in-memory cache, localStorage mirror, Supabase sync ----------------
    loadKey / saveKey stay synchronous so none of the ~100 call sites change. On boot,
@@ -659,21 +659,21 @@ function seedIfEmpty(){
     { id:"t-1002", clientId:"c-apoorva", createdBy:"cu-3", subject:"Update catalogue with new brake pad range", description:"We've added 12 new SKUs, need the catalogue page updated with prices.", category:"Content Update", priority:"Medium", status:"Waiting for Client", assignedTo:"bhuvanesh", createdAt:daysAgo(5), assignedAt:daysAgo(5), pageUrl:"apoorvaauto.com/catalogue",
       comments:[
         {author:"Suresh Apoorva", role:"client", text:"Sharing the new price list by email shortly.", at:daysAgo(5)},
-        {author:"Bhuvanesh Meethal", role:"internal", text:"Got it — waiting on the file, will update within a day of receiving it.", at:daysAgo(4.6)}
+        {author:"Sameer Joshi", role:"internal", text:"Got it — waiting on the file, will update within a day of receiving it.", at:daysAgo(4.6)}
       ],
-      history: mkHistory([["Apoorva Auto Parts created the ticket.", daysAgo(5)],["Ticket auto-assigned to Bhuvanesh Meethal.", daysAgo(5)],["Bhuvanesh Meethal changed status to Waiting for Client.", daysAgo(4.6)]]) },
+      history: mkHistory([["Apoorva Auto Parts created the ticket.", daysAgo(5)],["Ticket auto-assigned to Sameer Joshi.", daysAgo(5)],["Sameer Joshi changed status to Waiting for Client.", daysAgo(4.6)]]) },
     { id:"t-1003", clientId:"c-hangout", createdBy:"cu-4", subject:"Change weekend timings on homepage", description:"We're now open till 11pm on Fri/Sat, homepage still shows 10pm.", category:"Content Update", priority:"Low", status:"Resolved", assignedTo:"irfan", createdAt:daysAgo(9), assignedAt:daysAgo(9), resolvedAt:daysAgo(8), pageUrl:"hangoutcafe.in",
       comments:[
         {author:"Meera Kapoor", role:"client", text:"Can we get weekend hours updated?", at:daysAgo(9)},
-        {author:"Irfan Azmi", role:"internal", text:"Updated — please check and confirm.", at:daysAgo(8)},
+        {author:"Tanvi Desai", role:"internal", text:"Updated — please check and confirm.", at:daysAgo(8)},
         {author:"Meera Kapoor", role:"client", text:"Looks perfect, thanks!", at:daysAgo(7.8)}
       ],
-      history: mkHistory([["Hangout Cafe created the ticket.", daysAgo(9)],["Ticket auto-assigned to Irfan Azmi.", daysAgo(9)],["Irfan Azmi changed status to Resolved.", daysAgo(8)]]) },
+      history: mkHistory([["Hangout Cafe created the ticket.", daysAgo(9)],["Ticket auto-assigned to Tanvi Desai.", daysAgo(9)],["Tanvi Desai changed status to Resolved.", daysAgo(8)]]) },
     { id:"t-1004", clientId:"c-srima", createdBy:"cu-5", subject:"Domain renewal reminder — expiring in 10 days", description:"Got an email saying our domain expires soon, please handle renewal.", category:"Domain / Hosting", priority:"High", status:"Assigned", assignedTo:"ankit", createdAt:daysAgo(1), assignedAt:daysAgo(1), pageUrl:"srimadiagnostic.com",
       comments:[{author:"Dr. Srima Rao", role:"client", text:"Please make sure this doesn't lapse, it's urgent for us.", at:daysAgo(1)}],
       history: mkHistory([["Srima Diagnostic & Medical created the ticket.", daysAgo(1)],["Ticket auto-assigned to Ankit Prakash.", daysAgo(1)]]) },
     { id:"t-1005", clientId:"c-sriram", createdBy:"cu-7", subject:"Add new Diwali collection photos", description:"Need 20 new product photos added to the collections page before the festive season.", category:"Design Change", priority:"Medium", status:"New", assignedTo:"bhuvanesh", createdAt:daysAgo(0.3), assignedAt:daysAgo(0.3), pageUrl:"sriramgifts.com/collections",
-      comments:[], history: mkHistory([["Sri Ram Gift Emporium created the ticket.", daysAgo(0.3)],["Ticket auto-assigned to Bhuvanesh Meethal.", daysAgo(0.3)]]) },
+      comments:[], history: mkHistory([["Sri Ram Gift Emporium created the ticket.", daysAgo(0.3)],["Ticket auto-assigned to Sameer Joshi.", daysAgo(0.3)]]) },
     { id:"t-1006", clientId:"c-shibpur", createdBy:"cu-8", subject:"Contact page email not receiving enquiries", description:"Parents say they've submitted the enquiry form but school office has not received a single email in 2 weeks.", category:"Email", priority:"Urgent", status:"Closed", assignedTo:"chandan", createdAt:daysAgo(14), assignedAt:daysAgo(14), resolvedAt:daysAgo(13), pageUrl:"shghschool.edu.in/contact",
       comments:[
         {author:"Anjali Bose", role:"client", text:"No enquiry emails coming through, please check urgently.", at:daysAgo(14)},
@@ -682,7 +682,7 @@ function seedIfEmpty(){
       ],
       history: mkHistory([["Shibpur Hindu Girls School created the ticket.", daysAgo(14)],["Ticket auto-assigned to Chandan Jha.", daysAgo(14)],["Chandan Jha changed status to Resolved.", daysAgo(13.2)],["Ticket changed to Closed.", daysAgo(13)]]) },
     { id:"t-1007", clientId:"c-pavmantra", createdBy:"cu-2", subject:"Add Instagram feed to homepage", description:"Would like our latest Instagram posts to show up on the homepage automatically.", category:"General Request", priority:"Low", status:"New", assignedTo:"irfan", createdAt:daysAgo(0.1), assignedAt:daysAgo(0.1), pageUrl:"pavmantra.com",
-      comments:[], history: mkHistory([["Pav Mantra created the ticket.", daysAgo(0.1)],["Ticket auto-assigned to Irfan Azmi.", daysAgo(0.1)]]) }
+      comments:[], history: mkHistory([["Pav Mantra created the ticket.", daysAgo(0.1)],["Ticket auto-assigned to Tanvi Desai.", daysAgo(0.1)]]) }
   ];
   saveKey("tickets", tickets);
 
@@ -2909,8 +2909,7 @@ function renderPackageLandingPage(pkgId, forClientId){
         <ul style="margin:0 0 20px;padding-left:18px;font-size:14px;line-height:2;">${pkg.services.map(s=>`<li>${escapeHtml(s)}</li>`).join("")}</ul>
         ${pkg.custom ? "" : `<button class="btn" style="width:100%;margin-bottom:10px;" onclick="mockBuyPackage('${pkg.id}','${forClientId||""}')">Buy This Package</button>`}
         <div style="display:flex;gap:10px;">
-          <a class="btn ${pkg.custom?"":"secondary"} small" style="flex:1;text-align:center;text-decoration:none;box-sizing:border-box;" href="mailto:bhuvanesh@thikaana.co?subject=${encodeURIComponent((pkg.custom?"Let's discuss requirements — ":"Interested in ")+pkg.name)}">${pkg.custom?"Let's Discuss Your Requirements":"Connect with Bhuvanesh"}</a>
-          ${pkg.custom?"":`<a class="btn secondary small" style="flex:1;text-align:center;text-decoration:none;box-sizing:border-box;" href="mailto:irfan@thikaana.co?subject=${encodeURIComponent("Interested in "+pkg.name)}">Connect with Irfan</a>`}
+          <a class="btn ${pkg.custom?"":"secondary"} small" style="flex:1;text-align:center;text-decoration:none;box-sizing:border-box;" href="mailto:hello@thikaana.co?subject=${encodeURIComponent((pkg.custom?"Let's discuss requirements — ":"Interested in ")+pkg.name)}">${pkg.custom?"Let's Discuss Your Requirements":"Connect with Us"}</a>
         </div>
       </div>
       <p style="font-size:11.5px;color:var(--muted);margin-top:16px;">Use the link above, or just close this tab, to return to your account anytime.</p>
