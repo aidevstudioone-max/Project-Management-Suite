@@ -132,14 +132,18 @@ The **Footfall** section (under ठिkaana Workspace) shows live visitor stats 
 
 ```sql
 create table public.thikops_footfall (
-  id         bigint generated always as identity primary key,
-  site       text not null default 'thikaana.co',
-  path       text,
-  referrer   text,
-  visitor_id text,
-  session_id text,
-  user_agent text,
-  ts         timestamptz not null default now()
+  id           bigint generated always as identity primary key,
+  site         text not null default 'thikaana.co',
+  product      text,          -- null = marketing website; else a product id (e.g. 'coaching-erp')
+  path         text,
+  referrer     text,
+  visitor_id   text,
+  session_id   text,
+  user_agent   text,
+  country      text,          -- from the visitor's IP (ipwho.is)
+  country_code text,
+  city         text,
+  ts           timestamptz not null default now()
 );
 create index thikops_footfall_ts_idx on public.thikops_footfall (ts desc);
 
@@ -157,27 +161,57 @@ create policy "anon read footfall" on public.thikops_footfall
 > business marketing site that's an acceptable trade-off; if it's ever abused,
 > rotate the anon key or add a stricter policy.
 
-## 2. Add the tracker to thikaana.co
+### Already have the table? Add the new columns
 
-Put this in the `<head>` of every page on `thikaana.co` (or in the site's shared
-template / footer include):
+If `thikops_footfall` was created before country / city / product tracking, run this
+once (safe to re-run):
 
-```html
-<script src="https://aidevstudioone-max.github.io/Project-Management-Suite/track.js" data-site="thikaana.co"></script>
+```sql
+alter table public.thikops_footfall
+  add column if not exists product      text,
+  add column if not exists country      text,
+  add column if not exists country_code text,
+  add column if not exists city         text;
 ```
 
+## 2. Add the tracker to the website and each product
+
+Put this in the `<head>` of every page (or the shared template / footer include).
+Keep `data-site="thikaana.co"` everywhere so it all rolls up together — the optional
+`data-product` tag is what separates a product from the marketing site.
+
+```html
+<!-- marketing website -->
+<script src="https://aidevstudioone-max.github.io/Project-Management-Suite/track.js" data-site="thikaana.co"></script>
+
+<!-- a product -->
+<script src="https://aidevstudioone-max.github.io/Project-Management-Suite/track.js" data-site="thikaana.co" data-product="coaching-erp"></script>
+```
+
+Product ids the Footfall screen already knows about: `coaching-erp`, `medicore`,
+`eduvia`, `ops-portal`. To add more, edit `FOOTFALL_PROPS` near the top of the
+`<script>` in `thikaana-ops.html`. The Footfall → **Setup** panel shows a
+copy-paste snippet for each one.
+
 `track.js` lives in this repo and is served by GitHub Pages. It writes one row per
-page view: path, referrer, a per-browser `visitor_id` (localStorage) and a
-per-tab `session_id` (sessionStorage). No cookies, no personal data.
+page view: path, referrer, a per-browser `visitor_id` (localStorage), a per-tab
+`session_id` (sessionStorage), and country / city from a one-per-day IP lookup via
+the free [ipwho.is](https://ipwho.is) API (cached in localStorage, 1.2s fail-safe
+so it never blocks the beacon). No cookies, no personal data stored.
 
 ## 3. Watch it in the app
 
 Open **Footfall** in ठिkaana Ops. It shows page views, unique visitors, sessions,
-a per-day chart, top pages, top referrers and a live "recent visits" feed. It
-auto-refreshes every 30 seconds while the tab is open. Ranges: 7 / 30 / 90 days.
+a per-day chart, top pages, top referrers and a live "recent visits" feed, plus:
 
-Until the snippet is live on thikaana.co the section just says "no visits recorded
-yet" — that's expected, not an error.
+- **Property tabs** (All / Website / each product) to filter everything below.
+- **Website vs products** — how many visitors saw only the site, only a product, or both.
+- **Visitors by country & city** — click a country to drill into its cities.
+
+It auto-refreshes every 30 seconds while the tab is open. Ranges: 7 / 30 / 90 days.
+
+Until a snippet is live somewhere the section just says "no visits recorded yet" —
+that's expected, not an error.
 
 ## Inspecting / clearing footfall data
 

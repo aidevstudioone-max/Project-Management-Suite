@@ -4,6 +4,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ठिkaana Ops</title>
+<link rel="icon" href="thikaana-logo.png">
+<script>
+/* Brand mark loader: try a few extensions, then fall back to the ठ glyph.
+   Defined before <body> so the static <img onerror> handlers can use it. */
+window.__logoFallback = function(img){
+  var left = (img.getAttribute("data-try") || "svg,jpg,jpeg,webp,png").split(",").filter(Boolean);
+  if(left.length){
+    var ext = left.shift();
+    img.setAttribute("data-try", left.join(","));
+    img.src = "thikaana-logo." + ext;
+  } else {
+    var span = img.parentNode; if(span){ span.textContent = "ठ"; }
+  }
+};
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@600;700&family=Karla:wght@400;600&family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600;700;800&family=Mukta:wght@400;600;700&family=IBM+Plex+Sans:wght@400;600&family=Cormorant+Garamond:wght@600;700&family=Jost:wght@400;500&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
@@ -350,6 +365,114 @@
   @media (prefers-reduced-motion: reduce){ .fade-in,.fade-in-stagger,.modal-pop{animation:none;} }
 
   /* ============================================================
+     BRAND LOGO — <img> inside .logo-badge, falls back to the ठ glyph
+     ============================================================ */
+  .logo-badge{overflow:hidden;padding:0;}
+  /* the supplied mark has a wide margin + a faint sparkle ring; scale up a touch so the
+     glyph fills the badge and the dead border / ring get clipped by overflow:hidden. */
+  .logo-badge .brand-logo{width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit;transform:scale(1.34);}
+
+  /* ============================================================
+     LOGIN — show/hide password
+     ============================================================ */
+  .pw-wrap{position:relative;margin-bottom:12px;}
+  .pw-wrap input{margin-bottom:0 !important;padding-right:44px !important;}
+  .login-box button.pw-eye{position:absolute;top:50%;right:5px;transform:translateY(-50%);
+    width:34px;height:34px;min-width:0;margin:0;
+    display:flex;align-items:center;justify-content:center;background:none;border:none;padding:0;
+    color:var(--muted);border-radius:8px;box-shadow:none;
+    transition:color .15s ease,background .15s ease;}
+  .login-box button.pw-eye:hover{color:var(--accent);background:var(--accent-soft);transform:translateY(-50%);box-shadow:none;filter:none;}
+  .login-box button.pw-eye:active{transform:translateY(-50%) scale(1);}
+  .login-box button.pw-eye::after{display:none;}
+  .login-box button.pw-eye svg{width:19px;height:19px;pointer-events:none;}
+
+  /* ============================================================
+     LIQUID BUTTONS — glossy gradient fill + a shine sweep on hover.
+     Applies to the primary .btn and the login button. Secondary /
+     danger / icon buttons are left flat on purpose.
+     ============================================================ */
+  .btn:not(.secondary):not(.danger),
+  .login-box button{
+    position:relative;overflow:hidden;isolation:isolate;
+    background:linear-gradient(135deg,#6d67f0 0%,#4f46e5 55%,#4338ca 100%);
+    box-shadow:0 1px 2px rgba(79,70,229,.25), 0 6px 18px rgba(79,70,229,.28), inset 0 1px 0 rgba(255,255,255,.22);
+    transition:transform .18s cubic-bezier(.2,.8,.25,1), box-shadow .18s ease, filter .18s ease;
+  }
+  .btn:not(.secondary):not(.danger)::after,
+  .login-box button::after{
+    content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;
+    background:linear-gradient(100deg,transparent 20%,rgba(255,255,255,.45) 46%,rgba(255,255,255,.05) 60%,transparent 72%);
+    transform:translateX(-130%);transition:transform .6s cubic-bezier(.22,.61,.36,1);
+  }
+  .btn:not(.secondary):not(.danger):hover,
+  .login-box button:hover{
+    transform:translateY(-2px);filter:saturate(1.08);
+    box-shadow:0 2px 6px rgba(79,70,229,.3), 0 14px 32px rgba(79,70,229,.4), inset 0 1px 0 rgba(255,255,255,.3);
+  }
+  .btn:not(.secondary):not(.danger):hover::after,
+  .login-box button:hover::after{transform:translateX(130%);}
+  .btn:not(.secondary):not(.danger):active,
+  .login-box button:active{transform:translateY(0) scale(.985);}
+
+  /* soft "liquid" hover for nav + cards */
+  .nav-item{position:relative;overflow:hidden;}
+  .nav-item::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:0 3px 3px 0;
+    background:linear-gradient(180deg,#8b85ff,#4f46e5);transform:scaleY(0);transition:transform .18s ease;transform-origin:center;}
+  .nav-item:hover::before,.nav-item.active::before{transform:scaleY(.62);}
+  .stat-card,.card,.team-card,.priority-card,.other-pkg-card{transition:transform .18s cubic-bezier(.2,.8,.25,1),box-shadow .18s ease,border-color .18s ease;}
+  .wm-nav-item,.icon-btn,.btn.secondary,.ff-range button{transition:transform .15s ease,background .15s ease,border-color .15s ease,color .15s ease,box-shadow .15s ease;}
+  .btn.secondary:hover,.ff-range button:hover{transform:translateY(-1px);box-shadow:var(--shadow-sm);}
+
+  @media (prefers-reduced-motion: reduce){
+    .btn::after,.login-box button::after{display:none;}
+    .btn,.login-box button,.nav-item::before,.stat-card,.card,.team-card,.priority-card{transition:none;}
+  }
+
+  /* ============================================================
+     EXPENSES — settlement / "who owes whom" panel
+     ============================================================ */
+  .settle-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:14px;}
+  .settle-person{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow-sm);}
+  .settle-person .nm{font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+  .settle-person .row{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);padding:2px 0;}
+  .settle-person .net{margin-top:7px;padding-top:7px;border-top:1px solid var(--border);font-size:13px;font-weight:700;display:flex;justify-content:space-between;}
+  .settle-person .net.pos{color:var(--success);}
+  .settle-person .net.neg{color:var(--danger);}
+  .settle-person .net.zero{color:var(--muted);}
+  .settle-tx{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;font-size:13px;background:var(--card);}
+  .settle-tx .who{font-weight:700;}
+  .settle-tx .arrow{color:var(--accent);flex-shrink:0;}
+  .settle-tx .amt{margin-left:auto;font-weight:800;}
+  .settle-tx.done{opacity:.55;}
+  .settle-empty{font-size:13px;color:var(--muted);padding:6px 0;}
+  .split-tag{display:inline-block;font-size:11px;color:var(--muted);margin-top:2px;}
+  .split-picker{display:flex;flex-wrap:wrap;gap:8px;}
+  .split-picker label{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;color:var(--text);border:1px solid var(--border);padding:6px 10px;border-radius:8px;cursor:pointer;}
+  .split-picker label:has(input:checked){border-color:var(--accent);background:var(--accent-soft);color:var(--accent);}
+  .split-picker input{accent-color:var(--accent);}
+
+  /* ============================================================
+     FOOTFALL — geo drill-down + property split
+     ============================================================ */
+  .ff-geo-wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:14px;}
+  @media (max-width:720px){ .ff-geo-wrap{grid-template-columns:1fr;} }
+  .ff-country-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13px;border:1px solid transparent;}
+  .ff-country-row:hover{background:var(--accent-soft);}
+  .ff-country-row.active{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:700;}
+  .ff-country-row .flag{margin-right:7px;}
+  .ff-cc{display:inline-block;min-width:24px;text-align:center;font-size:10px;font-weight:700;
+    letter-spacing:.04em;background:var(--accent-soft);color:var(--accent);border-radius:5px;
+    padding:2px 5px;margin-right:6px;font-family:ui-monospace,Consolas,monospace;vertical-align:middle;}
+  .ff-prop-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+  .ff-prop-tabs button{padding:6px 12px;border:1px solid var(--border);background:var(--card);border-radius:8px;font-size:12.5px;color:var(--muted);}
+  .ff-prop-tabs button.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .ff-crossover{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;}
+  .ff-crossover .box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow-sm);text-align:center;}
+  .ff-crossover .box .n{font-size:20px;font-weight:800;}
+  .ff-crossover .box .l{font-size:11px;color:var(--muted);margin-top:3px;}
+
+  /* ============================================================
      MOBILE / RESPONSIVE — Thikaana Ops
      Desktop layout is unchanged; rules below only apply at
      narrow widths. The sidebar becomes a slide-in drawer.
@@ -417,6 +540,16 @@
     .wm-pending-bar{flex-direction:column;align-items:flex-start;}
 
     .pkg-landing-wrap{padding:34px 16px 48px !important;}
+
+    /* v3 additions — expenses settle-up + footfall */
+    .settle-grid{grid-template-columns:1fr;gap:10px;}
+    .settle-tx{flex-wrap:wrap;}
+    .settle-tx .amt{margin-left:0;width:100%;}
+    .ff-geo-wrap{grid-template-columns:1fr;}
+    .ff-crossover{grid-template-columns:1fr;}
+    .ff-prop-tabs{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;padding-bottom:2px;}
+    .ff-prop-tabs button{flex-shrink:0;}
+    .split-picker label{flex:1 1 44%;}
   }
 
   @media (max-width:480px){
@@ -425,6 +558,8 @@
     .stat-grid{grid-template-columns:1fr 1fr;gap:10px;}
     .card{padding:18px 16px;}
     .btn{padding:9px 13px;}
+    .ff-crossover .box .n{font-size:18px;}
+    .settle-person{padding:12px 13px;}
   }
 </style>
 </head>
@@ -437,11 +572,14 @@
 
 <div id="login-screen">
   <div class="login-box">
-    <div class="logo-badge">ठ</div>
+    <div class="logo-badge"><img src="thikaana-logo.png" alt="Thikaana Ops" class="brand-logo" data-try="svg,jpg,jpeg,webp" onerror="__logoFallback(this)"></div>
     <h1>ठिkaana Ops</h1>
     <p class="sub">Sign in to continue</p>
     <input type="text" id="login-email" placeholder="Email">
-    <input type="password" id="login-pass" placeholder="Password">
+    <div class="pw-wrap">
+      <input type="password" id="login-pass" placeholder="Password">
+      <button type="button" class="pw-eye" id="login-pw-eye" onclick="toggleLoginPw()" aria-label="Show password" title="Show password"></button>
+    </div>
     <div id="login-error"></div>
     <button onclick="attemptLogin()">Sign In</button>
     <div class="demo-hint" id="demo-hint"></div>
@@ -451,7 +589,7 @@
 <div id="app">
   <div class="mobile-topbar">
     <button class="nav-toggle" onclick="toggleNav()" aria-label="Open menu">&#9776;</button>
-    <div class="mobile-brand"><span class="logo-badge">ठ</span> ठिkaana Ops</div>
+    <div class="mobile-brand"><span class="logo-badge"><img src="thikaana-logo.png" alt="" class="brand-logo" data-try="svg,jpg,jpeg,webp" onerror="__logoFallback(this)"></span> ठिkaana Ops</div>
   </div>
   <div class="shell">
     <div class="nav-backdrop" onclick="closeNav()"></div>
@@ -506,6 +644,7 @@ const ICONS = {
   clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>',
   phone:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.1 18.8a15 15 0 0 1-9.9-9.9L7.3 6a1 1 0 0 0 .1-1.3L5.1 1.6a1 1 0 0 0-1.4-.2L1.5 3.2C.8 3.8.5 4.8.8 5.6a20 20 0 0 0 17.6 17.6c.8.3 1.8 0 2.4-.7l1.8-2.2a1 1 0 0 0-.2-1.4l-3.1-2.3a1 1 0 0 0-1.3.1Z"/></svg>',
   eye:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>',
+  eyeOff:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 4.24A9.1 9.1 0 0 1 12 4c6.5 0 10 8 10 8a18.5 18.5 0 0 1-2.16 3.19M6.61 6.61A18.5 18.5 0 0 0 2 12s3.5 8 10 8a9.1 9.1 0 0 0 5.39-1.61"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><path d="m2 2 20 20"/></svg>',
   lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
   back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>',
   sun:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
@@ -514,6 +653,9 @@ const ICONS = {
 
 /* ================= CONFIG ================= */
 const BRAND = "ठिkaana";
+/* Brand mark: an <img> that tries several extensions then falls back to the ठ glyph.
+   __logoFallback is defined in a <head> script. */
+const LOGO_IMG = '<img src="thikaana-logo.png" alt="' + BRAND + ' Ops" class="brand-logo" data-try="svg,jpg,jpeg,webp" onerror="__logoFallback(this)">';
 const SHARED_LOGIN = { email: "support@thikaana.co", password: "Findmenow@123" };
 const DEMO_PASSWORD = "demo123";
 
@@ -528,10 +670,25 @@ const SUPABASE_TABLE = "thikops_state";
 const CLOUD_ENABLED = /^https:\/\/.+\.supabase\.co\/?$/.test(SUPABASE_URL) && SUPABASE_ANON_KEY.length > 20;
 
 /* Footfall: website visitor analytics. Page views land in their own Supabase table
-   (thikops_footfall) via track.js embedded on the site. See SUPABASE_SETUP.md. */
+   (thikops_footfall) via track.js embedded on the site. See SUPABASE_SETUP.md.
+   track.js also records country + city (IP geo) and an optional data-product tag so
+   we can tell whether a visitor only saw the marketing site or also opened a product. */
 const FOOTFALL_TABLE = "thikops_footfall";
 const FOOTFALL_SITE = "thikaana.co";
-const TRACK_SNIPPET = `<script src="https://aidevstudioone-max.github.io/Project-Management-Suite/track.js" data-site="thikaana.co"><\/script>`;
+const TRACK_BASE = "https://aidevstudioone-max.github.io/Project-Management-Suite/track.js";
+/* id "" (or null) on a row = the marketing website. Add more products here as they launch. */
+const FOOTFALL_PROPS = [
+  { id:"",            label:"Website",        note:"thikaana.co marketing pages" },
+  { id:"coaching-erp",label:"Coaching ERP",   note:"Thikaana Coaching ERP demo" },
+  { id:"medicore",    label:"MediCore",       note:"MediCore Hospital demo" },
+  { id:"eduvia",      label:"Eduvia",         note:"Eduvia School demo" },
+  { id:"ops-portal",  label:"Client Portal",  note:"Project-Management-Suite portal" }
+];
+function ffPropLabel(id){ const p = FOOTFALL_PROPS.find(x=>x.id===(id||"")); return p ? p.label : (id||"Website"); }
+function ffPropSnippet(id){
+  return `<script src="${TRACK_BASE}" data-site="thikaana.co"${id?` data-product="${id}"`:""}><\/script>`;
+}
+const TRACK_SNIPPET = ffPropSnippet("");
 
 // Static page in this same repo — calls Google Places directly from the browser
 // using a key entered on that page (saved in that page's own localStorage).
@@ -832,6 +989,17 @@ function attemptLogin(){
 }
 document.getElementById("login-pass").addEventListener("keydown", e => { if(e.key==="Enter") attemptLogin(); });
 document.getElementById("login-email").addEventListener("keydown", e => { if(e.key==="Enter") attemptLogin(); });
+function toggleLoginPw(){
+  const input = document.getElementById("login-pass");
+  const btn = document.getElementById("login-pw-eye");
+  const show = input.type === "password";
+  input.type = show ? "text" : "password";
+  btn.innerHTML = show ? ICONS.eyeOff : ICONS.eye;
+  btn.setAttribute("aria-label", show ? "Hide password" : "Show password");
+  btn.title = show ? "Hide password" : "Show password";
+  input.focus();
+}
+document.getElementById("login-pw-eye").innerHTML = ICONS.eye;
 
 function logout(){
   localStorage.removeItem("thikops_session");
@@ -858,7 +1026,7 @@ function buildSidebar(){
   const sidebar = document.getElementById("sidebar");
   if(s.type==="employee"){
     sidebar.innerHTML = `
-      <div class="brand"><div class="logo-badge">ठ</div><div><b>${BRAND}</b><span>Ops (Demo)</span></div></div>
+      <div class="brand"><div class="logo-badge">${LOGO_IMG}</div><div><b>${BRAND}</b><span>Ops</span></div></div>
       <div class="acting-as"><label>Acting as</label><select id="acting-as-select" onchange="setActingAs(this.value)">${EMPLOYEES.map(e=>`<option value="${e.id}">${e.name}</option>`).join("")}</select></div>
       <a href="#/dashboard" class="nav-item" data-tab="dashboard" onclick="return navClick(event,'dashboard')"><span class="ic">${ICONS.dashboard}</span> Dashboard</a>
       <a href="#/clients" class="nav-item" data-tab="clients" onclick="return navClick(event,'clients')"><span class="ic">${ICONS.clients}</span> Clients</a>
@@ -878,7 +1046,7 @@ function buildSidebar(){
   } else {
     const user = currentClientUser(), client = currentClientRecord();
     sidebar.innerHTML = `
-      <div class="brand"><div class="logo-badge">ठ</div><div><b>${BRAND}</b><span>Client Portal</span></div></div>
+      <div class="brand"><div class="logo-badge">${LOGO_IMG}</div><div><b>${BRAND}</b><span>Client Portal</span></div></div>
       <div class="sidebar-org">
         <b>${escapeHtml(client.name)}</b>${presenceDot(user.presence)}Signed in as ${escapeHtml(user.name)}${user.isAdmin?" (Admin)":""}
         <div style="margin-top:8px;"><label style="font-size:10px;color:#9497b3;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:4px;">Your Status</label>
@@ -1040,7 +1208,7 @@ function renderClients(){
 
   document.getElementById("main-content").innerHTML = `
     <div class="topbar"><div><h2>Clients</h2><p>Every account ${BRAND} manages</p></div><button class="btn" onclick="openClientForm()">+ Add Client</button></div>
-    ${sampleNote("Demo client accounts — not real data.")}
+    ${sampleNote("Sample client accounts — not real data.")}
     <div class="toolbar">
       <input type="search" id="client-search" placeholder="Search clients..." class="grow" oninput="renderClients()">
       <select id="client-status" onchange="renderClients()"><option value="">All statuses</option>${CLIENT_STATUSES.map(s=>`<option ${s===statusFilter?"selected":""}>${s}</option>`).join("")}</select>
@@ -1254,7 +1422,7 @@ function renderTickets(){
   });
   document.getElementById("main-content").innerHTML = `
     <div class="topbar"><div><h2>Tickets</h2><p>All client requests across every account</p></div><button class="btn" onclick="openTicketForm()">+ New Ticket</button></div>
-    ${sampleNote("Demo tickets — not real data.")}
+    ${sampleNote("Sample tickets — not real data.")}
     <div class="toolbar">
       <input type="search" id="tk-search" placeholder="Search subject, ID or client..." class="grow" oninput="renderTickets()">
       <select id="tk-status" onchange="renderTickets()"><option value="">All statuses</option>${TICKET_STATUSES.map(s=>`<option ${s===statusFilter?"selected":""}>${s}</option>`).join("")}</select>
@@ -1396,32 +1564,137 @@ function saveVault(id){
 }
 
 /* ================= EMPLOYEE: EXPENSES ================= */
+/* Who shares a given expense. Older records (no `participants`) are treated as an
+   equal split across the whole team — the original behaviour. */
+function expenseParticipants(e){
+  const ids = EMPLOYEES.map(x=>x.id);
+  if(e && Array.isArray(e.participants) && e.participants.length){
+    const kept = e.participants.filter(id=>ids.includes(id));
+    return kept.length ? kept : ids.slice();
+  }
+  return ids.slice();
+}
+function expenseShare(e){
+  const p = expenseParticipants(e);
+  return p.length ? Number(e.amount||0) / p.length : 0;
+}
+/* Greedy minimum-cash-flow settle-up. balances: {id: net}  (net>0 => owed money) */
+function settleUp(balances){
+  const debtors=[], creditors=[];
+  Object.entries(balances).forEach(([id,v])=>{
+    const r = Math.round(v*100)/100;
+    if(r < -0.01) debtors.push({id, amt:-r});
+    else if(r > 0.01) creditors.push({id, amt:r});
+  });
+  debtors.sort((a,b)=>b.amt-a.amt); creditors.sort((a,b)=>b.amt-a.amt);
+  const tx=[]; let i=0, j=0, guard=0;
+  while(i<debtors.length && j<creditors.length && guard++<500){
+    const pay = Math.min(debtors[i].amt, creditors[j].amt);
+    tx.push({ from:debtors[i].id, to:creditors[j].id, amt:Math.round(pay*100)/100 });
+    debtors[i].amt -= pay; creditors[j].amt -= pay;
+    if(debtors[i].amt <= 0.01) i++;
+    if(creditors[j].amt <= 0.01) j++;
+  }
+  return tx;
+}
+function expenseSettlement(list){
+  const paid = {}, owed = {};
+  EMPLOYEES.forEach(e=>{ paid[e.id]=0; owed[e.id]=0; });
+  list.forEach(e=>{
+    const amt = Number(e.amount||0);
+    const p = expenseParticipants(e);
+    const share = p.length ? amt/p.length : 0;
+    if(!(e.paidBy in paid)) paid[e.paidBy] = 0;
+    paid[e.paidBy] = (paid[e.paidBy]||0) + amt;
+    p.forEach(id=>{ if(!(id in owed)) owed[id]=0; owed[id] += share; });
+  });
+  const ids = Array.from(new Set([...Object.keys(paid), ...Object.keys(owed)]));
+  const net = {}; ids.forEach(id=> net[id] = (paid[id]||0) - (owed[id]||0));
+  return { paid, owed, net, ids, tx: settleUp(net) };
+}
 function renderExpenses(){
   const items = (loadKey("expenses")||[]).slice().sort((a,b)=> (b.date||"").localeCompare(a.date||""));
   const monthFilter = document.getElementById("exp-month")?.value || "";
   const filtered = monthFilter ? items.filter(e=>e.date && e.date.startsWith(monthFilter)) : items;
   const total = filtered.reduce((s,e)=>s+Number(e.amount||0),0);
   const byCategory = {}; filtered.forEach(e => { byCategory[e.category] = (byCategory[e.category]||0) + Number(e.amount||0); });
+  const st = expenseSettlement(filtered);
+  const toSettle = st.ids.reduce((s,id)=> s + Math.max(0, st.net[id]), 0);
+  const periodLabel = monthFilter
+    ? new Date(monthFilter+"-01T00:00:00").toLocaleDateString("en-IN",{month:"long",year:"numeric"})
+    : "all time";
   document.getElementById("main-content").innerHTML = `
-    <div class="topbar"><div><h2>Expenses</h2><p>Business spending</p></div><button class="btn" onclick="openExpenseForm()">+ Add Expense</button></div>
+    <div class="topbar"><div><h2>Expenses</h2><p>Business spending, split across the team</p></div><button class="btn" onclick="openExpenseForm()">+ Add Expense</button></div>
     ${items.some(isDummy) ? sampleNote() : ""}
-    <div class="stat-grid"><div class="stat-card"><div class="label">Total</div><div class="value">${fmtMoney(total)}</div></div><div class="stat-card"><div class="label">Entries</div><div class="value">${filtered.length}</div></div></div>
-    ${Object.keys(byCategory).length?`<div class="card"><h3>By Category</h3>${Object.entries(byCategory).sort((a,b)=>b[1]-a[1]).map(([c,v])=>`<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid #f0f1f5;"><span>${escapeHtml(c)}</span><b>${fmtMoney(v)}</b></div>`).join("")}</div>`:""}
+    <div class="stat-grid">
+      <div class="stat-card accent"><div class="label">Total spend</div><div class="value">${fmtMoney(total)}</div></div>
+      <div class="stat-card"><div class="label">Entries</div><div class="value">${filtered.length}</div></div>
+      <div class="stat-card accent-warn"><div class="label">To settle</div><div class="value">${fmtMoney(toSettle)}</div></div>
+    </div>
     <div class="toolbar"><label style="font-size:12.5px;color:var(--muted);">Month:</label><input type="month" id="exp-month" value="${monthFilter}" onchange="renderExpenses()">${monthFilter?`<button class="btn secondary small" onclick="document.getElementById('exp-month').value='';renderExpenses();">Clear</button>`:""}</div>
+
+    <div class="card">
+      <h3>Settle up · ${escapeHtml(periodLabel)}</h3>
+      ${filtered.length ? `
+        <div class="settle-grid">
+          ${st.ids.map(id=>{
+            const n = Math.round(st.net[id]*100)/100;
+            const cls = n > 0.5 ? "pos" : (n < -0.5 ? "neg" : "zero");
+            const label = n > 0.5 ? "gets back" : (n < -0.5 ? "owes" : "settled");
+            return `<div class="settle-person">
+              <div class="nm"><span class="avatar" style="width:24px;height:24px;font-size:10px;">${initials(employeeName(id))}</span>${escapeHtml(employeeName(id))}</div>
+              <div class="row"><span>Paid</span><span>${fmtMoney(st.paid[id]||0)}</span></div>
+              <div class="row"><span>Their share</span><span>${fmtMoney(st.owed[id]||0)}</span></div>
+              <div class="net ${cls}"><span>${label}</span><span>${n===0?"—":fmtMoney(Math.abs(n))}</span></div>
+            </div>`;
+          }).join("")}
+        </div>
+        <h3 style="margin-top:4px;">Who pays whom</h3>
+        ${st.tx.length ? st.tx.map(t=>`
+          <div class="settle-tx">
+            <span class="who">${escapeHtml(employeeName(t.from))}</span>
+            <span class="arrow">→</span>
+            <span class="who">${escapeHtml(employeeName(t.to))}</span>
+            <span class="amt">${fmtMoney(t.amt)}</span>
+          </div>`).join("")
+        : `<p class="settle-empty">Everyone's square for this period — nothing to transfer. 🎉</p>`}
+        <p style="font-size:11.5px;color:var(--muted);margin:10px 0 0;">Each expense is split equally between the people picked for it. Change who's in or out per expense with <b>Split between</b> on the Add/Edit form.</p>
+      ` : `<p class="settle-empty">Add an expense to see the split.</p>`}
+    </div>
+
+    ${Object.keys(byCategory).length?`<div class="card"><h3>By Category</h3>${Object.entries(byCategory).sort((a,b)=>b[1]-a[1]).map(([c,v])=>`<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid #f0f1f5;"><span>${escapeHtml(c)}</span><b>${fmtMoney(v)}</b></div>`).join("")}</div>`:""}
+
     <div class="card" style="padding:0;overflow-x:auto;">
-      <table><thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Paid By</th><th></th></tr></thead>
-      <tbody>${filtered.length ? filtered.map(e => `<tr class="${isDummy(e)?"dummy-row":""}"><td>${fmtDate(e.date)}</td><td><span class="pill gray">${escapeHtml(e.category)}</span></td><td>${escapeHtml(e.description)} ${isDummy(e)?SAMPLE_PILL:""}</td><td><b>${fmtMoney(e.amount)}</b></td><td>${employeeName(e.paidBy)}</td><td class="row-actions"><button class="icon-btn" onclick="openExpenseForm('${e.id}')">Edit</button><button class="icon-btn" onclick="deleteItem('expenses','${e.id}')">Delete</button></td></tr>`).join("") : `<tr><td colspan="6" class="empty-row">No expenses recorded yet.</td></tr>`}</tbody></table>
+      <table><thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Paid By</th><th>Split</th><th></th></tr></thead>
+      <tbody>${filtered.length ? filtered.map(e => {
+        const p = expenseParticipants(e);
+        const share = expenseShare(e);
+        const names = p.map(id=>employeeName(id).split(" ")[0]).join(", ");
+        const everyone = p.length === EMPLOYEES.length;
+        return `<tr class="${isDummy(e)?"dummy-row":""}"><td>${fmtDate(e.date)}</td><td><span class="pill gray">${escapeHtml(e.category)}</span></td><td>${escapeHtml(e.description)} ${isDummy(e)?SAMPLE_PILL:""}<br><span class="split-tag">${escapeHtml(everyone ? "Whole team" : names)}</span></td><td><b>${fmtMoney(e.amount)}</b></td><td>${employeeName(e.paidBy)}</td><td title="${escapeHtml(names)}">÷${p.length} · ${fmtMoney(share)} ea</td><td class="row-actions"><button class="icon-btn" onclick="openExpenseForm('${e.id}')">Edit</button><button class="icon-btn" onclick="deleteItem('expenses','${e.id}')">Delete</button></td></tr>`;
+      }).join("") : `<tr><td colspan="7" class="empty-row">No expenses recorded yet.</td></tr>`}</tbody></table>
     </div>
   `;
 }
 function openExpenseForm(id){
   const items = loadKey("expenses")||[]; const item = items.find(i=>i.id===id) || { date: new Date().toISOString().slice(0,10) };
+  const chosen = item.id ? expenseParticipants(item) : EMPLOYEES.map(e=>e.id);
   openModal(`
     <h3>${id?"Edit":"Add"} Expense</h3>
     <div class="field-row"><div class="field"><label>Date *</label><input type="date" id="f-date" value="${item.date||""}"></div><div class="field"><label>Amount (₹) *</label><input type="number" id="f-amount" value="${item.amount||""}"></div></div>
     <div class="field"><label>Category</label><select id="f-category">${EXPENSE_CATEGORIES.map(c=>`<option ${c===item.category?"selected":""}>${c}</option>`).join("")}</select></div>
     <div class="field"><label>Description *</label><input type="text" id="f-description" value="${escapeHtml(item.description||"")}"></div>
     <div class="field"><label>Paid By</label><select id="f-paidby">${employeeOptions(item.paidBy)}</select></div>
+    <div class="field">
+      <label>Split between <span style="font-weight:400;color:var(--muted);">— untick anyone this expense shouldn't be shared with</span></label>
+      <div class="split-picker" id="f-split">
+        ${EMPLOYEES.map(e=>`<label><input type="checkbox" class="split-check" value="${e.id}" ${chosen.includes(e.id)?"checked":""}> ${escapeHtml(e.name)}</label>`).join("")}
+      </div>
+      <div style="margin-top:6px;display:flex;gap:8px;">
+        <button type="button" class="btn secondary small" onclick="document.querySelectorAll('#f-split .split-check').forEach(c=>c.checked=true)">All</button>
+        <button type="button" class="btn secondary small" onclick="document.querySelectorAll('#f-split .split-check').forEach(c=>c.checked=false)">None</button>
+      </div>
+    </div>
     <div class="field"><label>Notes</label><textarea id="f-notes">${escapeHtml(item.notes||"")}</textarea></div>
     <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveExpense('${id||""}')">Save</button></div>
   `);
@@ -1429,11 +1702,13 @@ function openExpenseForm(id){
 function saveExpense(id){
   const date = document.getElementById("f-date").value, amount = document.getElementById("f-amount").value, description = document.getElementById("f-description").value.trim();
   if(!date || !amount || !description){ alert("Date, amount and description are required."); return; }
+  const participants = Array.from(document.querySelectorAll("#f-split .split-check:checked")).map(c=>c.value);
+  if(!participants.length){ alert("Pick at least one person to split this expense between."); return; }
   const items = loadKey("expenses")||[];
-  const record = { id: id || uid(), date, amount: Number(amount), description, category: document.getElementById("f-category").value, paidBy: document.getElementById("f-paidby").value, notes: document.getElementById("f-notes").value.trim() };
+  const record = { id: id || uid(), date, amount: Number(amount), description, category: document.getElementById("f-category").value, paidBy: document.getElementById("f-paidby").value, participants, notes: document.getElementById("f-notes").value.trim() };
   const idx = items.findIndex(i=>i.id===id); if(idx>-1) items[idx]=record; else items.push(record);
   saveKey("expenses", items);
-  logAudit(id?"Expense Updated":"Expense Added","Expenses", `${description} — ${fmtMoney(record.amount)}`);
+  logAudit(id?"Expense Updated":"Expense Added","Expenses", `${description} — ${fmtMoney(record.amount)} (split ${participants.length})`);
   closeModal(); renderExpenses();
 }
 
@@ -1482,10 +1757,25 @@ function saveMeeting(){
 
 /* ================= EMPLOYEE: FOOTFALL (website traffic) ================= */
 let _ffRangeDays = 30, _ffTimer = null;
-function ffSetRange(d){ _ffRangeDays = d; renderFootfall(); }
-function ffCopySnippet(){
-  try{ navigator.clipboard.writeText(TRACK_SNIPPET); if(typeof wmToast==="function") wmToast("Snippet copied"); else alert("Snippet copied"); }
+let _ffProp = "__all__";     // property filter: "__all__" | "" (website) | product id
+let _ffCountry = null;       // drill-down: country name or null
+let _ffRows = [];            // last fetched rows, kept so filters re-render without a round trip
+function ffSetRange(d){ _ffRangeDays = d; _ffCountry = null; renderFootfall(); }
+function ffSetProp(id){ _ffProp = id; _ffCountry = null; ffRender(); }
+function ffSetCountry(c){ _ffCountry = (_ffCountry === c ? null : c); ffRender(); }
+function ffCopySnippet(propId){
+  const s = (propId === undefined) ? TRACK_SNIPPET : ffPropSnippet(propId);
+  try{ navigator.clipboard.writeText(s); if(typeof wmToast==="function") wmToast("Snippet copied"); else alert("Snippet copied"); }
   catch(e){ alert("Copy failed — select the text and copy manually."); }
+}
+function ffRowProp(r){ return (r && r.product) ? String(r.product) : ""; }
+/* single-quote-safe JS string literal for inline onclick="" handlers */
+function ffArg(s){ return "'" + String(s).replace(/\\/g,"\\\\").replace(/'/g,"\\'") + "'"; }
+/* A short country-code chip. Emoji flags don't render on Windows, so use a text badge
+   that looks the same in every browser. */
+function ffFlag(code){
+  if(!code || !/^[A-Za-z]{2}$/.test(code)) return "";
+  return `<span class="ff-cc">${escapeHtml(code.toUpperCase())}</span>`;
 }
 function ffRefHost(r){ if(!r) return "Direct"; try{ return new URL(r).hostname.replace(/^www\./,"") || "Direct"; }catch(e){ return String(r).slice(0,50); } }
 function ffGroupTop(rows, keyFn, n){
@@ -1521,7 +1811,7 @@ async function ffFetch(days){
   if(!_cloudReady || !_sb) return { error:"nocloud" };
   const since = new Date(Date.now() - days*86400000).toISOString();
   const { data, error } = await _sb.from(FOOTFALL_TABLE)
-    .select("path,referrer,visitor_id,session_id,ts")
+    .select("path,referrer,visitor_id,session_id,ts,country,country_code,city,product")
     .eq("site", FOOTFALL_SITE).gte("ts", since)
     .order("ts", { ascending:false }).limit(20000);
   if(error) return { error: error.message || String(error) };
@@ -1530,15 +1820,14 @@ async function ffFetch(days){
 function renderFootfall(){
   const R = _ffRangeDays;
   document.getElementById("main-content").innerHTML = `
-    <div class="topbar"><div><h2>Footfall</h2><p>Live visitor analytics for ${FOOTFALL_SITE}</p></div>
+    <div class="topbar"><div><h2>Footfall</h2><p>Live visitor analytics for ${FOOTFALL_SITE} &amp; products</p></div>
       <button class="btn secondary" onclick="ffLoad()">Refresh</button></div>
     <div class="ff-range">${[7,30,90].map(d=>`<button class="${d===R?"active":""}" onclick="ffSetRange(${d})">Last ${d} days</button>`).join("")}</div>
     <div id="ff-body"><div class="card"><p class="empty-row">Loading…</p></div></div>
     <details class="card" style="margin-top:14px;">
-      <summary style="cursor:pointer;font-weight:600;">Setup — add tracking to ${FOOTFALL_SITE}</summary>
-      <p style="font-size:13px;color:var(--muted);margin:10px 0;">Run the <code>thikops_footfall</code> table SQL from <b>SUPABASE_SETUP.md</b> once, then paste this into the <code>&lt;head&gt;</code> of every page on ${FOOTFALL_SITE}. One row is written per page view and shows up here within seconds.</p>
-      <div class="ff-snippet">${escapeHtml(TRACK_SNIPPET)}</div>
-      <button class="btn secondary small" style="margin-top:8px;" onclick="ffCopySnippet()">Copy snippet</button>
+      <summary style="cursor:pointer;font-weight:600;">Setup — add tracking to the website &amp; each product</summary>
+      <p style="font-size:13px;color:var(--muted);margin:10px 0;">Run the <code>thikops_footfall</code> SQL from <b>SUPABASE_SETUP.md</b> once (it also adds the <code>country</code>, <code>city</code> and <code>product</code> columns). Then paste the matching snippet into the <code>&lt;head&gt;</code> of every page. Keep <code>data-site="thikaana.co"</code> on all of them so they roll up together; the <code>data-product</code> tag is what separates a product from the marketing site. Country &amp; city are filled in automatically from the visitor's IP.</p>
+      ${FOOTFALL_PROPS.map(p=>`<div style="margin-bottom:10px;"><div style="font-size:12px;font-weight:700;margin-bottom:4px;">${escapeHtml(p.label)} <span style="font-weight:400;color:var(--muted);">— ${escapeHtml(p.note)}</span></div><div class="ff-snippet">${escapeHtml(ffPropSnippet(p.id))}</div><button class="btn secondary small" style="margin-top:6px;" onclick="ffCopySnippet('${p.id}')">Copy</button></div>`).join("")}
     </details>
   `;
   ffLoad();
@@ -1553,15 +1842,34 @@ async function ffLoad(){
   if(!bodyNow) return;
   if(res.error === "nocloud"){ bodyNow.innerHTML = `<div class="card"><p class="empty-row">Footfall needs the shared database, which isn't connected in this browser.</p></div>`; return; }
   if(res.error){
-    const missing = /relation|does not exist|find the table|schema cache|not exist/i.test(res.error);
-    bodyNow.innerHTML = `<div class="card"><p class="empty-row">${missing ? "The <b>thikops_footfall</b> table doesn't exist yet — run its SQL from SUPABASE_SETUP.md (see Setup below)." : escapeHtml("Couldn't load footfall: " + res.error)}</p></div>`;
+    const missing = /relation|does not exist|find the table|schema cache|not exist|column/i.test(res.error);
+    bodyNow.innerHTML = `<div class="card"><p class="empty-row">${missing ? "The <b>thikops_footfall</b> table (or its country/city/product columns) isn't set up yet — run its SQL from SUPABASE_SETUP.md (see Setup below)." : escapeHtml("Couldn't load footfall: " + res.error)}</p></div>`;
     return;
   }
-  const rows = res.rows;
-  if(!rows.length){
-    bodyNow.innerHTML = `<div class="card"><p class="empty-row">No visits recorded yet for ${FOOTFALL_SITE}. Add the snippet from Setup below — views appear here within seconds.</p></div>`;
+  _ffRows = res.rows || [];
+  ffRender();
+}
+function ffRender(){
+  const bodyNow = document.getElementById("ff-body");
+  if(!bodyNow) return;
+  const all = _ffRows;
+  if(!all.length){
+    bodyNow.innerHTML = `<div class="card"><p class="empty-row">No visits recorded yet for ${FOOTFALL_SITE}. Add a snippet from Setup below — views appear here within seconds.</p></div>`;
     return;
   }
+  // ---- property (website vs product) split, computed on the full set ----
+  const propViews = {}, propVis = {};
+  all.forEach(r=>{ const k = ffRowProp(r); propViews[k] = (propViews[k]||0)+1; (propVis[k] = propVis[k] || new Set()).add(r.visitor_id); });
+  const websiteVis = propVis[""] || new Set();
+  const productVisAll = new Set();
+  Object.entries(propVis).forEach(([k,set])=>{ if(k!=="") set.forEach(v=>productVisAll.add(v)); });
+  const both = [...websiteVis].filter(v=>productVisAll.has(v)).length;
+  const siteOnly = [...websiteVis].filter(v=>!productVisAll.has(v)).length;
+  const prodOnly = [...productVisAll].filter(v=>!websiteVis.has(v)).length;
+
+  // ---- apply the active property filter to everything below ----
+  const rows = (_ffProp === "__all__") ? all : all.filter(r=> ffRowProp(r) === _ffProp);
+
   const dayStart = new Date(); dayStart.setHours(0,0,0,0);
   const todayCount = rows.filter(r=> new Date(r.ts) >= dayStart).length;
   const uniqVis = new Set(rows.map(r=>r.visitor_id).filter(Boolean)).size;
@@ -1570,24 +1878,76 @@ async function ffLoad(){
   const avg = Math.round(rows.length / _ffRangeDays);
   const byPath = ffGroupTop(rows, r=> r.path || "/", 8);
   const byRef  = ffGroupTop(rows, r=> ffRefHost(r.referrer), 8);
+
+  // ---- country -> city ----
+  const geo = {};
+  rows.forEach(r=>{
+    const c = r.country || "Unknown";
+    const g = geo[c] || (geo[c] = { count:0, code:r.country_code || "", cities:{} });
+    g.count++; if(!g.code && r.country_code) g.code = r.country_code;
+    const city = r.city || "Unknown";
+    g.cities[city] = (g.cities[city]||0) + 1;
+  });
+  const countries = Object.entries(geo).sort((a,b)=>b[1].count-a[1].count);
+  const hasGeo = countries.some(([c])=> c !== "Unknown") || countries.length > 1;
+  if(_ffCountry && !geo[_ffCountry]) _ffCountry = null;
+  const drillCountry = _ffCountry || (countries[0] && countries[0][0]);
+  const cityPairs = drillCountry && geo[drillCountry]
+    ? Object.entries(geo[drillCountry].cities).sort((a,b)=>b[1]-a[1]).slice(0,12) : [];
+
   const recent = rows.slice(0, 15);
+  const propTabs = [{id:"__all__",label:"All"}].concat(
+    FOOTFALL_PROPS.filter(p=> (propViews[p.id]||0) > 0 || p.id==="").map(p=>({id:p.id,label:p.label}))
+  );
+
   bodyNow.innerHTML = `
+    <div class="ff-prop-tabs">
+      ${propTabs.map(t=>`<button class="${t.id===_ffProp?"active":""}" onclick="ffSetProp(${ffArg(t.id)})">${escapeHtml(t.label)}${t.id!=="__all__"?` <span style="opacity:.7;">${(propViews[t.id]||0).toLocaleString("en-IN")}</span>`:""}</button>`).join("")}
+    </div>
+
     <div class="stat-grid">
-      <div class="stat-card"><div class="label">Page views</div><div class="value">${rows.length.toLocaleString("en-IN")}</div></div>
+      <div class="stat-card accent"><div class="label">Page views</div><div class="value">${rows.length.toLocaleString("en-IN")}</div></div>
       <div class="stat-card"><div class="label">Unique visitors</div><div class="value">${uniqVis.toLocaleString("en-IN")}</div></div>
       <div class="stat-card"><div class="label">Sessions</div><div class="value">${uniqSess.toLocaleString("en-IN")}</div></div>
       <div class="stat-card"><div class="label">Views today</div><div class="value">${todayCount.toLocaleString("en-IN")}</div></div>
       <div class="stat-card"><div class="label">Avg / day</div><div class="value">${avg.toLocaleString("en-IN")}</div></div>
     </div>
-    <div class="card"><h3>Views per day — last ${_ffRangeDays} days</h3>${ffBarChart(buckets)}</div>
+
+    <div class="card">
+      <h3>Website vs products — where visitors go</h3>
+      <div class="ff-crossover">
+        <div class="box"><div class="n">${siteOnly.toLocaleString("en-IN")}</div><div class="l">Website only</div></div>
+        <div class="box"><div class="n">${both.toLocaleString("en-IN")}</div><div class="l">Website + a product</div></div>
+        <div class="box"><div class="n">${prodOnly.toLocaleString("en-IN")}</div><div class="l">Product only (no website)</div></div>
+      </div>
+      <table style="margin-top:12px;"><thead><tr><th>Property</th><th style="text-align:right;">Views</th><th style="text-align:right;">Visitors</th></tr></thead><tbody>
+        ${FOOTFALL_PROPS.filter(p=>(propViews[p.id]||0)>0 || p.id==="").map(p=>`<tr><td>${escapeHtml(p.label)}</td><td style="text-align:right;"><b>${(propViews[p.id]||0).toLocaleString("en-IN")}</b></td><td style="text-align:right;">${((propVis[p.id]&&propVis[p.id].size)||0).toLocaleString("en-IN")}</td></tr>`).join("")}
+      </tbody></table>
+    </div>
+
+    <div class="card"><h3>Views per day — last ${_ffRangeDays} days${_ffProp!=="__all__"?` · ${escapeHtml(ffPropLabel(_ffProp))}`:""}</h3>${ffBarChart(buckets)}</div>
+
+    <div class="card">
+      <h3>Visitors by country &amp; city</h3>
+      ${hasGeo ? `<div class="ff-geo-wrap">
+        <div>
+          ${countries.slice(0,12).map(([c,g])=>`<div class="ff-country-row ${c===drillCountry?"active":""}" onclick="ffSetCountry(${ffArg(c)})"><span><span class="flag">${ffFlag(g.code)}</span>${escapeHtml(c)}</span><b>${g.count.toLocaleString("en-IN")}</b></div>`).join("")}
+        </div>
+        <div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">Cities in <b>${escapeHtml(drillCountry||"—")}</b></div>
+          ${ffMiniTable(cityPairs, "City", "Views")}
+        </div>
+      </div>` : `<p class="empty-row">No country data yet — it appears once track.js (with the geo lookup) has recorded new visits.</p>`}
+    </div>
+
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;">
       <div class="card"><h3>Top pages</h3>${ffMiniTable(byPath, "Page", "Views")}</div>
       <div class="card"><h3>Top referrers</h3>${ffMiniTable(byRef, "Source", "Views")}</div>
     </div>
     <div class="card" style="padding:0;overflow-x:auto;">
       <div style="padding:14px 16px 0;"><h3 style="margin:0;"><span class="ff-live-dot"></span>Recent visits</h3></div>
-      <table><thead><tr><th>When</th><th>Page</th><th>Referrer</th></tr></thead>
-      <tbody>${recent.map(r=>`<tr><td style="white-space:nowrap;">${fmtDateTime(r.ts)}</td><td style="word-break:break-all;">${escapeHtml(r.path||"/")}</td><td>${escapeHtml(ffRefHost(r.referrer))}</td></tr>`).join("")}</tbody></table>
+      <table><thead><tr><th>When</th><th>Property</th><th>Page</th><th>Location</th><th>Referrer</th></tr></thead>
+      <tbody>${recent.map(r=>`<tr><td style="white-space:nowrap;">${fmtDateTime(r.ts)}</td><td>${escapeHtml(ffPropLabel(ffRowProp(r)))}</td><td style="word-break:break-all;">${escapeHtml(r.path||"/")}</td><td style="white-space:nowrap;">${ffFlag(r.country_code)}${escapeHtml([r.city, r.country].filter(Boolean).join(", ") || "—")}</td><td>${escapeHtml(ffRefHost(r.referrer))}</td></tr>`).join("")}</tbody></table>
     </div>
   `;
 }
@@ -1654,7 +2014,7 @@ function renderSettings(){
     <div class="topbar"><div><h2>Settings</h2><p>Application configuration</p></div></div>
     <div class="card"><h3>Data</h3><p style="font-size:13px;color:var(--muted);margin:0 0 10px;">${_cloudReady
       ? "Connected to the shared Supabase database — changes you make here sync to every ठिkaana team member in real time."
-      : "Shared database not configured — running on this browser's local data only. See SUPABASE_SETUP.md to connect it."}</p><button class="btn danger small" onclick="wipeAllData()">Reset ${_cloudReady ? "Shared " : "Demo "}Data</button></div>
+      : "Shared database not configured — running on this browser's local data only. See SUPABASE_SETUP.md to connect it."}</p><button class="btn danger small" onclick="wipeAllData()">Reset ${_cloudReady ? "Shared " : "Local "}Data</button></div>
     <div class="card"><h3>Branding</h3><p style="font-size:13px;color:var(--muted);margin:0;">Product name: ${BRAND} Ops</p></div>
   `;
 }
@@ -2808,7 +3168,7 @@ function renderClientRaise(){
       <div class="field-row"><div class="field"><label>Category</label><select id="f-category">${TICKET_CATEGORIES.map(c=>`<option>${c}</option>`).join("")}</select></div><div class="field"><label>Website / Page URL</label><input type="text" id="f-pageurl" placeholder="optional"></div></div>
       <div class="field"><label>Priority</label><div class="priority-choice">${TICKET_PRIORITIES.map(p=>`<label><input type="radio" name="priority" value="${p}" ${p==="Medium"?"checked":""}><span>${p}</span></label>`).join("")}</div></div>
       <div class="field"><label>Description *</label><textarea id="f-description" placeholder="Describe the issue in detail..."></textarea></div>
-      <div class="field"><label>Attachment</label><input type="file" id="f-attachment"><div style="font-size:11.5px;color:var(--muted);margin-top:4px;">Demo only — files aren't actually uploaded yet.</div></div>
+      <div class="field"><label>Attachment</label><input type="file" id="f-attachment"><div style="font-size:11.5px;color:var(--muted);margin-top:4px;">Files aren't uploaded yet.</div></div>
       <div class="field"><label>Additional Comments</label><textarea id="f-comments" placeholder="optional"></textarea></div>
       <button class="btn" onclick="submitClientTicket()">Submit Request</button>
     </div>
@@ -2983,7 +3343,7 @@ function renderPackageLandingPage(pkgId, forClientId){
   el.innerHTML = `
     <div class="pkg-landing-wrap" style="max-width:560px;margin:0 auto;padding:60px 20px;">
       <span class="back-link" onclick="window.location.href=location.pathname">&larr; Back to your account</span>
-      <div class="logo-badge" style="margin-bottom:16px;">ठ</div>
+      <div class="logo-badge" style="margin-bottom:16px;">${LOGO_IMG}</div>
       ${pkg.mostChosen?`<span class="pill orange" style="margin-bottom:8px;">Most Chosen</span>`:""}
       <h1 style="font-size:24px;margin:0 0 4px;">${escapeHtml(pkg.name)}</h1>
       <p style="color:var(--muted);margin:0 0 4px;">${escapeHtml(pkg.tagline||"")}</p>
