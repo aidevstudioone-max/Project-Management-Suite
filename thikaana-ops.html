@@ -95,9 +95,8 @@ window.__logoFallback = function(img){
   .ff-range{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
   .ff-range button{padding:6px 12px;border:1px solid var(--border);background:var(--card);border-radius:8px;font-size:12.5px;color:var(--muted);}
   .ff-range button.active{background:var(--accent);color:#fff;border-color:var(--accent);}
-  .ff-chart{width:100%;height:180px;display:block;}
-  .ff-bar{fill:var(--accent);}
-  .ff-bar:hover{fill:var(--accent-hover);}
+  .ff-chart{width:100%;height:180px;display:block;overflow:visible;}
+  .ff-bar:hover{filter:brightness(1.08);}
   .ff-axis{fill:var(--muted);font-size:10px;}
   .ff-live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--success);margin-right:6px;animation:ffpulse 1.8s ease-in-out infinite;}
   @keyframes ffpulse{0%,100%{opacity:1;}50%{opacity:.35;}}
@@ -456,7 +455,7 @@ window.__logoFallback = function(img){
      FOOTFALL — geo drill-down + property split
      ============================================================ */
   .ff-geo-wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:14px;}
-  @media (max-width:720px){ .ff-geo-wrap{grid-template-columns:1fr;} }
+  @media (max-width:720px){ .ff-geo-wrap, .ff-geo-wrap.with-donut{grid-template-columns:1fr;} }
   .ff-country-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13px;border:1px solid transparent;}
   .ff-country-row:hover{background:var(--accent-soft);}
   .ff-country-row.active{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:700;}
@@ -471,6 +470,35 @@ window.__logoFallback = function(img){
   .ff-crossover .box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow-sm);text-align:center;}
   .ff-crossover .box .n{font-size:20px;font-weight:800;}
   .ff-crossover .box .l{font-size:11px;color:var(--muted);margin-top:3px;}
+  .ff-geo-wrap.with-donut{grid-template-columns:180px minmax(0,1fr) minmax(0,1.1fr);}
+
+  /* ============================================================
+     CHARTS — hand-rolled animated SVG donut + trend + bar visuals,
+     shared by Expenses (category split, spending trend) and
+     Footfall (property split, country split, views-per-day bars).
+     No charting library: everything here is inline SVG + CSS
+     transitions, so it works offline and needs no CDN.
+     ============================================================ */
+  .donut-row{display:flex;gap:22px;align-items:center;flex-wrap:wrap;}
+  .donut-wrap{position:relative;flex-shrink:0;}
+  .donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;text-align:center;padding:0 8px;}
+  .donut-center .v{font-size:19px;font-weight:800;letter-spacing:-.01em;line-height:1.1;}
+  .donut-center .l{font-size:10.5px;color:var(--muted);margin-top:2px;}
+  .donut-empty{display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;border:2px dashed var(--border);border-radius:50%;text-align:center;padding:10px;}
+  .donut-legend{flex:1;min-width:190px;display:flex;flex-direction:column;gap:1px;}
+  .donut-legend-row{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;font-size:12.5px;transition:background .15s ease;}
+  .donut-legend-row:hover,.donut-legend-row.hl{background:var(--accent-soft);}
+  .donut-legend-row .sw{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
+  .donut-legend-row .lbl{flex:1;color:var(--text);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .donut-legend-row .val{font-weight:700;white-space:nowrap;}
+  .donut-legend-row .pct{color:var(--muted);min-width:32px;text-align:right;font-size:11px;}
+  .chart-arc{cursor:default;}
+  .trend-chart{width:100%;height:150px;display:block;overflow:visible;}
+  .trend-dot{fill:var(--accent);stroke:var(--card);stroke-width:2;transition:r .15s ease;}
+  .trend-dot:hover{r:5.5;}
+  @media (prefers-reduced-motion: reduce){
+    .chart-arc,[data-grow],[data-draw],[data-fade]{transition:none !important;}
+  }
 
   /* ============================================================
      MOBILE / RESPONSIVE — Thikaana Ops
@@ -545,7 +573,7 @@ window.__logoFallback = function(img){
     .settle-grid{grid-template-columns:1fr;gap:10px;}
     .settle-tx{flex-wrap:wrap;}
     .settle-tx .amt{margin-left:0;width:100%;}
-    .ff-geo-wrap{grid-template-columns:1fr;}
+    .ff-geo-wrap, .ff-geo-wrap.with-donut{grid-template-columns:1fr;}
     .ff-crossover{grid-template-columns:1fr;}
     .ff-prop-tabs{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;padding-bottom:2px;}
     .ff-prop-tabs button{flex-shrink:0;}
@@ -831,6 +859,149 @@ function statusPillClass(s){ return {Active:"green",Lead:"blue",Prospect:"blue",
 function isDummy(rec){ return !!(rec && rec.seed === true); }
 const SAMPLE_PILL = `<span class="sample-pill">Sample</span>`;
 function sampleNote(text){ return `<div class="sample-note">${SAMPLE_PILL}<span>${escapeHtml(text || "This section is pre-filled with demo data. Rows tinted red are samples — your real entries appear normally.")}</span></div>`; }
+
+/* ================= CHART HELPERS ================= *
+ * Hand-rolled animated SVG — no charting library. Donuts and the trend line
+ * reveal via CSS-transitioned stroke-dashoffset (a single scalar, which tweens
+ * reliably in every browser incl. Safari — unlike transitioning stroke-dasharray
+ * itself, or raw SVG x/y/width/height, both of which are inconsistent there).
+ * Bars grow via `transform:scaleY()` with `transform-box:fill-box`, same reason.
+ * animateCharts() flips every chart from its hidden start state to drawn; call
+ * it once right after the HTML containing charts is inserted into the page. */
+const CHART_PALETTE = ["#6d67f0","#22c55e","#f59e0b","#ef4444","#06b6d4","#a855f7","#ec4899","#84cc16"];
+function chartColor(i){ return CHART_PALETTE[i % CHART_PALETTE.length]; }
+function hashColor(str){ let h=0; for(let i=0;i<String(str).length;i++){ h=(h*31+String(str).charCodeAt(i))|0; } return chartColor(Math.abs(h)); }
+function lightenHex(hex, amt){
+  const n = parseInt(String(hex).replace("#",""),16) || 0;
+  const mix = (v)=> Math.min(255, Math.round(v + (255-v)*amt));
+  const r=mix((n>>16)&255), g=mix((n>>8)&255), b=mix(n&255);
+  return "#" + [r,g,b].map(v=>v.toString(16).padStart(2,"0")).join("");
+}
+let _chartDefId = 0;
+
+/* data: [{label, value, color?}]. opts: {size, stroke, fmt(v), centerValue, centerLabel, highlight(label)->bool} */
+function donutChart(data, opts){
+  opts = opts || {};
+  const size = opts.size || 176, stroke = opts.stroke || 26;
+  const r = (size - stroke) / 2, cx = size/2, cy = size/2, c = 2*Math.PI*r;
+  const shown = (data||[]).filter(d=> (Number(d.value)||0) > 0);
+  if(!shown.length) return `<div class="donut-empty" style="width:${size}px;height:${size}px;">No data yet</div>`;
+  const total = shown.reduce((s,d)=>s+Number(d.value), 0) || 1;
+  const defId = "dg"+(_chartDefId++);
+  let acc = 0, arcs = "", defs = "";
+  shown.forEach((d,i)=>{
+    const val = Number(d.value)||0, frac = val/total;
+    const seg = frac*c, gap = c-seg;
+    const rotate = (acc/total)*360 - 90; acc += val;
+    const color = d.color || chartColor(i);
+    const gid = `${defId}-${i}`;
+    const isHi = opts.highlight ? !!opts.highlight(d.label) : false;
+    defs += `<linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${lightenHex(color,.28)}"/><stop offset="100%" stop-color="${color}"/></linearGradient>`;
+    arcs += `<circle class="chart-arc" cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="url(#${gid})"
+      stroke-width="${isHi?stroke+4:stroke}" stroke-linecap="round"
+      stroke-dasharray="${seg.toFixed(2)} ${gap.toFixed(2)}"
+      style="stroke-dashoffset:${seg.toFixed(2)};transform:rotate(${rotate.toFixed(2)}deg);transform-origin:${cx}px ${cy}px;transition:stroke-dashoffset .9s cubic-bezier(.16,1,.3,1) ${(i*0.08).toFixed(2)}s, stroke-width .2s ease;${isHi?"filter:drop-shadow(0 0 5px rgba(0,0,0,.3));":""}"
+      data-donut-target="1"><title>${escapeHtml(d.label)}: ${escapeHtml(opts.fmt?opts.fmt(val):String(val))} (${(frac*100).toFixed(1)}%)</title></circle>`;
+  });
+  const center = opts.centerValue!=null ? `<div class="donut-center"><div class="v">${escapeHtml(String(opts.centerValue))}</div>${opts.centerLabel?`<div class="l">${escapeHtml(opts.centerLabel)}</div>`:""}</div>` : "";
+  return `<div class="donut-wrap" style="width:${size}px;height:${size}px;">
+    <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="filter:drop-shadow(0 10px 18px rgba(24,26,46,.14));overflow:visible;">
+      <defs>${defs}</defs>
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#00000012" stroke-width="${stroke}"/>
+      ${arcs}
+    </svg>
+    ${center}
+  </div>`;
+}
+function donutLegend(data, opts){
+  opts = opts || {};
+  const shown = (data||[]).filter(d=> (Number(d.value)||0) > 0);
+  const total = shown.reduce((s,d)=>s+Number(d.value),0) || 1;
+  return `<div class="donut-legend">${shown.map((d,i)=>`
+    <div class="donut-legend-row" data-idx="${i}" onmouseenter="_donutHi(this,true)" onmouseleave="_donutHi(this,false)">
+      <span class="sw" style="background:${d.color||chartColor(i)};"></span>
+      <span class="lbl">${escapeHtml(d.label)}</span>
+      <span class="val">${escapeHtml(opts.fmt?opts.fmt(d.value):String(d.value))}</span>
+      <span class="pct">${((Number(d.value)/total)*100).toFixed(0)}%</span>
+    </div>`).join("")}</div>`;
+}
+function _donutHi(el, on){
+  const row = el.closest(".donut-legend-row"); if(!row) return;
+  row.classList.toggle("hl", on);
+  const donutRow = row.closest(".donut-row");
+  const svg = donutRow ? donutRow.querySelector(".donut-wrap svg") : null;
+  if(!svg) return;
+  const arc = svg.querySelectorAll(".chart-arc")[+row.dataset.idx];
+  if(arc) arc.style.filter = on ? "brightness(1.12) drop-shadow(0 0 6px rgba(0,0,0,.32))" : "";
+}
+/* points: [{label, value}] in chronological order. opts:{width,height,fmt} */
+function lineAreaChart(points, opts){
+  opts = opts || {};
+  const W = opts.width || 640, H = opts.height || 150, padX = 10, padT = 16, padB = 22;
+  const n = points.length || 1;
+  const max = Math.max(1, ...points.map(p=>Number(p.value)||0));
+  const stepX = n>1 ? (W-padX*2)/(n-1) : 0;
+  const yFor = v => padT + (H-padT-padB) * (1 - (v/max));
+  const coords = points.map((p,i)=>[padX+i*stepX, yFor(Number(p.value)||0)]);
+  const linePath = coords.map((pt,i)=>(i?"L":"M")+pt[0].toFixed(1)+" "+pt[1].toFixed(1)).join(" ");
+  const areaPath = coords.length ? `M${coords[0][0].toFixed(1)} ${(H-padB).toFixed(1)} ` +
+    coords.map(pt=>`L${pt[0].toFixed(1)} ${pt[1].toFixed(1)}`).join(" ") +
+    ` L${coords[coords.length-1][0].toFixed(1)} ${(H-padB).toFixed(1)} Z` : "";
+  const dots = coords.map((pt,i)=>`<circle class="trend-dot" cx="${pt[0].toFixed(1)}" cy="${pt[1].toFixed(1)}" r="3.5"><title>${escapeHtml(points[i].label)}: ${escapeHtml(opts.fmt?opts.fmt(points[i].value):String(points[i].value))}</title></circle>`).join("");
+  const labels = coords.map((pt,i)=> (i===0||i===n-1||i===Math.floor((n-1)/2)) ? `<text class="ff-axis" x="${pt[0].toFixed(1)}" y="${H-4}" text-anchor="middle">${escapeHtml(points[i].label)}</text>` : "").join("");
+  const gid = "tg"+(_chartDefId++);
+  return `<svg class="trend-chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="var(--accent)" stop-opacity=".32"/>
+      <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+    </linearGradient></defs>
+    <path d="${areaPath}" fill="url(#${gid})" style="opacity:0;transition:opacity 1s ease .35s;" data-fade="1"></path>
+    <path d="${linePath}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+      pathLength="1000" stroke-dasharray="1000" style="stroke-dashoffset:1000;transition:stroke-dashoffset 1.15s cubic-bezier(.16,1,.3,1);" data-draw="1"></path>
+    ${dots}${labels}
+  </svg>`;
+}
+/* Group items by calendar month, oldest -> newest, for the last `n` months. */
+function monthBuckets(items, n, dateKey, valueFn){
+  const out = []; const now = new Date();
+  for(let i=n-1;i>=0;i--){
+    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    out.push({ key: d.toISOString().slice(0,7), label: d.toLocaleDateString("en-IN",{month:"short"}), value:0 });
+  }
+  const idx = {}; out.forEach((b,i)=>idx[b.key]=i);
+  (items||[]).forEach(it=>{
+    const k = String(dateKey(it)||"").slice(0,7);
+    if(k in idx) out[idx[k]].value += valueFn(it);
+  });
+  return out;
+}
+/* Flip every chart in `root` from its hidden starting state to drawn. */
+function animateCharts(root){
+  root = root || document;
+  const reveal = ()=>{
+    root.querySelectorAll('[data-donut-target],[data-draw]').forEach(el=>{ el.style.strokeDashoffset = "0"; });
+    root.querySelectorAll('[data-grow]').forEach(el=>{ el.style.transform = "scaleY(1)"; });
+    root.querySelectorAll('[data-fade]').forEach(el=>{ el.style.opacity = "1"; });
+  };
+  if(prefersReducedMotion()){ reveal(); return; }
+  requestAnimationFrame(()=>requestAnimationFrame(reveal));
+}
+/* Animate a stat-card number counting up to its final value. */
+function countUp(el, target, opts){
+  opts = opts || {};
+  target = Number(target)||0;
+  if(!el) return;
+  if(prefersReducedMotion()){ el.textContent = opts.fmt ? opts.fmt(target) : Math.round(target).toLocaleString("en-IN"); return; }
+  const dur = opts.duration || 750, start = performance.now();
+  function tick(now){
+    const t = Math.min(1, (now-start)/dur);
+    const eased = 1 - Math.pow(1-t, 3);
+    const val = target*eased;
+    el.textContent = opts.fmt ? opts.fmt(val) : Math.round(val).toLocaleString("en-IN");
+    if(t<1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
 
 /* ---------------- Seed data ---------------- */
 function seedIfEmpty(){
@@ -1531,11 +1702,15 @@ function renderVault(){
   document.getElementById("main-content").innerHTML = `
     <div class="topbar"><div><h2>Vault</h2><p>Credentials the business depends on</p></div><button class="btn" onclick="openVaultForm()">+ Add Credential</button></div>
     ${items.some(isDummy) ? sampleNote() : ""}
+    ${items.length ? `<div class="stat-grid">
+      <div class="stat-card accent"><div class="label">Credentials</div><div class="value">${items.length}</div></div>
+      <div class="stat-card"><div class="label">Categories</div><div class="value">${new Set(items.map(i=>i.category)).size}</div></div>
+    </div>` : ""}
     <div class="toolbar"><input type="search" id="vault-search" placeholder="Search..." class="grow" oninput="renderVault()"></div>
     <div class="card" style="padding:0;overflow-x:auto;">
       <table><thead><tr><th>Service</th><th>Category</th><th>Username</th><th>Password</th><th>Notes</th><th></th></tr></thead>
       <tbody>
-        ${filtered.length ? filtered.map(i => `<tr class="${isDummy(i)?"dummy-row":""}"><td><b>${escapeHtml(i.service)}</b> ${isDummy(i)?SAMPLE_PILL:""}</td><td><span class="pill blue">${escapeHtml(i.category)}</span></td><td>${escapeHtml(i.username)}</td><td><div class="pw-cell"><span class="mono" id="pw-${i.id}" data-pw="${escapeHtml(i.password)}">••••••••</span><button class="icon-btn" onclick="togglePw('${i.id}')">Show</button></div></td><td style="color:var(--muted);font-size:12.5px;">${escapeHtml(i.notes||"—")}</td><td class="row-actions"><button class="icon-btn" onclick="openVaultForm('${i.id}')">Edit</button><button class="icon-btn" onclick="deleteItem('vault','${i.id}')">Delete</button></td></tr>`).join("") : `<tr><td colspan="6" class="empty-row">No credentials saved yet.</td></tr>`}
+        ${filtered.length ? filtered.map(i => `<tr class="${isDummy(i)?"dummy-row":""}"><td><div style="display:flex;align-items:center;gap:10px;"><span class="avatar" style="width:28px;height:28px;font-size:11px;background:${hashColor(i.service)};flex-shrink:0;">${initials(i.service)}</span><b>${escapeHtml(i.service)}</b></div> ${isDummy(i)?SAMPLE_PILL:""}</td><td><span class="pill blue">${escapeHtml(i.category)}</span></td><td>${escapeHtml(i.username)}</td><td><div class="pw-cell"><span class="mono" id="pw-${i.id}" data-pw="${escapeHtml(i.password)}">••••••••</span><button class="icon-btn" onclick="togglePw('${i.id}')">Show</button></div></td><td style="color:var(--muted);font-size:12.5px;">${escapeHtml(i.notes||"—")}</td><td class="row-actions"><button class="icon-btn" onclick="openVaultForm('${i.id}')">Edit</button><button class="icon-btn" onclick="deleteItem('vault','${i.id}')">Delete</button></td></tr>`).join("") : `<tr><td colspan="6" class="empty-row">No credentials saved yet.</td></tr>`}
       </tbody></table>
     </div>
   `;
@@ -1618,6 +1793,8 @@ function renderExpenses(){
   const filtered = monthFilter ? items.filter(e=>e.date && e.date.startsWith(monthFilter)) : items;
   const total = filtered.reduce((s,e)=>s+Number(e.amount||0),0);
   const byCategory = {}; filtered.forEach(e => { byCategory[e.category] = (byCategory[e.category]||0) + Number(e.amount||0); });
+  const catData = Object.entries(byCategory).sort((a,b)=>b[1]-a[1]).map(([c,v])=>({label:c, value:v}));
+  const trendPoints = monthBuckets(items, 6, e=>e.date, e=>Number(e.amount||0));
   const st = expenseSettlement(filtered);
   const toSettle = st.ids.reduce((s,id)=> s + Math.max(0, st.net[id]), 0);
   const periodLabel = monthFilter
@@ -1627,9 +1804,9 @@ function renderExpenses(){
     <div class="topbar"><div><h2>Expenses</h2><p>Business spending, split across the team</p></div><button class="btn" onclick="openExpenseForm()">+ Add Expense</button></div>
     ${items.some(isDummy) ? sampleNote() : ""}
     <div class="stat-grid">
-      <div class="stat-card accent"><div class="label">Total spend</div><div class="value">${fmtMoney(total)}</div></div>
-      <div class="stat-card"><div class="label">Entries</div><div class="value">${filtered.length}</div></div>
-      <div class="stat-card accent-warn"><div class="label">To settle</div><div class="value">${fmtMoney(toSettle)}</div></div>
+      <div class="stat-card accent"><div class="label">Total spend</div><div class="value" id="stat-exp-total">₹0</div></div>
+      <div class="stat-card"><div class="label">Entries</div><div class="value" id="stat-exp-entries">0</div></div>
+      <div class="stat-card accent-warn"><div class="label">To settle</div><div class="value" id="stat-exp-settle">₹0</div></div>
     </div>
     <div class="toolbar"><label style="font-size:12.5px;color:var(--muted);">Month:</label><input type="month" id="exp-month" value="${monthFilter}" onchange="renderExpenses()">${monthFilter?`<button class="btn secondary small" onclick="document.getElementById('exp-month').value='';renderExpenses();">Clear</button>`:""}</div>
 
@@ -1662,7 +1839,17 @@ function renderExpenses(){
       ` : `<p class="settle-empty">Add an expense to see the split.</p>`}
     </div>
 
-    ${Object.keys(byCategory).length?`<div class="card"><h3>By Category</h3>${Object.entries(byCategory).sort((a,b)=>b[1]-a[1]).map(([c,v])=>`<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid #f0f1f5;"><span>${escapeHtml(c)}</span><b>${fmtMoney(v)}</b></div>`).join("")}</div>`:""}
+    ${catData.length?`<div class="card">
+      <h3>Spending by Category</h3>
+      <div class="donut-row">
+        ${donutChart(catData, {fmt:fmtMoney, centerValue:fmtMoney(total), centerLabel:"Total"})}
+        ${donutLegend(catData, {fmt:fmtMoney})}
+      </div>
+    </div>`:""}
+    <div class="card">
+      <h3>Spending Trend <span style="font-weight:400;color:var(--muted);font-size:12.5px;">— last 6 months</span></h3>
+      ${lineAreaChart(trendPoints, {fmt:fmtMoney})}
+    </div>
 
     <div class="card" style="padding:0;overflow-x:auto;">
       <table><thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Paid By</th><th>Split</th><th></th></tr></thead>
@@ -1675,6 +1862,10 @@ function renderExpenses(){
       }).join("") : `<tr><td colspan="7" class="empty-row">No expenses recorded yet.</td></tr>`}</tbody></table>
     </div>
   `;
+  countUp(document.getElementById("stat-exp-total"), total, {fmt:fmtMoney});
+  countUp(document.getElementById("stat-exp-entries"), filtered.length, {});
+  countUp(document.getElementById("stat-exp-settle"), toSettle, {fmt:fmtMoney});
+  animateCharts(document.getElementById("main-content"));
 }
 function openExpenseForm(id){
   const items = loadKey("expenses")||[]; const item = items.find(i=>i.id===id) || { date: new Date().toISOString().slice(0,10) };
@@ -1799,13 +1990,22 @@ function ffBarChart(days){
   const n = days.length, W = 760, H = 170, padX = 8, padB = 16;
   const slot = (W - padX*2) / n, bw = Math.max(1, slot - (n>45?1:2));
   let bars = "", labels = "";
+  const gid = "bg"+(_chartDefId++);
   days.forEach((d,i)=>{
     const h = Math.round((d.count/max) * (H - padB - 6));
     const x = padX + i*slot, y = H - padB - h;
-    bars += `<rect class="ff-bar" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(h,0)}" rx="1"><title>${d.label}: ${d.count} view${d.count===1?"":"s"}</title></rect>`;
+    const delay = (i * Math.min(0.012, 0.5/n)).toFixed(3);
+    bars += `<rect class="ff-bar" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(h,1)}" rx="2"
+      fill="url(#${gid})" data-grow="1"
+      style="transform-box:fill-box;transform-origin:bottom;transform:scaleY(0);transition:transform .65s cubic-bezier(.2,.9,.25,1) ${delay}s;"
+      ><title>${d.label}: ${d.count} view${d.count===1?"":"s"}</title></rect>`;
     if(i===0 || i===n-1 || i===Math.floor(n/2)) labels += `<text class="ff-axis" x="${(x+bw/2).toFixed(1)}" y="${H-3}" text-anchor="middle">${d.label}</text>`;
   });
-  return `<svg class="ff-chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">${bars}${labels}</svg>`;
+  return `<svg class="ff-chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#8b85ff"/><stop offset="100%" stop-color="var(--accent)"/></linearGradient></defs>
+    <g style="filter:drop-shadow(0 6px 10px rgba(79,70,229,.22));">${bars}</g>
+    ${labels}
+  </svg>`;
 }
 async function ffFetch(days){
   if(!_cloudReady || !_sb) return { error:"nocloud" };
@@ -1899,6 +2099,8 @@ function ffRender(){
   const propTabs = [{id:"__all__",label:"All"}].concat(
     FOOTFALL_PROPS.filter(p=> (propViews[p.id]||0) > 0 || p.id==="").map(p=>({id:p.id,label:p.label}))
   );
+  const propDonutData = FOOTFALL_PROPS.filter(p=>(propViews[p.id]||0)>0 || p.id==="").map(p=>({label:p.label, value:propViews[p.id]||0}));
+  const countryDonutData = countries.slice(0,8).map(([c,g])=>({label:c, value:g.count}));
 
   bodyNow.innerHTML = `
     <div class="ff-prop-tabs">
@@ -1906,11 +2108,11 @@ function ffRender(){
     </div>
 
     <div class="stat-grid">
-      <div class="stat-card accent"><div class="label">Page views</div><div class="value">${rows.length.toLocaleString("en-IN")}</div></div>
-      <div class="stat-card"><div class="label">Unique visitors</div><div class="value">${uniqVis.toLocaleString("en-IN")}</div></div>
-      <div class="stat-card"><div class="label">Sessions</div><div class="value">${uniqSess.toLocaleString("en-IN")}</div></div>
-      <div class="stat-card"><div class="label">Views today</div><div class="value">${todayCount.toLocaleString("en-IN")}</div></div>
-      <div class="stat-card"><div class="label">Avg / day</div><div class="value">${avg.toLocaleString("en-IN")}</div></div>
+      <div class="stat-card accent"><div class="label">Page views</div><div class="value" id="ff-stat-views">0</div></div>
+      <div class="stat-card"><div class="label">Unique visitors</div><div class="value" id="ff-stat-uniq">0</div></div>
+      <div class="stat-card"><div class="label">Sessions</div><div class="value" id="ff-stat-sess">0</div></div>
+      <div class="stat-card"><div class="label">Views today</div><div class="value" id="ff-stat-today">0</div></div>
+      <div class="stat-card"><div class="label">Avg / day</div><div class="value" id="ff-stat-avg">0</div></div>
     </div>
 
     <div class="card">
@@ -1920,16 +2122,20 @@ function ffRender(){
         <div class="box"><div class="n">${both.toLocaleString("en-IN")}</div><div class="l">Website + a product</div></div>
         <div class="box"><div class="n">${prodOnly.toLocaleString("en-IN")}</div><div class="l">Product only (no website)</div></div>
       </div>
-      <table style="margin-top:12px;"><thead><tr><th>Property</th><th style="text-align:right;">Views</th><th style="text-align:right;">Visitors</th></tr></thead><tbody>
-        ${FOOTFALL_PROPS.filter(p=>(propViews[p.id]||0)>0 || p.id==="").map(p=>`<tr><td>${escapeHtml(p.label)}</td><td style="text-align:right;"><b>${(propViews[p.id]||0).toLocaleString("en-IN")}</b></td><td style="text-align:right;">${((propVis[p.id]&&propVis[p.id].size)||0).toLocaleString("en-IN")}</td></tr>`).join("")}
-      </tbody></table>
+      <div class="donut-row" style="margin-top:16px;">
+        ${donutChart(propDonutData, {size:150, stroke:22, fmt:v=>v.toLocaleString("en-IN")+" views", highlight:l=>_ffProp!=="__all__" && ffPropLabel(_ffProp)===l})}
+        <table style="flex:1;min-width:220px;"><thead><tr><th>Property</th><th style="text-align:right;">Views</th><th style="text-align:right;">Visitors</th></tr></thead><tbody>
+          ${FOOTFALL_PROPS.filter(p=>(propViews[p.id]||0)>0 || p.id==="").map((p,i)=>`<tr><td><span class="sw" style="display:inline-block;width:9px;height:9px;border-radius:3px;background:${chartColor(i)};margin-right:7px;"></span>${escapeHtml(p.label)}</td><td style="text-align:right;"><b>${(propViews[p.id]||0).toLocaleString("en-IN")}</b></td><td style="text-align:right;">${((propVis[p.id]&&propVis[p.id].size)||0).toLocaleString("en-IN")}</td></tr>`).join("")}
+        </tbody></table>
+      </div>
     </div>
 
     <div class="card"><h3>Views per day — last ${_ffRangeDays} days${_ffProp!=="__all__"?` · ${escapeHtml(ffPropLabel(_ffProp))}`:""}</h3>${ffBarChart(buckets)}</div>
 
     <div class="card">
       <h3>Visitors by country &amp; city</h3>
-      ${hasGeo ? `<div class="ff-geo-wrap">
+      ${hasGeo ? `<div class="ff-geo-wrap with-donut">
+        <div style="display:flex;align-items:center;justify-content:center;">${donutChart(countryDonutData, {size:150, stroke:22, fmt:v=>v.toLocaleString("en-IN")+" visits", highlight:l=>l===drillCountry})}</div>
         <div>
           ${countries.slice(0,12).map(([c,g])=>`<div class="ff-country-row ${c===drillCountry?"active":""}" onclick="ffSetCountry(${ffArg(c)})"><span><span class="flag">${ffFlag(g.code)}</span>${escapeHtml(c)}</span><b>${g.count.toLocaleString("en-IN")}</b></div>`).join("")}
         </div>
@@ -1950,6 +2156,12 @@ function ffRender(){
       <tbody>${recent.map(r=>`<tr><td style="white-space:nowrap;">${fmtDateTime(r.ts)}</td><td>${escapeHtml(ffPropLabel(ffRowProp(r)))}</td><td style="word-break:break-all;">${escapeHtml(r.path||"/")}</td><td style="white-space:nowrap;">${ffFlag(r.country_code)}${escapeHtml([r.city, r.country].filter(Boolean).join(", ") || "—")}</td><td>${escapeHtml(ffRefHost(r.referrer))}</td></tr>`).join("")}</tbody></table>
     </div>
   `;
+  countUp(document.getElementById("ff-stat-views"), rows.length, {});
+  countUp(document.getElementById("ff-stat-uniq"), uniqVis, {});
+  countUp(document.getElementById("ff-stat-sess"), uniqSess, {});
+  countUp(document.getElementById("ff-stat-today"), todayCount, {});
+  countUp(document.getElementById("ff-stat-avg"), avg, {});
+  animateCharts(bodyNow);
 }
 
 /* ================= EMPLOYEE: EMPLOYEES ================= */
