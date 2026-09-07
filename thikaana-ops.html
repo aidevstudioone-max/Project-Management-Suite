@@ -1271,7 +1271,7 @@ const TECHNICAL_CATEGORIES = ["Technical Issue","Website Issue","Domain / Hostin
 const TICKET_PRIORITIES = ["Low","Medium","High","Urgent"];
 const TICKET_STATUSES = ["New","Assigned","In Progress","Waiting for Client","Resolved","Closed"];
 
-const KEYS = ["clients","clientUsers","tickets","meetings","vault","expenses","audit","employees","customRoles","outreachProspects","outreachLog","outreachCustomSubjects","outreachTemplates","leadgenLeads","leadgenSearchRuns","leadgenCache","staffNotifSeen"];
+const KEYS = ["clients","clientUsers","tickets","meetings","vault","expenses","audit","employees","customRoles","outreachProspects","outreachLog","outreachCustomSubjects","outreachTemplates","leadgenLeads","leadgenSearchRuns","leadgenCache","staffNotifSeen","settlements"];
 const SEED_VERSION = "7";
 
 /* ---------------- Data layer: in-memory cache, localStorage mirror, Supabase sync ----------------
@@ -2380,7 +2380,10 @@ function settleUp(balances){
   }
   return tx;
 }
-function expenseSettlement(list){
+// `period` is the same value as the Expenses month filter ("" for all-time) — settlement
+// payments are recorded against whichever period was showing when marked paid, so "who pays
+// whom" only nets out against settlements that actually apply to what's currently in view.
+function expenseSettlement(list, period){
   const paid = {}, owed = {};
   EMPLOYEES.forEach(e=>{ paid[e.id]=0; owed[e.id]=0; });
   list.forEach(e=>{
@@ -2393,7 +2396,31 @@ function expenseSettlement(list){
   });
   const ids = Array.from(new Set([...Object.keys(paid), ...Object.keys(owed)]));
   const net = {}; ids.forEach(id=> net[id] = (paid[id]||0) - (owed[id]||0));
-  return { paid, owed, net, ids, tx: settleUp(net) };
+  const settlements = (loadKey("settlements")||[]).filter(s=>(s.period||"")===(period||""));
+  settlements.forEach(s=>{
+    const amt = Number(s.amount||0);
+    net[s.from] = (net[s.from]||0) + amt;
+    net[s.to] = (net[s.to]||0) - amt;
+  });
+  return { paid, owed, net, ids, tx: settleUp(net), settlements };
+}
+function markSettlementPaid(from, to, amt, period){
+  const list = loadKey("settlements")||[];
+  const record = { id:uid(), from, to, amount:amt, period, at:new Date().toISOString(), recordedBy:(getSession()||{}).actingAs };
+  list.push(record);
+  saveKey("settlements", list);
+  logAudit("Settlement Recorded","Expenses", `${employeeName(from)} paid ${employeeName(to)} ${fmtMoney(amt)}`, null, null, null, (getSession()||{}).actingAs);
+  wmToast(`Marked ${employeeName(from)} → ${employeeName(to)} (${fmtMoney(amt)}) as paid.`);
+  renderExpenses();
+}
+function undoSettlement(id){
+  if(!confirm("Undo this settlement? It will go back to showing as owed.")) return;
+  const list = loadKey("settlements")||[];
+  const record = list.find(s=>s.id===id);
+  const filtered = list.filter(s=>s.id!==id);
+  saveKey("settlements", filtered);
+  if(record) logAudit("Settlement Undone","Expenses", `${employeeName(record.from)} → ${employeeName(record.to)} (${fmtMoney(record.amount)})`, null, null, null, (getSession()||{}).actingAs);
+  renderExpenses();
 }
 function renderExpenses(){
   const items = (loadKey("expenses")||[]).slice().sort((a,b)=> (b.date||"").localeCompare(a.date||""));
@@ -2403,7 +2430,7 @@ function renderExpenses(){
   const byCategory = {}; filtered.forEach(e => { byCategory[e.category] = (byCategory[e.category]||0) + Number(e.amount||0); });
   const catData = Object.entries(byCategory).sort((a,b)=>b[1]-a[1]).map(([c,v])=>({label:c, value:v}));
   const trendPoints = monthBuckets(items, 6, e=>e.date, e=>Number(e.amount||0));
-  const st = expenseSettlement(filtered);
+  const st = expenseSettlement(filtered, monthFilter);
   const toSettle = st.ids.reduce((s,id)=> s + Math.max(0, st.net[id]), 0);
   const periodLabel = monthFilter
     ? new Date(monthFilter+"-01T00:00:00").toLocaleDateString("en-IN",{month:"long",year:"numeric"})
@@ -2441,9 +2468,22 @@ function renderExpenses(){
             <span class="arrow">→</span>
             <span class="who">${escapeHtml(employeeName(t.to))}</span>
             <span class="amt">${fmtMoney(t.amt)}</span>
+            <button class="btn small" onclick="markSettlementPaid('${t.from}','${t.to}',${t.amt},'${monthFilter}')">Mark as paid</button>
           </div>`).join("")
         : `<p class="settle-empty">Everyone's square for this period — nothing to transfer. 🎉</p>`}
         <p style="font-size:11.5px;color:var(--muted);margin:10px 0 0;">Each expense is split equally between the people picked for it. Change who's in or out per expense with <b>Split between</b> on the Add/Edit form.</p>
+        ${st.settlements.length ? `
+        <h3 style="margin-top:16px;">Settlement History <span style="font-weight:400;color:var(--muted);font-size:12.5px;">— ${escapeHtml(periodLabel)}</span></h3>
+        ${st.settlements.slice().sort((a,b)=>(b.at||"").localeCompare(a.at||"")).map(s=>`
+          <div class="settle-tx settle-tx-history">
+            <span class="who">${escapeHtml(employeeName(s.from))}</span>
+            <span class="arrow">→</span>
+            <span class="who">${escapeHtml(employeeName(s.to))}</span>
+            <span class="amt">${fmtMoney(s.amount)}</span>
+            <span style="font-size:11.5px;color:var(--muted);">${fmtDateTime(s.at)} · logged by ${escapeHtml(employeeName(s.recordedBy))}</span>
+            <button class="icon-btn" onclick="undoSettlement('${s.id}')">Undo</button>
+          </div>`).join("")}
+        ` : ""}
       ` : `<p class="settle-empty">Add an expense to see the split.</p>`}
     </div>
 
