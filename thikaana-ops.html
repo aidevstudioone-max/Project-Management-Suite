@@ -3093,6 +3093,15 @@ function outreachStatusPill(st){
 }
 
 function renderOutreach(){
+  // A lead sent here from Lead Gen (which opens Outreach in a new tab) leaves its prospect id
+  // in localStorage for the fresh tab to pick up — localStorage, not sessionStorage/a JS
+  // variable, because a new tab is a brand-new page load with no memory of the tab that sent it.
+  const pendingProspect = localStorage.getItem("thikops_pendingOutreachProspect");
+  if(pendingProspect){
+    localStorage.removeItem("thikops_pendingOutreachProspect");
+    outreachUseProspect(pendingProspect);
+    return;
+  }
   document.querySelectorAll(".nav-item").forEach(n => n.classList.toggle("active", n.dataset.tab==="outreach"));
   const ctx = outreachState();
   const senders = outreachSenders();
@@ -4013,19 +4022,83 @@ async function leadgenRunSearch(location, radiusKm, categoryValue, customKeyword
 
 /* ---- UI state (ephemeral, not persisted — resets on tab switch like currentClientId etc.) ---- */
 let leadgenScope = "__all__", leadgenStatusFilter = "", leadgenSearching = false, leadgenLastMsg = "";
+let leadgenSearchText = "", leadgenCategoryFilter = "", leadgenWebFilter = "", leadgenOutreachFilter = "";
+let leadgenSortField = "score", leadgenSortDir = "desc";
 
 function escapeAttr(s){ return escapeHtml(s); }
 function leadgenScoreClass(score){ return score>=70 ? "green" : score>=45 ? "yellow" : "gray"; }
 const LEADGEN_STATUS_LABEL = { not_contacted:"Not contacted", contacted:"Contacted", replied:"Replied", won:"Won", lost:"Lost" };
 
+function leadgenOutreachEmailSet(){
+  return new Set((loadKey("outreachProspects")||[]).map(p=>(p.email||"").toLowerCase()).filter(Boolean));
+}
+function leadgenSortCompare(a,b){
+  let av, bv;
+  switch(leadgenSortField){
+    case "name": av=(a.name||"").toLowerCase(); bv=(b.name||"").toLowerCase(); break;
+    case "address": av=(a.address||"").toLowerCase(); bv=(b.address||"").toLowerCase(); break;
+    case "phone": av=(a.phone||"").toLowerCase(); bv=(b.phone||"").toLowerCase(); break;
+    case "category": av=(a.category||"").toLowerCase(); bv=(b.category||"").toLowerCase(); break;
+    case "website": av=a.website?1:0; bv=b.website?1:0; break;
+    case "status": av=LEADGEN_STATUS_LABEL[a.status]||""; bv=LEADGEN_STATUS_LABEL[b.status]||""; break;
+    case "score": default: av=a.score||0; bv=b.score||0;
+  }
+  const cmp = av<bv ? -1 : av>bv ? 1 : 0;
+  return leadgenSortDir==="asc" ? cmp : -cmp;
+}
+function leadgenSetSort(field){
+  if(leadgenSortField===field){ leadgenSortDir = leadgenSortDir==="asc" ? "desc" : "asc"; }
+  else { leadgenSortField = field; leadgenSortDir = (field==="score") ? "desc" : "asc"; }
+  renderLeadGen();
+}
+function leadgenSortArrow(field){
+  return leadgenSortField===field ? (leadgenSortDir==="asc" ? " ▲" : " ▼") : "";
+}
+function leadgenFilteredLeads(){
+  let leads = leadgenGetLeads().slice().sort(leadgenSortCompare);
+  if(leadgenScope !== "__all__") leads = leads.filter(l => l.searchRunId === leadgenScope);
+  if(leadgenStatusFilter) leads = leads.filter(l => l.status === leadgenStatusFilter);
+  if(leadgenCategoryFilter) leads = leads.filter(l => l.category === leadgenCategoryFilter);
+  if(leadgenWebFilter === "has_website") leads = leads.filter(l => !!l.website);
+  if(leadgenWebFilter === "no_website") leads = leads.filter(l => !l.website);
+  if(leadgenWebFilter === "has_email") leads = leads.filter(l => !!l.email);
+  if(leadgenWebFilter === "no_email") leads = leads.filter(l => !l.email);
+  if(leadgenOutreachFilter){
+    const sentEmails = leadgenOutreachEmailSet();
+    if(leadgenOutreachFilter==="sent") leads = leads.filter(l => l.email && sentEmails.has(l.email.toLowerCase()));
+    if(leadgenOutreachFilter==="not_sent") leads = leads.filter(l => !l.email || !sentEmails.has(l.email.toLowerCase()));
+  }
+  const q = leadgenSearchText.trim().toLowerCase();
+  if(q) leads = leads.filter(l => [l.name,l.address,l.phone,l.category,l.email,l.website].some(v => (v||"").toLowerCase().includes(q)));
+  return leads;
+}
+function leadgenTableRowsHtml(leads){
+  return leads.length ? leads.map(l => `
+          <tr>
+            <td><span class="pill ${leadgenScoreClass(l.score)}">${l.score}</span><div class="outreach-hint">${escapeHtml(l.scoreReason||"")}</div></td>
+            <td>${l.mapsUrl?`<a href="${escapeAttr(l.mapsUrl)}" target="_blank" rel="noreferrer"><b>${escapeHtml(l.name)}</b></a>`:`<b>${escapeHtml(l.name)}</b>`}</td>
+            <td>${escapeHtml(l.address||"—")}</td>
+            <td>${escapeHtml(l.phone||"—")}</td>
+            <td>${escapeHtml(l.category||"—")}</td>
+            <td>${l.website?`<a href="${escapeAttr(/^https?:\/\//i.test(l.website)?l.website:"https://"+l.website)}" target="_blank" rel="noreferrer">website</a>`:`<span style="color:var(--muted);">no website</span>`}<br>${l.email?`<a href="mailto:${escapeAttr(l.email)}">${escapeHtml(l.email)}</a>`:l.emailStatus==="blocked"?`<span style="color:var(--muted);">couldn't check</span>`:l.website?`<span style="color:var(--muted);">no email found</span>`:`<span style="color:var(--muted);">—</span>`}</td>
+            <td><select onchange="leadgenSetStatus('${escapeAttr(l.id)}', this.value)">${Object.entries(LEADGEN_STATUS_LABEL).map(([v,lbl])=>`<option value="${v}" ${v===l.status?"selected":""}>${lbl}</option>`).join("")}</select>${l.contactedBy?`<div class="outreach-hint">by ${escapeHtml(employeeName(l.contactedBy))}</div>`:""}</td>
+            <td><div class="row-actions">${l.email?`<button class="icon-btn" onclick="leadgenSendToOutreach('${escapeAttr(l.id)}')" title="Send to Outreach">→ Outreach</button>`:""}<button class="icon-btn" onclick="leadgenRemove('${escapeAttr(l.id)}')">Remove</button></div></td>
+          </tr>`).join("") : `<tr><td colspan="8" class="empty-row">No leads match these filters.</td></tr>`;
+}
+function leadgenRefreshTable(){
+  const tbody = document.getElementById("lg-tbody");
+  if(tbody) tbody.innerHTML = leadgenTableRowsHtml(leadgenFilteredLeads());
+  const countEl = document.getElementById("lg-result-count");
+  if(countEl) countEl.textContent = leadgenFilteredLeads().length + " shown";
+}
 function renderLeadGen(){
   document.querySelectorAll(".nav-item").forEach(n => n.classList.toggle("active", n.dataset.tab==="leadgen"));
   const runs = leadgenGetRuns();
-  let leads = leadgenGetLeads().slice().sort((a,b) => b.score - a.score);
-  if(leadgenScope !== "__all__") leads = leads.filter(l => l.searchRunId === leadgenScope);
-  if(leadgenStatusFilter) leads = leads.filter(l => l.status === leadgenStatusFilter);
+  const leads = leadgenFilteredLeads();
+  const allLeads = leadgenGetLeads();
+  const categories = Array.from(new Set(allLeads.map(l=>l.category).filter(Boolean))).sort();
 
-  const scopeOptions = `<option value="__all__">All saved leads (${leadgenGetLeads().length})</option>` +
+  const scopeOptions = `<option value="__all__">All saved leads (${allLeads.length})</option>` +
     runs.map(r => `<option value="${escapeAttr(r.id)}" ${leadgenScope===r.id?"selected":""}>${escapeHtml(r.label)} — ${fmtDateTime(r.at)} (${r.count})</option>`).join("");
 
   document.getElementById("main-content").innerHTML = `
@@ -4061,23 +4134,42 @@ function renderLeadGen(){
     <div class="card">
       <div class="toolbar">
         <div><label style="font-size:13px;">Show: </label><select onchange="leadgenScope=this.value;renderLeadGen();">${scopeOptions}</select></div>
-        <div><label style="font-size:13px;">Status: </label><select onchange="leadgenStatusFilter=this.value;renderLeadGen();">
+        <button class="btn secondary small" onclick="leadgenExportCsv()">Export CSV</button>
+        <span class="outreach-hint" id="lg-result-count" style="margin-left:auto;">${leads.length} shown</span>
+      </div>
+      <div class="toolbar" style="margin-top:-4px;">
+        <input type="text" id="lg-search" class="grow" style="min-width:220px;" placeholder="Search business, location, phone, email…" value="${escapeAttr(leadgenSearchText)}" oninput="leadgenSearchText=this.value;leadgenRefreshTable();">
+        <div><label style="font-size:13px;">Category: </label><select onchange="leadgenCategoryFilter=this.value;leadgenRefreshTable();">
+          <option value="">All</option>${categories.map(c=>`<option value="${escapeAttr(c)}" ${leadgenCategoryFilter===c?"selected":""}>${escapeHtml(c)}</option>`).join("")}
+        </select></div>
+        <div><label style="font-size:13px;">Web/Email: </label><select onchange="leadgenWebFilter=this.value;leadgenRefreshTable();">
+          <option value="">All</option>
+          <option value="no_website" ${leadgenWebFilter==="no_website"?"selected":""}>No website</option>
+          <option value="has_website" ${leadgenWebFilter==="has_website"?"selected":""}>Has website</option>
+          <option value="has_email" ${leadgenWebFilter==="has_email"?"selected":""}>Has email</option>
+          <option value="no_email" ${leadgenWebFilter==="no_email"?"selected":""}>No email</option>
+        </select></div>
+        <div><label style="font-size:13px;">Status: </label><select onchange="leadgenStatusFilter=this.value;leadgenRefreshTable();">
           <option value="">All</option>${Object.entries(LEADGEN_STATUS_LABEL).map(([v,l])=>`<option value="${v}" ${leadgenStatusFilter===v?"selected":""}>${l}</option>`).join("")}
         </select></div>
-        <button class="btn secondary small" onclick="leadgenExportCsv()">Export CSV</button>
+        <div><label style="font-size:13px;">Outreach: </label><select onchange="leadgenOutreachFilter=this.value;leadgenRefreshTable();">
+          <option value="">All</option>
+          <option value="sent" ${leadgenOutreachFilter==="sent"?"selected":""}>Sent to Outreach</option>
+          <option value="not_sent" ${leadgenOutreachFilter==="not_sent"?"selected":""}>Not sent yet</option>
+        </select></div>
+        ${(leadgenSearchText||leadgenCategoryFilter||leadgenWebFilter||leadgenStatusFilter||leadgenOutreachFilter) ? `<button class="btn secondary small" onclick="leadgenSearchText='';leadgenCategoryFilter='';leadgenWebFilter='';leadgenStatusFilter='';leadgenOutreachFilter='';renderLeadGen();">Clear filters</button>` : ""}
       </div>
-      <div class="table-wrap"><table><thead><tr><th>Score</th><th>Business</th><th>Location</th><th>Contact</th><th>Category</th><th>Web / Email</th><th>Status</th><th></th></tr></thead><tbody>
-        ${leads.length ? leads.map(l => `
-          <tr>
-            <td><span class="pill ${leadgenScoreClass(l.score)}">${l.score}</span><div class="outreach-hint">${escapeHtml(l.scoreReason||"")}</div></td>
-            <td>${l.mapsUrl?`<a href="${escapeAttr(l.mapsUrl)}" target="_blank" rel="noreferrer"><b>${escapeHtml(l.name)}</b></a>`:`<b>${escapeHtml(l.name)}</b>`}</td>
-            <td>${escapeHtml(l.address||"—")}</td>
-            <td>${escapeHtml(l.phone||"—")}</td>
-            <td>${escapeHtml(l.category||"—")}</td>
-            <td>${l.website?`<a href="${escapeAttr(/^https?:\/\//i.test(l.website)?l.website:"https://"+l.website)}" target="_blank" rel="noreferrer">website</a>`:`<span style="color:var(--muted);">no website</span>`}<br>${l.email?`<a href="mailto:${escapeAttr(l.email)}">${escapeHtml(l.email)}</a>`:l.emailStatus==="blocked"?`<span style="color:var(--muted);">couldn't check</span>`:l.website?`<span style="color:var(--muted);">no email found</span>`:`<span style="color:var(--muted);">—</span>`}</td>
-            <td><select onchange="leadgenSetStatus('${escapeAttr(l.id)}', this.value)">${Object.entries(LEADGEN_STATUS_LABEL).map(([v,lbl])=>`<option value="${v}" ${v===l.status?"selected":""}>${lbl}</option>`).join("")}</select>${l.contactedBy?`<div class="outreach-hint">by ${escapeHtml(employeeName(l.contactedBy))}</div>`:""}</td>
-            <td><div class="row-actions">${l.email?`<button class="icon-btn" onclick="leadgenSendToOutreach('${escapeAttr(l.id)}')" title="Send to Outreach">→ Outreach</button>`:""}<button class="icon-btn" onclick="leadgenRemove('${escapeAttr(l.id)}')">Remove</button></div></td>
-          </tr>`).join("") : `<tr><td colspan="8" class="empty-row">No leads yet. Run a search above.</td></tr>`}
+      <div class="table-wrap"><table><thead><tr>
+        <th onclick="leadgenSetSort('score')" style="cursor:pointer;user-select:none;">Score${leadgenSortArrow("score")}</th>
+        <th onclick="leadgenSetSort('name')" style="cursor:pointer;user-select:none;">Business${leadgenSortArrow("name")}</th>
+        <th onclick="leadgenSetSort('address')" style="cursor:pointer;user-select:none;">Location${leadgenSortArrow("address")}</th>
+        <th onclick="leadgenSetSort('phone')" style="cursor:pointer;user-select:none;">Contact${leadgenSortArrow("phone")}</th>
+        <th onclick="leadgenSetSort('category')" style="cursor:pointer;user-select:none;">Category${leadgenSortArrow("category")}</th>
+        <th onclick="leadgenSetSort('website')" style="cursor:pointer;user-select:none;">Web / Email${leadgenSortArrow("website")}</th>
+        <th onclick="leadgenSetSort('status')" style="cursor:pointer;user-select:none;">Status${leadgenSortArrow("status")}</th>
+        <th></th>
+      </tr></thead><tbody id="lg-tbody">
+        ${leadgenTableRowsHtml(leads)}
       </tbody></table></div>
     </div>
   `;
@@ -4135,12 +4227,21 @@ function leadgenSendToOutreach(id){
   const l = leadgenGetLeads().find(x => x.id === id);
   if(!l || !l.email){ wmToast("This lead has no email on file.","error"); return; }
   const list = loadKey("outreachProspects") || [];
-  const existing = list.find(p => (p.email||"").toLowerCase() === l.email.toLowerCase());
-  if(existing){ wmToast(l.name + " is already in Outreach."); return; }
-  list.push({ id: uid(), serial:"", company: l.name, firstName:"", email: l.email, industry: l.category||"", linkedin:"", pitch:"", status:"New", notes:`Found via Lead Gen — ${l.address||""}`.trim(), reached:false, lastContactedAt:null });
-  saveKey("outreachProspects", list);
-  logAudit("Sent to Outreach","Lead Gen", `${l.name} added to Outreach prospects`, null, null, null, (getSession()||{}).actingAs);
-  wmToast(l.name + " sent to Outreach.");
+  let prospect = list.find(p => (p.email||"").toLowerCase() === l.email.toLowerCase());
+  if(!prospect){
+    prospect = { id: uid(), serial:"", company: l.name, firstName:"", email: l.email, industry: l.category||"", linkedin:"", pitch:"", status:"New", notes:`Found via Lead Gen — ${l.address||""}`.trim(), reached:false, lastContactedAt:null };
+    list.push(prospect);
+    saveKey("outreachProspects", list);
+    logAudit("Sent to Outreach","Lead Gen", `${l.name} added to Outreach prospects`, null, null, null, (getSession()||{}).actingAs);
+  }
+  // Open Outreach in a new tab (not in place) so the Lead Gen list + filters/search stay
+  // exactly as they were — the new tab shares the same login (session lives in localStorage)
+  // and picks up this prospect automatically via the pendingProspect check in renderOutreach().
+  localStorage.setItem("thikops_pendingOutreachProspect", prospect.id);
+  const win = window.open(location.pathname + location.search + "#/outreach", "_blank", "noopener");
+  if(!win){
+    wmToast("Your browser blocked the popup — allow popups for this site, then click → Outreach again.", "error");
+  }
 }
 function leadgenExportCsv(){
   let leads = leadgenGetLeads().slice().sort((a,b) => b.score - a.score);
