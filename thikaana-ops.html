@@ -505,6 +505,18 @@ window.__logoFallback = function(img){
      Desktop layout is unchanged; rules below only apply at
      narrow widths. The sidebar becomes a slide-in drawer.
      ============================================================ */
+  /* ===== Outreach ===== */
+  .outreach-grid{display:grid;grid-template-columns:minmax(0,380px) minmax(0,1fr);gap:16px;align-items:start;margin-bottom:18px;}
+  .outreach-howto{font-size:12.5px;line-height:1.95;color:var(--muted);}
+  .outreach-howto b{color:var(--text);}
+  .outreach-hint{font-size:11px;color:var(--muted);margin-top:4px;}
+  .field textarea.outreach-body{width:100%;min-height:380px;font-family:ui-monospace,Consolas,monospace;font-size:12.5px;line-height:1.55;white-space:pre-wrap;}
+  .outreach-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;}
+  .outreach-reached td{background:var(--success-soft);}
+  .outreach-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+  .outreach-chip{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);color:var(--accent);border-radius:20px;padding:3px 6px 3px 11px;font-size:11.5px;}
+  .outreach-chip button{border:none;background:rgba(0,0,0,.14);color:inherit;border-radius:50%;width:16px;height:16px;line-height:14px;text-align:center;cursor:pointer;font-size:12px;padding:0;}
+
   .mobile-topbar{display:none;}
   .nav-backdrop{display:none;}
 
@@ -542,6 +554,7 @@ window.__logoFallback = function(img){
 
     /* wide content scrolls inside itself, never the page */
     #main-content table{display:block;width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+    .outreach-grid{grid-template-columns:1fr;}
 
     .field-row{flex-direction:column;gap:0;}
     .history-item{flex-direction:column;gap:2px;}
@@ -655,6 +668,7 @@ const ICONS = {
   meetings:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2v3M15 2v3"/><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 14h5"/></svg>',
   footfall:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="4" width="3" height="14"/></svg>',
   search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>',
+  outreach:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4Z"/></svg>',
   employees:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
   history:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 7v5l3 3"/></svg>',
   settings:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>',
@@ -722,6 +736,423 @@ const TRACK_SNIPPET = ffPropSnippet("");
 // using a key entered on that page (saved in that page's own localStorage).
 const LEAD_GEN_URL = "leadgen.html";
 
+/* ================= OUTREACH (prospect email drafting) =================
+   Drafts a personalised message and opens it in Gmail's web compose,
+   pre-filled — you review the From alias and click Send. No API, no
+   OAuth, no setup: "Open in Gmail" is just a compose URL. Prospects and
+   a send log live in the shared Supabase KV, same as Vault / Expenses. */
+const OUTREACH_FROM_ACCOUNT = "support@thikaana.co"; // Gmail account the compose opens in (owns all 4 aliases as "Send mail as")
+const OUTREACH_SUBJECTS = [
+  "Streamlining operations at {{Company Name}}",
+  "A quick idea for {{Company Name}}",
+  "{{Company Name}} — a faster way to run internal operations"
+];
+const OUTREACH_PROSPECT_STATUSES = ["New","Contacted","Replied","Meeting","Won","Lost","Not now"];
+const OUTREACH_PITCH_BY_INDUSTRY = {
+  "Manufacturing & Industrial":"Custom ERP, Vendor Portal & Inventory Dashboard",
+  "Healthcare":"MediCore Hospital Management",
+  "Education":"Eduvia School Management SaaS",
+  "Logistics & Services":"Fleet Tracking & Operations Dashboard"
+};
+/* From the "Company Target List" sheet. Imported on demand (button) — not auto-seeded. */
+const OUTREACH_STARTER_TARGETS = [
+  {company:"Boeing India",industry:"Manufacturing & Industrial"},
+  {company:"MTAR Technologies",industry:"Manufacturing & Industrial"},
+  {company:"Pennar Industries",industry:"Manufacturing & Industrial"},
+  {company:"Raghu Vamsi Group",industry:"Manufacturing & Industrial"},
+  {company:"HBL Engineering",industry:"Manufacturing & Industrial"},
+  {company:"NMDC",industry:"Manufacturing & Industrial"},
+  {company:"Sai Life Sciences",industry:"Manufacturing & Industrial"},
+  {company:"Suven Pharmaceuticals",industry:"Manufacturing & Industrial"},
+  {company:"Sigachi Industries",industry:"Manufacturing & Industrial"},
+  {company:"Banyan Nation",industry:"Manufacturing & Industrial"},
+  {company:"Marut Drones",industry:"Manufacturing & Industrial"},
+  {company:"Thanos Technologies",industry:"Manufacturing & Industrial"},
+  {company:"Soctronics",industry:"Manufacturing & Industrial"},
+  {company:"Danlaw Technologies",industry:"Manufacturing & Industrial"},
+  {company:"Smartron",industry:"Manufacturing & Industrial"},
+  {company:"Cygni Energy",industry:"Manufacturing & Industrial"},
+  {company:"Zetatek Industries",industry:"Manufacturing & Industrial"},
+  {company:"Avanti Feeds",industry:"Manufacturing & Industrial"},
+  {company:"Tube Investments of India",industry:"Manufacturing & Industrial"},
+  {company:"Deccan Granites",industry:"Manufacturing & Industrial"},
+  {company:"NCL Industries",industry:"Manufacturing & Industrial"},
+  {company:"Sunrock Exports",industry:"Manufacturing & Industrial"},
+  {company:"Escientia Biopharma",industry:"Manufacturing & Industrial"},
+  {company:"Silicon Patterns",industry:"Manufacturing & Industrial"},
+  {company:"Apollo Hospitals",industry:"Healthcare"},
+  {company:"Yashoda Hospitals",industry:"Healthcare"},
+  {company:"CARE Hospitals",industry:"Healthcare"},
+  {company:"KIMS Hospitals",industry:"Healthcare"},
+  {company:"AIG Hospitals",industry:"Healthcare"},
+  {company:"Ankura Hospitals",industry:"Healthcare"},
+  {company:"Rainbow Children's Hospital",industry:"Healthcare"},
+  {company:"Medicover Hospitals",industry:"Healthcare"},
+  {company:"Continental Hospitals",industry:"Healthcare"},
+  {company:"Virinchi Hospitals",industry:"Healthcare"},
+  {company:"Celon Laboratories",industry:"Healthcare"},
+  {company:"Oakridge International School",industry:"Education"},
+  {company:"Delhi Public School Hyderabad",industry:"Education"},
+  {company:"Chirec International School",industry:"Education"},
+  {company:"Hyderabad Public School",industry:"Education"},
+  {company:"Glendale Academy",industry:"Education"},
+  {company:"Geethanjali Schools",industry:"Education"},
+  {company:"Pallavi Group of Schools",industry:"Education"},
+  {company:"Sri Chaitanya Educational Institutions",industry:"Education"},
+  {company:"Narayana Educational Institutions",industry:"Education"},
+  {company:"Rockwell International School",industry:"Education"},
+  {company:"Navata Road Transport",industry:"Logistics & Services"},
+  {company:"VRL Logistics",industry:"Logistics & Services"},
+  {company:"Gati",industry:"Logistics & Services"},
+  {company:"Safexpress",industry:"Logistics & Services"},
+  {company:"Transport Corporation of India (TCI)",industry:"Logistics & Services"}
+];
+const OUTREACH_TEMPLATES = {
+  email:
+`Hi {{First Name}},
+
+I came across {{Company Name}} and noticed there may be opportunities to streamline operations and improve customer experience through digital solutions.
+
+We build ready-to-deploy business platforms that help organizations manage operations, customers, teams, and reporting without the cost of building software from scratch.
+
+A few examples:
+
+* Stayloop (Project & Task Management) – https://aidevstudioone-max.github.io/Stayloop/
+* Teamloom (HR & Employee Management) – https://aidevstudioone-max.github.io/Teamloom/
+* Servemint (Service Management) – https://aidevstudioone-max.github.io/Servemint/
+* SellSight (CRM & Sales Management) – https://aidevstudioone-max.github.io/SellSight/
+* Eduvia (School Management) – https://aidevstudioone-max.github.io/eduvia-school-management/
+* Medicore (Hospital Management) – https://aidevstudioone-max.github.io/medicore-hospital-management/
+* Thikaana BusinessOS (All-in-one Business ERP) – https://aidevstudioone-max.github.io/thikaana-businessos/
+
+If you're exploring ways to improve efficiency, reduce manual work, or modernize internal systems, I'd be happy to share a few ideas relevant to {{Company Name}}.
+
+Would a quick 15-minute conversation next week make sense?
+
+Regards,
+{{Sender Name}}
+{{Sender Title}}
+Thikaana
+https://www.thikaana.co`,
+  linkedin:
+`Hi {{First Name}},
+
+We help businesses replace spreadsheets and manual processes with custom platforms, portals, CRM systems, and operational dashboards.
+
+A few products:
+* SellSight (CRM)
+* Teamloom (HRMS)
+* Stayloop (Project Management)
+* Medicore (Hospital Management)
+* Eduvia (School Management)
+* Thikaana BusinessOS (Business ERP)
+
+Would you be open to a quick 15-minute discussion to see if any of these could support {{Company Name}}?
+
+Regards,
+{{Sender First Name}}
+https://www.thikaana.co`
+};
+
+/* Languages offered in the compose panel. English is always the default; the
+   others are hand-written translations of the two templates above (merge tokens
+   {{First Name}} / {{Company Name}} / {{Sender Name}} / {{Sender Title}} /
+   {{Sender First Name}} stay in English so they still fill in). Sending in the
+   local language is always the sender's choice, per message. */
+const OUTREACH_LANGS = [
+  { code:"en", label:"English" },
+  { code:"ja", label:"日本語 (Japanese)" },
+  { code:"de", label:"Deutsch (German)" },
+  { code:"ar", label:"العربية (Arabic)" },
+  { code:"fr", label:"Français (French)" },
+  { code:"es", label:"Español (Spanish)" },
+  { code:"zh", label:"中文 (Chinese, Simplified)" }
+];
+const OUTREACH_TEMPLATES_I18N = {
+  ja: {
+    subject: "{{Company Name}}様の業務効率化に関するご提案",
+    email:
+`{{First Name}}様
+
+{{Company Name}}様の事業を拝見し、デジタルソリューションによって業務の効率化や顧客体験の向上につながる可能性があると感じ、ご連絡いたしました。
+
+当社は、組織が業務・顧客・チーム・レポーティングを管理するための、すぐに導入可能なビジネスプラットフォームを提供しており、ソフトウェアを一から開発するコストをかけずにご利用いただけます。
+
+導入事例の一部をご紹介します。
+
+* Stayloop（プロジェクト・タスク管理） – https://aidevstudioone-max.github.io/Stayloop/
+* Teamloom（人事・従業員管理） – https://aidevstudioone-max.github.io/Teamloom/
+* Servemint（サービス管理） – https://aidevstudioone-max.github.io/Servemint/
+* SellSight（CRM・営業管理） – https://aidevstudioone-max.github.io/SellSight/
+* Eduvia（学校管理） – https://aidevstudioone-max.github.io/eduvia-school-management/
+* Medicore（病院管理） – https://aidevstudioone-max.github.io/medicore-hospital-management/
+* Thikaana BusinessOS（オールインワン業務ERP） – https://aidevstudioone-max.github.io/thikaana-businessos/
+
+業務効率の改善、手作業の削減、社内システムの刷新をご検討されている場合は、{{Company Name}}様に関連するアイデアをいくつかご共有できればと存じます。
+
+来週、15分ほどお電話でお話しする機会をいただけますでしょうか。
+
+よろしくお願いいたします。
+{{Sender Name}}
+{{Sender Title}}
+Thikaana
+https://www.thikaana.co`,
+    linkedin:
+`{{First Name}}様
+
+当社は、スプレッドシートや手作業のプロセスを、カスタムプラットフォーム、ポータル、CRM、業務ダッシュボードに置き換えるお手伝いをしています。
+
+主な製品：
+* SellSight（CRM）
+* Teamloom（人事管理システム）
+* Stayloop（プロジェクト管理）
+* Medicore（病院管理）
+* Eduvia（学校管理）
+* Thikaana BusinessOS（業務ERP）
+
+{{Company Name}}様のお役に立てるものがあるか、15分ほどお話しさせていただけますでしょうか。
+
+よろしくお願いいたします。
+{{Sender First Name}}
+https://www.thikaana.co`
+  },
+  de: {
+    subject: "Prozesse bei {{Company Name}} effizienter gestalten",
+    email:
+`Hallo {{First Name}},
+
+ich bin auf {{Company Name}} aufmerksam geworden und sehe möglicherweise Ansatzpunkte, um Abläufe zu optimieren und die Kundenerfahrung durch digitale Lösungen zu verbessern.
+
+Wir entwickeln einsatzbereite Business-Plattformen, mit denen Unternehmen Abläufe, Kunden, Teams und Reporting verwalten können – ohne die Kosten einer kompletten Neuentwicklung.
+
+Einige Beispiele:
+
+* Stayloop (Projekt- & Aufgabenmanagement) – https://aidevstudioone-max.github.io/Stayloop/
+* Teamloom (HR- & Mitarbeiterverwaltung) – https://aidevstudioone-max.github.io/Teamloom/
+* Servemint (Serviceverwaltung) – https://aidevstudioone-max.github.io/Servemint/
+* SellSight (CRM & Vertriebsmanagement) – https://aidevstudioone-max.github.io/SellSight/
+* Eduvia (Schulverwaltung) – https://aidevstudioone-max.github.io/eduvia-school-management/
+* Medicore (Krankenhausverwaltung) – https://aidevstudioone-max.github.io/medicore-hospital-management/
+* Thikaana BusinessOS (All-in-one Business-ERP) – https://aidevstudioone-max.github.io/thikaana-businessos/
+
+Falls Sie nach Wegen suchen, die Effizienz zu steigern, manuelle Arbeit zu reduzieren oder interne Systeme zu modernisieren, teile ich gerne einige Ideen, die für {{Company Name}} relevant sind.
+
+Wäre ein kurzes Gespräch von 15 Minuten in der nächsten Woche denkbar?
+
+Mit freundlichen Grüßen
+{{Sender Name}}
+{{Sender Title}}
+Thikaana
+https://www.thikaana.co`,
+    linkedin:
+`Hallo {{First Name}},
+
+wir helfen Unternehmen, Tabellen und manuelle Prozesse durch maßgeschneiderte Plattformen, Portale, CRM-Systeme und operative Dashboards zu ersetzen.
+
+Einige Produkte:
+* SellSight (CRM)
+* Teamloom (HRMS)
+* Stayloop (Projektmanagement)
+* Medicore (Krankenhausverwaltung)
+* Eduvia (Schulverwaltung)
+* Thikaana BusinessOS (Business-ERP)
+
+Hätten Sie Interesse an einem kurzen 15-minütigen Gespräch, um zu sehen, ob etwas davon {{Company Name}} unterstützen könnte?
+
+Mit freundlichen Grüßen
+{{Sender First Name}}
+https://www.thikaana.co`
+  },
+  ar: {
+    subject: "تبسيط العمليات في {{Company Name}}",
+    email:
+`مرحبًا {{First Name}}،
+
+اطّلعت على {{Company Name}} ولاحظت وجود فرص محتملة لتبسيط العمليات وتحسين تجربة العملاء من خلال الحلول الرقمية.
+
+نحن نبني منصات أعمال جاهزة للاستخدام تساعد المؤسسات على إدارة العمليات والعملاء والفرق والتقارير، دون تكلفة تطوير البرمجيات من الصفر.
+
+بعض الأمثلة:
+
+* Stayloop (إدارة المشاريع والمهام) – https://aidevstudioone-max.github.io/Stayloop/
+* Teamloom (إدارة الموارد البشرية والموظفين) – https://aidevstudioone-max.github.io/Teamloom/
+* Servemint (إدارة الخدمات) – https://aidevstudioone-max.github.io/Servemint/
+* SellSight (إدارة علاقات العملاء والمبيعات) – https://aidevstudioone-max.github.io/SellSight/
+* Eduvia (إدارة المدارس) – https://aidevstudioone-max.github.io/eduvia-school-management/
+* Medicore (إدارة المستشفيات) – https://aidevstudioone-max.github.io/medicore-hospital-management/
+* Thikaana BusinessOS (نظام تخطيط موارد المؤسسات المتكامل) – https://aidevstudioone-max.github.io/thikaana-businessos/
+
+إذا كنتم تبحثون عن طرق لتحسين الكفاءة وتقليل العمل اليدوي وتحديث الأنظمة الداخلية، يسعدني مشاركة بعض الأفكار المتعلقة بـ {{Company Name}}.
+
+هل يمكن تحديد مكالمة قصيرة لمدة 15 دقيقة الأسبوع المقبل؟
+
+مع خالص التحية،
+{{Sender Name}}
+{{Sender Title}}
+Thikaana
+https://www.thikaana.co`,
+    linkedin:
+`مرحبًا {{First Name}}،
+
+نساعد الشركات على استبدال جداول البيانات والعمليات اليدوية بمنصات مخصصة وبوابات وأنظمة إدارة علاقات العملاء ولوحات تحكم تشغيلية.
+
+بعض المنتجات:
+* SellSight (إدارة علاقات العملاء)
+* Teamloom (نظام إدارة الموارد البشرية)
+* Stayloop (إدارة المشاريع)
+* Medicore (إدارة المستشفيات)
+* Eduvia (إدارة المدارس)
+* Thikaana BusinessOS (نظام تخطيط موارد المؤسسات)
+
+هل لديكم استعداد لمناقشة قصيرة لمدة 15 دقيقة لمعرفة ما إذا كان أي من هذه الحلول يمكن أن يدعم {{Company Name}}؟
+
+مع خالص التحية،
+{{Sender First Name}}
+https://www.thikaana.co`
+  },
+  fr: {
+    subject: "Optimiser les opérations de {{Company Name}}",
+    email:
+`Bonjour {{First Name}},
+
+J'ai découvert {{Company Name}} et il me semble qu'il existe des opportunités d'optimiser vos opérations et d'améliorer l'expérience client grâce à des solutions numériques.
+
+Nous concevons des plateformes métier prêtes à l'emploi qui aident les organisations à gérer leurs opérations, leurs clients, leurs équipes et leur reporting, sans le coût d'un développement sur mesure complet.
+
+Quelques exemples :
+
+* Stayloop (gestion de projets et de tâches) – https://aidevstudioone-max.github.io/Stayloop/
+* Teamloom (gestion RH et des employés) – https://aidevstudioone-max.github.io/Teamloom/
+* Servemint (gestion des services) – https://aidevstudioone-max.github.io/Servemint/
+* SellSight (CRM et gestion commerciale) – https://aidevstudioone-max.github.io/SellSight/
+* Eduvia (gestion scolaire) – https://aidevstudioone-max.github.io/eduvia-school-management/
+* Medicore (gestion hospitalière) – https://aidevstudioone-max.github.io/medicore-hospital-management/
+* Thikaana BusinessOS (ERP tout-en-un) – https://aidevstudioone-max.github.io/thikaana-businessos/
+
+Si vous cherchez à gagner en efficacité, à réduire les tâches manuelles ou à moderniser vos systèmes internes, je serais ravi de partager quelques idées pertinentes pour {{Company Name}}.
+
+Seriez-vous disponible pour un court échange de 15 minutes la semaine prochaine ?
+
+Cordialement,
+{{Sender Name}}
+{{Sender Title}}
+Thikaana
+https://www.thikaana.co`,
+    linkedin:
+`Bonjour {{First Name}},
+
+Nous aidons les entreprises à remplacer les tableurs et les processus manuels par des plateformes sur mesure, des portails, des systèmes CRM et des tableaux de bord opérationnels.
+
+Quelques produits :
+* SellSight (CRM)
+* Teamloom (SIRH)
+* Stayloop (gestion de projets)
+* Medicore (gestion hospitalière)
+* Eduvia (gestion scolaire)
+* Thikaana BusinessOS (ERP)
+
+Seriez-vous ouvert à un échange de 15 minutes pour voir si l'un de ces outils pourrait aider {{Company Name}} ?
+
+Cordialement,
+{{Sender First Name}}
+https://www.thikaana.co`
+  },
+  es: {
+    subject: "Optimizar las operaciones de {{Company Name}}",
+    email:
+`Hola {{First Name}}:
+
+He conocido {{Company Name}} y creo que podría haber oportunidades para agilizar las operaciones y mejorar la experiencia del cliente mediante soluciones digitales.
+
+Desarrollamos plataformas de negocio listas para usar que ayudan a las organizaciones a gestionar operaciones, clientes, equipos e informes, sin el coste de desarrollar software desde cero.
+
+Algunos ejemplos:
+
+* Stayloop (gestión de proyectos y tareas) – https://aidevstudioone-max.github.io/Stayloop/
+* Teamloom (gestión de RR. HH. y empleados) – https://aidevstudioone-max.github.io/Teamloom/
+* Servemint (gestión de servicios) – https://aidevstudioone-max.github.io/Servemint/
+* SellSight (CRM y gestión de ventas) – https://aidevstudioone-max.github.io/SellSight/
+* Eduvia (gestión escolar) – https://aidevstudioone-max.github.io/eduvia-school-management/
+* Medicore (gestión hospitalaria) – https://aidevstudioone-max.github.io/medicore-hospital-management/
+* Thikaana BusinessOS (ERP empresarial todo en uno) – https://aidevstudioone-max.github.io/thikaana-businessos/
+
+Si está buscando formas de mejorar la eficiencia, reducir el trabajo manual o modernizar los sistemas internos, con gusto le comparto algunas ideas relevantes para {{Company Name}}.
+
+¿Tendría sentido una breve conversación de 15 minutos la próxima semana?
+
+Un saludo,
+{{Sender Name}}
+{{Sender Title}}
+Thikaana
+https://www.thikaana.co`,
+    linkedin:
+`Hola {{First Name}}:
+
+Ayudamos a las empresas a sustituir las hojas de cálculo y los procesos manuales por plataformas a medida, portales, sistemas CRM y paneles operativos.
+
+Algunos productos:
+* SellSight (CRM)
+* Teamloom (RR. HH.)
+* Stayloop (gestión de proyectos)
+* Medicore (gestión hospitalaria)
+* Eduvia (gestión escolar)
+* Thikaana BusinessOS (ERP)
+
+¿Le interesaría una conversación breve de 15 minutos para ver si alguno de estos podría ayudar a {{Company Name}}?
+
+Un saludo,
+{{Sender First Name}}
+https://www.thikaana.co`
+  },
+  zh: {
+    subject: "助力 {{Company Name}} 优化运营流程",
+    email:
+`{{First Name}} 您好，
+
+我了解到 {{Company Name}}，认为贵公司或许可以通过数字化解决方案来优化运营并提升客户体验。
+
+我们提供可快速部署的业务平台，帮助企业管理运营、客户、团队和报表，无需从零开发软件的成本。
+
+以下是一些示例：
+
+* Stayloop（项目与任务管理） – https://aidevstudioone-max.github.io/Stayloop/
+* Teamloom（人力资源与员工管理） – https://aidevstudioone-max.github.io/Teamloom/
+* Servemint（服务管理） – https://aidevstudioone-max.github.io/Servemint/
+* SellSight（客户关系与销售管理） – https://aidevstudioone-max.github.io/SellSight/
+* Eduvia（学校管理） – https://aidevstudioone-max.github.io/eduvia-school-management/
+* Medicore（医院管理） – https://aidevstudioone-max.github.io/medicore-hospital-management/
+* Thikaana BusinessOS（一体化企业 ERP） – https://aidevstudioone-max.github.io/thikaana-businessos/
+
+如果贵公司正在寻找提升效率、减少人工操作或升级内部系统的方式，我很乐意分享一些与 {{Company Name}} 相关的想法。
+
+下周是否方便进行一次 15 分钟的简短沟通？
+
+此致
+{{Sender Name}}
+{{Sender Title}}
+Thikaana
+https://www.thikaana.co`,
+    linkedin:
+`{{First Name}} 您好，
+
+我们帮助企业用定制平台、门户、CRM 系统和运营看板取代电子表格和人工流程。
+
+部分产品：
+* SellSight（CRM）
+* Teamloom（人力资源管理系统）
+* Stayloop（项目管理）
+* Medicore（医院管理）
+* Eduvia（学校管理）
+* Thikaana BusinessOS（企业 ERP）
+
+您是否愿意进行 15 分钟的简短交流，看看这些方案能否为 {{Company Name}} 提供帮助？
+
+此致
+{{Sender First Name}}
+https://www.thikaana.co`
+  }
+};
+
 const SEED_EMPLOYEES = [
   { id:"ankit", name:"Ankit Prakash", email:"ankit@thikaana.co", phone:"+91 98100 00001", title:"Founder", department:"Leadership", role:"Administrator", type:"technical", permissions:"full", active:true },
   { id:"chandan", name:"Chandan Jha", email:"chandan@thikaana.co", phone:"+91 98100 00002", title:"Chief Technology Officer", department:"Technology", role:"CTO", type:"technical", permissions:"full", active:true },
@@ -761,7 +1192,7 @@ const TECHNICAL_CATEGORIES = ["Technical Issue","Website Issue","Domain / Hostin
 const TICKET_PRIORITIES = ["Low","Medium","High","Urgent"];
 const TICKET_STATUSES = ["New","Assigned","In Progress","Waiting for Client","Resolved","Closed"];
 
-const KEYS = ["clients","clientUsers","tickets","meetings","vault","expenses","audit","employees","customRoles"];
+const KEYS = ["clients","clientUsers","tickets","meetings","vault","expenses","audit","employees","customRoles","outreachProspects","outreachLog","outreachCustomSubjects","outreachTemplates"];
 const SEED_VERSION = "7";
 
 /* ---------------- Data layer: in-memory cache, localStorage mirror, Supabase sync ----------------
@@ -1207,6 +1638,7 @@ function buildSidebar(){
       <a href="#/expenses" class="nav-item nav-sub" data-tab="expenses" onclick="return navClick(event,'expenses')"><span class="ic">${ICONS.expenses}</span> Expenses</a>
       <a href="#/meetings" class="nav-item nav-sub" data-tab="meetings" onclick="return navClick(event,'meetings')"><span class="ic">${ICONS.meetings}</span> Meeting Notes</a>
       <a href="#/footfall" class="nav-item nav-sub" data-tab="footfall" onclick="return navClick(event,'footfall')"><span class="ic">${ICONS.footfall}</span> Footfall</a>
+      <a href="#/outreach" class="nav-item nav-sub" data-tab="outreach" onclick="return navClick(event,'outreach')"><span class="ic">${ICONS.outreach}</span> Outreach</a>
       <a class="nav-item nav-sub" href="${LEAD_GEN_URL}" target="_blank" rel="noopener" title="Opens the Lead Gen tool in a new tab"><span class="ic">${ICONS.search}</span> Lead Gen &#8599;</a>
       <a href="#/employees" class="nav-item" data-tab="employees" onclick="return navClick(event,'employees')"><span class="ic">${ICONS.employees}</span> Employees</a>
       <a href="#/history" class="nav-item" data-tab="history" onclick="return navClick(event,'history')"><span class="ic">${ICONS.history}</span> History</a>
@@ -1290,7 +1722,7 @@ function goToTicketsFiltered(filter){ pendingTicketFilter = filter; goToTab("tic
 function goToClientsFiltered(status){ pendingClientFilter = status; goToTab("clients"); }
 function render(){
   const s = getSession();
-  const empRenderers = { dashboard:renderDashboard, clients:renderClients, tickets:renderTickets, vault:renderVault, expenses:renderExpenses, meetings:renderMeetings, footfall:renderFootfall, employees:renderEmployees, history:renderHistory, settings:renderSettings };
+  const empRenderers = { dashboard:renderDashboard, clients:renderClients, tickets:renderTickets, vault:renderVault, expenses:renderExpenses, meetings:renderMeetings, footfall:renderFootfall, outreach:renderOutreach, employees:renderEmployees, history:renderHistory, settings:renderSettings };
   const clientRenderers = { cdashboard:renderClientDashboard, cwebsite:renderClientWebsite, "cwebsite-manage":renderManageWebsite, crequests:renderClientRequests, craise:renderClientRaise, cpackage:renderClientPackage, cusers:renderClientUsers, chistory:renderClientHistory, cprofile:renderClientOwnProfile };
   const map = s.type==="employee" ? empRenderers : clientRenderers;
   (map[currentTab]||map[Object.keys(map)[0]])();
@@ -1911,24 +2343,33 @@ function renderMeetings(){
     <div class="topbar"><div><h2>Meeting Notes</h2><p>What we discussed and decided</p></div><button class="btn" onclick="openMeetingForm()">+ Log Meeting</button></div>
     ${items.some(isDummy) ? sampleNote() : ""}
     ${items.length ? items.map(m => { const client = clients.find(c=>c.id===m.clientId);
-      return `<div class="card ${isDummy(m)?"dummy-card":""}"><h3 style="margin-bottom:4px;">${escapeHtml(m.title)} ${isDummy(m)?SAMPLE_PILL:""}</h3><p style="margin:0 0 10px;color:var(--muted);font-size:12.5px;">${fmtDate(m.date)}${client?" · "+escapeHtml(client.name):""} · ${(m.attendees||[]).map(employeeName).join(", ")}</p>${m.notes?`<p style="font-size:13.5px;white-space:pre-wrap;margin:0 0 10px;"><b>Discussion:</b><br>${escapeHtml(m.notes)}</p>`:""}${m.decisions?`<p style="font-size:13.5px;white-space:pre-wrap;margin:0 0 10px;"><b>Decisions:</b><br>${escapeHtml(m.decisions)}</p>`:""}${(m.actionItems&&m.actionItems.length)?`<b style="font-size:13.5px;">Action Items:</b><table style="margin-top:6px;"><thead><tr><th>Task</th><th>Owner</th><th>Due</th><th>Status</th></tr></thead><tbody>${m.actionItems.map(a=>`<tr><td>${escapeHtml(a.task)}</td><td>${employeeName(a.owner)}</td><td>${a.due?fmtDate(a.due):"—"}</td><td><span class="pill ${a.done?"green":"yellow"}">${a.done?"Done":"Pending"}</span></td></tr>`).join("")}</tbody></table>`:""}</div>`;
+      return `<div class="card ${isDummy(m)?"dummy-card":""}"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;"><h3 style="margin-bottom:4px;">${escapeHtml(m.title)} ${isDummy(m)?SAMPLE_PILL:""}</h3><div class="row-actions" style="flex-shrink:0;"><button class="icon-btn" onclick="openMeetingForm('${m.id}')">Edit</button><button class="icon-btn" onclick="deleteMeeting('${m.id}')">Delete</button></div></div><p style="margin:0 0 10px;color:var(--muted);font-size:12.5px;">${fmtDate(m.date)}${client?" · "+escapeHtml(client.name):""}${(m.attendees&&m.attendees.length)?" · "+(m.attendees||[]).map(employeeName).join(", "):""}</p>${m.notes?`<p style="font-size:13.5px;white-space:pre-wrap;margin:0 0 10px;"><b>Discussion:</b><br>${escapeHtml(m.notes)}</p>`:""}${m.decisions?`<p style="font-size:13.5px;white-space:pre-wrap;margin:0 0 10px;"><b>Decisions:</b><br>${escapeHtml(m.decisions)}</p>`:""}${(m.actionItems&&m.actionItems.length)?`<b style="font-size:13.5px;">Action Items:</b><table style="margin-top:6px;"><thead><tr><th>Task</th><th>Owner</th><th>Due</th><th>Status</th></tr></thead><tbody>${m.actionItems.map(a=>`<tr><td>${escapeHtml(a.task)}</td><td>${employeeName(a.owner)}</td><td>${a.due?fmtDate(a.due):"—"}</td><td><span class="pill ${a.done?"green":"yellow"}">${a.done?"Done":"Pending"}</span></td></tr>`).join("")}</tbody></table>`:""}</div>`;
     }).join("") : `<div class="card"><p class="empty-row">No meetings logged yet.</p></div>`}
   `;
 }
 let tempActionItems = [];
-function openMeetingForm(){
-  const clients = loadKey("clients")||[]; tempActionItems = [];
+function openMeetingForm(id){
+  const clients = loadKey("clients")||[];
+  const m = id ? (loadKey("meetings")||[]).find(x=>x.id===id) : null;
+  tempActionItems = m && Array.isArray(m.actionItems) ? m.actionItems.map(a=>Object.assign({}, a)) : [];
   openModal(`
-    <h3>Log Meeting</h3>
-    <div class="field-row"><div class="field"><label>Date *</label><input type="date" id="f-date" value="${new Date().toISOString().slice(0,10)}"></div><div class="field"><label>Title *</label><input type="text" id="f-title"></div></div>
-    <div class="field"><label>Client (optional)</label><select id="f-client"><option value="">Internal only</option>${clients.map(c=>`<option value="${c.id}">${escapeHtml(c.name)}</option>`).join("")}</select></div>
-    <div class="field"><label>Attendees</label><div class="checkbox-group">${EMPLOYEES.map(e=>`<label><input type="checkbox" value="${e.id}" class="attendee-check"> ${e.name}</label>`).join("")}</div></div>
-    <div class="field"><label>Discussion Notes</label><textarea id="f-notes"></textarea></div>
-    <div class="field"><label>Decisions Made</label><textarea id="f-decisions"></textarea></div>
+    <h3>${m?"Edit":"Log"} Meeting</h3>
+    <div class="field-row"><div class="field"><label>Date *</label><input type="date" id="f-date" value="${m?escapeHtml(m.date||""):new Date().toISOString().slice(0,10)}"></div><div class="field"><label>Title *</label><input type="text" id="f-title" value="${m?escapeHtml(m.title||""):""}"></div></div>
+    <div class="field"><label>Client (optional)</label><select id="f-client"><option value="">Internal only</option>${clients.map(c=>`<option value="${c.id}" ${m&&m.clientId===c.id?"selected":""}>${escapeHtml(c.name)}</option>`).join("")}</select></div>
+    <div class="field"><label>Attendees</label><div class="checkbox-group">${EMPLOYEES.map(e=>`<label><input type="checkbox" value="${e.id}" class="attendee-check" ${m&&(m.attendees||[]).includes(e.id)?"checked":""}> ${e.name}</label>`).join("")}</div></div>
+    <div class="field"><label>Discussion Notes</label><textarea id="f-notes">${m?escapeHtml(m.notes||""):""}</textarea></div>
+    <div class="field"><label>Decisions Made</label><textarea id="f-decisions">${m?escapeHtml(m.decisions||""):""}</textarea></div>
     <div class="field"><label>Action Items</label><div id="action-items-container"></div><button type="button" class="btn secondary small" onclick="addActionItemRow()">+ Add Action Item</button></div>
-    <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveMeeting()">Save</button></div>
+    <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveMeeting(${m?`'${m.id}'`:"null"})">Save</button></div>
   `);
   renderActionItemRows();
+}
+function deleteMeeting(id){
+  const m = (loadKey("meetings")||[]).find(x=>x.id===id);
+  if(!confirm("Delete this meeting note? This cannot be undone.")) return;
+  saveKey("meetings", (loadKey("meetings")||[]).filter(x=>x.id!==id));
+  logAudit("Meeting Deleted","Meeting Notes", m?m.title:id, m?m.clientId:null);
+  renderMeetings();
 }
 function renderActionItemRows(){
   const c = document.getElementById("action-items-container");
@@ -1936,13 +2377,16 @@ function renderActionItemRows(){
 }
 function addActionItemRow(){ tempActionItems.push({task:"",owner:EMPLOYEES[0].id,due:"",done:false}); renderActionItemRows(); }
 function removeActionItemRow(idx){ tempActionItems.splice(idx,1); renderActionItemRows(); }
-function saveMeeting(){
+function saveMeeting(id){
   const title = document.getElementById("f-title").value.trim(), date = document.getElementById("f-date").value;
   if(!title || !date){ alert("Date and title are required."); return; }
   const items = loadKey("meetings")||[];
-  const record = { id: uid(), date, title, clientId: document.getElementById("f-client").value || null, attendees: Array.from(document.querySelectorAll(".attendee-check:checked")).map(el=>el.value), notes: document.getElementById("f-notes").value.trim(), decisions: document.getElementById("f-decisions").value.trim(), actionItems: tempActionItems.filter(a=>a.task && a.task.trim()) };
-  items.push(record); saveKey("meetings", items);
-  logAudit("Meeting Logged","Meeting Notes", title, record.clientId);
+  const fields = { date, title, clientId: document.getElementById("f-client").value || null, attendees: Array.from(document.querySelectorAll(".attendee-check:checked")).map(el=>el.value), notes: document.getElementById("f-notes").value.trim(), decisions: document.getElementById("f-decisions").value.trim(), actionItems: tempActionItems.filter(a=>a.task && a.task.trim()) };
+  const idx = id ? items.findIndex(m=>m.id===id) : -1;
+  if(idx > -1){ items[idx] = Object.assign({}, items[idx], fields); }
+  else { items.push(Object.assign({ id: uid() }, fields)); }
+  saveKey("meetings", items);
+  logAudit(idx>-1 ? "Meeting Updated" : "Meeting Logged","Meeting Notes", title, fields.clientId);
   closeModal(); renderMeetings();
 }
 
@@ -2165,6 +2609,594 @@ function ffRender(){
 }
 
 /* ================= EMPLOYEE: EMPLOYEES ================= */
+/* ================================================================
+   OUTREACH — draft a personalised prospect email, open it in Gmail
+   pre-filled. No API / OAuth: "Open in Gmail" is just a compose URL.
+   Prospects + a send log live in the shared Supabase KV.
+   ================================================================ */
+let _outreach = null;
+function outreachSenders(){
+  return ["ankit","chandan","bhuvanesh","irfan"].map(id => EMPLOYEES.find(e=>e.id===id)).filter(Boolean);
+}
+function outreachSender(id){ return EMPLOYEES.find(e=>e.id===id) || outreachSenders()[0] || {}; }
+function outreachState(){
+  if(!_outreach){
+    _outreach = {
+      senderId: (outreachSenders()[0]||{}).id || "ankit",
+      channel: "email", lang: "en", templateId: null,
+      company: "", firstName: "", email: "",
+      subjectIdx: 0, prospectId: null,
+      bodyDirty: false, subjectDirty: false, _body: "", _subject: ""
+    };
+  }
+  return _outreach;
+}
+function outreachMerge(tpl, ctx){
+  const s = outreachSender(ctx.senderId);
+  const senderFirst = (s.name || "").split(" ")[0];
+  return String(tpl)
+    .replace(/\{\{\s*first\s*name\s*\}\}/gi, (ctx.firstName || "").trim() || "there")
+    .replace(/\{\{\s*company\s*name\s*\}\}/gi, (ctx.company || "").trim() || "your company")
+    .replace(/\{\{\s*sender\s*name\s*\}\}/gi, s.name || "")
+    .replace(/\{\{\s*sender\s*title\s*\}\}/gi, s.title || "")
+    .replace(/\{\{\s*sender\s*first\s*name\s*\}\}/gi, senderFirst)
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+function outreachAllSubjects(){
+  const custom = loadKey("outreachCustomSubjects") || [];
+  return OUTREACH_SUBJECTS.concat(custom.filter(x => x && !OUTREACH_SUBJECTS.includes(x)));
+}
+function outreachLangDir(lang){ return lang === "ar" ? "rtl" : "ltr"; }
+function outreachLangLabel(code){ const l = OUTREACH_LANGS.find(x=>x.code===code); return l ? l.label : "English"; }
+function outreachSavedTemplates(){ return loadKey("outreachTemplates") || []; }
+function outreachActiveTemplate(ctx){ return ctx.templateId ? outreachSavedTemplates().find(t=>t.id===ctx.templateId) : null; }
+function outreachBaseTemplate(ctx){
+  const saved = outreachActiveTemplate(ctx);
+  if(saved) return saved.body || "";
+  if(ctx.lang && ctx.lang !== "en" && OUTREACH_TEMPLATES_I18N[ctx.lang]){
+    return OUTREACH_TEMPLATES_I18N[ctx.lang][ctx.channel] || OUTREACH_TEMPLATES[ctx.channel] || OUTREACH_TEMPLATES.email;
+  }
+  return OUTREACH_TEMPLATES[ctx.channel] || OUTREACH_TEMPLATES.email;
+}
+function outreachSubjectText(ctx){
+  const saved = outreachActiveTemplate(ctx);
+  if(saved && saved.subject){
+    return outreachMerge(saved.subject, ctx);
+  }
+  if(ctx.channel === "email" && ctx.lang && ctx.lang !== "en" && OUTREACH_TEMPLATES_I18N[ctx.lang] && OUTREACH_TEMPLATES_I18N[ctx.lang].subject){
+    return outreachMerge(OUTREACH_TEMPLATES_I18N[ctx.lang].subject, ctx);
+  }
+  const all = outreachAllSubjects();
+  const raw = all[ctx.subjectIdx] || all[0];
+  return String(raw).replace(/\{\{\s*company\s*name\s*\}\}/gi, (ctx.company || "").trim() || "your company");
+}
+/* replace the sender/company/name literals in the current text back with merge
+   tokens so a saved message re-personalises for the next prospect */
+function outreachDetokenise(text, ctx){
+  const s = outreachSender(ctx.senderId) || {};
+  const pairs = [
+    [(ctx.company || "").trim(), "{{Company Name}}"],
+    [(ctx.firstName || "").trim(), "{{First Name}}"],
+    [(s.name || "").trim(), "{{Sender Name}}"],
+    [(s.title || "").trim(), "{{Sender Title}}"],
+    [((s.name || "").split(" ")[0] || "").trim(), "{{Sender First Name}}"]
+  ];
+  let out = String(text || "");
+  pairs.forEach(([val, tok]) => { if(val && val.length > 1) out = out.split(val).join(tok); });
+  return out;
+}
+function outreachSaveTemplate(){
+  const ctx = outreachState();
+  const name = (prompt("Name this message (e.g. \"Manufacturing – short\", \"German intro\"):", "") || "").trim();
+  if(!name) return;
+  const list = outreachSavedTemplates();
+  const rec = {
+    id: uid(), name,
+    channel: ctx.channel, lang: ctx.lang || "en",
+    subject: ctx.channel === "email" ? outreachDetokenise(outreachCurrentSubject(), ctx) : "",
+    body: outreachDetokenise(outreachCurrentBody(), ctx)
+  };
+  list.push(rec);
+  saveKey("outreachTemplates", list);
+  ctx.templateId = rec.id; ctx.bodyDirty = false; ctx.subjectDirty = false;
+  logAudit("Outreach message saved","Outreach", name, null, null, null, (getSession()||{}).actingAs);
+  wmToast("Message saved — you can pick it from the Message dropdown any time.");
+  renderOutreach();
+}
+function outreachLoadTemplate(id){
+  const ctx = outreachState();
+  if(!id){ ctx.templateId = null; ctx.bodyDirty = false; ctx.subjectDirty = false; renderOutreach(); return; }
+  const t = outreachSavedTemplates().find(x=>x.id===id);
+  if(!t){ ctx.templateId = null; renderOutreach(); return; }
+  ctx.templateId = id;
+  if(t.channel) ctx.channel = t.channel;
+  if(t.lang) ctx.lang = t.lang;
+  ctx.bodyDirty = false; ctx.subjectDirty = false;
+  renderOutreach();
+}
+function outreachDeleteTemplate(id){
+  if(!confirm("Delete this saved message?")) return;
+  saveKey("outreachTemplates", outreachSavedTemplates().filter(t=>t.id!==id));
+  const ctx = outreachState();
+  if(ctx.templateId === id) ctx.templateId = null;
+  renderOutreach();
+}
+function outreachSaveSubject(){
+  const el = document.getElementById("o-subject-text");
+  const val = (el ? el.value : "").trim();
+  if(!val){ wmToast("Type a subject line first.","error"); return; }
+  if(outreachAllSubjects().includes(val)){ wmToast("That subject is already saved."); return; }
+  const custom = loadKey("outreachCustomSubjects") || [];
+  custom.push(val);
+  saveKey("outreachCustomSubjects", custom);
+  const ctx = outreachState();
+  ctx.subjectIdx = outreachAllSubjects().indexOf(val);
+  ctx.subjectDirty = false;
+  wmToast("Subject saved for later");
+  renderOutreach();
+}
+function outreachDeleteSubjectAt(i){
+  const custom = loadKey("outreachCustomSubjects") || [];
+  custom.splice(i, 1);
+  saveKey("outreachCustomSubjects", custom);
+  const ctx = outreachState();
+  if(ctx.subjectIdx >= outreachAllSubjects().length){ ctx.subjectIdx = 0; ctx.subjectDirty = false; }
+  renderOutreach();
+}
+
+/* ---- spreadsheet import / export ---- */
+let _xlsxPromise = null;
+function loadXlsx(){
+  if(window.XLSX) return Promise.resolve(window.XLSX);
+  if(_xlsxPromise) return _xlsxPromise;
+  _xlsxPromise = new Promise((res, rej)=>{
+    const sc = document.createElement("script");
+    sc.src = "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js";
+    sc.onload = ()=> window.XLSX ? res(window.XLSX) : rej(new Error("Spreadsheet library failed to load."));
+    sc.onerror = ()=> rej(new Error("Couldn't load the spreadsheet library — check your connection."));
+    document.head.appendChild(sc);
+  });
+  return _xlsxPromise;
+}
+async function outreachHandleFile(file){
+  if(!file) return;
+  try{
+    const XLSX = await loadXlsx();
+    const wb = XLSX.read(await file.arrayBuffer(), { type:"array" });
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval:"" });
+    if(!rows.length){ wmToast("That sheet looks empty.","error"); return; }
+    const norm = x => String(x).toLowerCase().replace(/[^a-z0-9]/g,"");
+    const keys = Object.keys(rows[0]);
+    const find = cands => keys.find(k => cands.includes(norm(k)));
+    const kSerial  = find(["serial","serialno","sl","slno","sno","srno","sr","no","hash"]);
+    const kCompany = find(["clientname","company","companyname","client","organisation","organization","account","businessname"]);
+    const kMember  = find(["clientmembername","membername","contactname","contactperson","contact","poc","name","firstname","personname"]);
+    const kEmail   = find(["emailid","email","emailaddress","mail","emailids","mailid"]);
+    if(!kCompany || !kEmail){
+      wmToast("Couldn't find a 'Client Name' and an 'Email ID' column in the header row.","error");
+      return;
+    }
+    const list = loadKey("outreachProspects") || [];
+    let added = 0, updated = 0;
+    rows.forEach(r=>{
+      const company = String(r[kCompany] || "").trim();
+      const email = String(r[kEmail] || "").trim();
+      if(!company && !email) return;
+      const patch = {
+        serial: kSerial ? String(r[kSerial] || "").trim() : "",
+        company,
+        firstName: kMember ? String(r[kMember] || "").trim() : "",
+        email
+      };
+      const existing = email ? list.find(p => (p.email || "").toLowerCase() === email.toLowerCase()) : null;
+      if(existing){ Object.assign(existing, patch); updated++; }
+      else { list.push(Object.assign({ id: uid(), industry:"", linkedin:"", pitch:"", status:"New", notes:"", reached:false, lastContactedAt:null }, patch)); added++; }
+    });
+    saveKey("outreachProspects", list);
+    logAudit("Outreach sheet imported","Outreach", added + " added, " + updated + " updated from " + file.name, null, null, null, (getSession()||{}).actingAs);
+    wmToast("Imported " + added + " new" + (updated ? (", updated " + updated) : "") + " from " + file.name);
+    renderOutreach();
+  }catch(e){
+    wmToast(e && e.message ? e.message : "Couldn't read that file.","error");
+  }
+}
+async function outreachExport(){
+  const list = loadKey("outreachProspects") || [];
+  if(!list.length){ wmToast("Nothing to export yet.","error"); return; }
+  const rows = list.map(p => ({
+    "Serial": p.serial || "",
+    "Client Name": p.company || "",
+    "Client Member Name": p.firstName || "",
+    "Email ID": p.email || "",
+    "Prospect Reached": p.reached ? "Yes" : "No"
+  }));
+  const stamp = new Date().toISOString().slice(0,10);
+  try{
+    const XLSX = await loadXlsx();
+    const ws = XLSX.utils.json_to_sheet(rows);
+    ws["!cols"] = [{wch:8},{wch:34},{wch:26},{wch:32},{wch:16}];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Outreach");
+    XLSX.writeFile(wb, "thikaana-outreach-" + stamp + ".xlsx");
+  }catch(e){
+    const esc = v => `"${String(v).replace(/"/g,'""')}"`;
+    const csv = [Object.keys(rows[0]).join(",")].concat(rows.map(r => Object.values(r).map(esc).join(","))).join("\r\n");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob(["﻿"+csv], { type:"text/csv;charset=utf-8;" }));
+    a.download = "thikaana-outreach-" + stamp + ".csv";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 1500);
+  }
+  wmToast("Exported " + list.length + " rows");
+}
+function outreachMarkReached(prospectId, channel){
+  if(!prospectId) return;
+  const list = loadKey("outreachProspects") || [];
+  const p = list.find(x => x.id === prospectId);
+  if(!p) return;
+  p.reached = true;
+  if(!p.status || p.status === "New") p.status = "Contacted";
+  p.lastContactedAt = new Date().toISOString();
+  p.lastChannel = channel;
+  saveKey("outreachProspects", list);
+}
+function outreachNextUnreached(){
+  const list = loadKey("outreachProspects") || [];
+  if(!list.length){ wmToast("No prospects in the list yet — upload a sheet first.","error"); return; }
+  const ctx = outreachState();
+  const cur = ctx.prospectId ? list.findIndex(p => p.id === ctx.prospectId) : -1;
+  const ordered = list.slice(cur + 1).concat(list.slice(0, cur + 1));
+  const next = ordered.find(p => !p.reached);
+  if(!next){ wmToast("Every prospect is marked reached."); return; }
+  outreachUseProspect(next.id);
+}
+function outreachBodyText(ctx){
+  return outreachMerge(outreachBaseTemplate(ctx), ctx);
+}
+function outreachCurrentSubject(){
+  const el = document.getElementById("o-subject-text");
+  if(el) return el.value;
+  return outreachSubjectText(outreachState());
+}
+function outreachCurrentBody(){
+  const el = document.getElementById("o-body");
+  if(el) return el.value;
+  return outreachBodyText(outreachState());
+}
+function gmailComposeUrl(to, subject, body){
+  const qs = "view=cm&fs=1"
+    + "&to=" + encodeURIComponent(to || "")
+    + "&su=" + encodeURIComponent(subject || "")
+    + "&body=" + encodeURIComponent(body || "");
+  const au = OUTREACH_FROM_ACCOUNT ? "&authuser=" + encodeURIComponent(OUTREACH_FROM_ACCOUNT) : "";
+  return "https://mail.google.com/mail/?" + qs + au;
+}
+function outreachStatusPill(st){
+  return {New:"blue",Contacted:"yellow",Replied:"orange",Meeting:"green",Won:"green",Lost:"red","Not now":"gray"}[st] || "gray";
+}
+
+function renderOutreach(){
+  document.querySelectorAll(".nav-item").forEach(n => n.classList.toggle("active", n.dataset.tab==="outreach"));
+  const ctx = outreachState();
+  const senders = outreachSenders();
+  const prospects = loadKey("outreachProspects") || [];
+  const customSubjects = loadKey("outreachCustomSubjects") || [];
+  const savedTemplates = loadKey("outreachTemplates") || [];
+  const log = loadKey("outreachLog") || [];
+  const s = outreachSender(ctx.senderId);
+  if(ctx.templateId && !savedTemplates.some(t=>t.id===ctx.templateId)) ctx.templateId = null;
+  if(ctx.subjectIdx >= outreachAllSubjects().length) ctx.subjectIdx = 0;
+  const dir = outreachLangDir(ctx.lang);
+  const reachedCount = prospects.filter(p => p.reached).length;
+  const subject = ctx.subjectDirty ? (ctx._subject || "") : outreachSubjectText(ctx);
+  const body = ctx.bodyDirty ? (ctx._body || "") : outreachBodyText(ctx);
+
+  document.getElementById("main-content").innerHTML = `
+    <div class="topbar">
+      <div><h2>Outreach</h2><p>Draft a personalised message, then open it in Gmail with everything filled in — you review and hit Send.</p></div>
+    </div>
+
+    <div class="card outreach-howto">
+      <b>How this works</b> — pick who it's from, the channel and the company. The message builds below with the contact's name and company merged in.<br>
+      <b>Email:</b> "Open in Gmail" opens a pre-filled compose window. In Gmail's <b>From</b> field choose <span class="mono">${escapeHtml(s.email || "")}</span>, then Send.<br>
+      <b>LinkedIn:</b> "Copy message", then paste it into the LinkedIn chat (LinkedIn has no send API).
+    </div>
+
+    <div class="outreach-grid">
+      <div class="card">
+        <div class="field">
+          <label>Sending on behalf of</label>
+          <select id="o-sender" onchange="outreachSet('senderId', this.value)">
+            ${senders.map(e=>`<option value="${e.id}" ${e.id===ctx.senderId?"selected":""}>${escapeHtml(e.name)} — ${escapeHtml(e.title||"")}</option>`).join("")}
+          </select>
+          <div class="outreach-hint">From: <span class="mono">${escapeHtml(s.email || "")}</span></div>
+        </div>
+        <div class="field">
+          <label>Channel</label>
+          <div class="outreach-actions">
+            <button class="btn ${ctx.channel==="email"?"":"secondary"} small" onclick="outreachSet('channel','email')">Email (Message 1)</button>
+            <button class="btn ${ctx.channel==="linkedin"?"":"secondary"} small" onclick="outreachSet('channel','linkedin')">LinkedIn (Message 2)</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Language</label>
+          <select id="o-lang" onchange="outreachSet('lang', this.value)">
+            ${OUTREACH_LANGS.map(l=>`<option value="${l.code}" ${l.code===ctx.lang?"selected":""}>${escapeHtml(l.label)}</option>`).join("")}
+          </select>
+          <div class="outreach-hint">Your choice — send in English, or the recipient's local language.</div>
+        </div>
+        <div class="field">
+          <label>Company name</label>
+          <input type="text" id="o-company" value="${escapeHtml(ctx.company)}" oninput="outreachSet('company', this.value)" placeholder="Globe Giant Internationals">
+        </div>
+        <div class="field">
+          <label>Contact first name</label>
+          <input type="text" id="o-firstname" value="${escapeHtml(ctx.firstName)}" oninput="outreachSet('firstName', this.value)" placeholder="Max">
+          <div class="outreach-hint">Blank &rarr; greets with "Hi there,"</div>
+        </div>
+        ${ctx.channel==="email" ? `
+        <div class="field">
+          <label>Contact email</label>
+          <input type="email" id="o-email" value="${escapeHtml(ctx.email)}" oninput="outreachSet('email', this.value)" placeholder="max@globegiant.com">
+        </div>
+        ${(ctx.lang==="en" && !ctx.templateId) ? `
+        <div class="field">
+          <label>Subject template</label>
+          <select id="o-subject" onchange="outreachSet('subjectIdx', +this.value)">
+            ${outreachAllSubjects().map((t,i)=>`<option value="${i}" ${i===ctx.subjectIdx?"selected":""}>${escapeHtml(t)}${i>=OUTREACH_SUBJECTS.length?"  ·  saved":""}</option>`).join("")}
+          </select>
+          ${customSubjects.length ? `<div class="outreach-chips">${customSubjects.map((t,i)=>`<span class="outreach-chip">${escapeHtml(t)}<button title="Remove saved subject" onclick="outreachDeleteSubjectAt(${i})">&times;</button></span>`).join("")}</div>` : ``}
+        </div>` : ``}` : ``}
+      </div>
+
+      <div class="card">
+        <div class="field">
+          <label>Message</label>
+          <select id="o-template" onchange="outreachLoadTemplate(this.value)">
+            <option value="">Built-in — ${ctx.channel==="email" ? "Message 1 (email)" : "Message 2 (LinkedIn)"}${ctx.lang!=="en" ? " · " + escapeHtml(outreachLangLabel(ctx.lang)) : ""}</option>
+            ${savedTemplates.map(t=>`<option value="${t.id}" ${t.id===ctx.templateId?"selected":""}>${escapeHtml(t.name)} — ${t.channel==="linkedin"?"LinkedIn":"Email"}${t.lang && t.lang!=="en" ? " · " + escapeHtml(outreachLangLabel(t.lang)) : ""}</option>`).join("")}
+          </select>
+          <div class="outreach-actions" style="margin-top:6px;">
+            <button class="btn secondary small" onclick="outreachSaveTemplate()">Save current as a message</button>
+            ${ctx.templateId ? `<button class="btn secondary small" onclick="outreachDeleteTemplate('${ctx.templateId}')">Delete this saved message</button>` : ``}
+          </div>
+        </div>
+        ${ctx.channel==="email" ? `
+        <div class="field">
+          <label>Subject line <span class="outreach-hint" style="display:inline;">(editable)</span></label>
+          <input type="text" id="o-subject-text" dir="${dir}" value="${escapeHtml(subject)}" oninput="_outreach._subject=this.value;_outreach.subjectDirty=true;">
+          <button class="btn secondary small" style="margin-top:6px;" onclick="outreachSaveSubject()">Save this subject for later</button>
+        </div>` : ``}
+        <div class="field">
+          <label>Message <span class="outreach-hint" style="display:inline;">(editable — kept until you press Rebuild)${ctx.lang!=="en" ? " · " + escapeHtml(outreachLangLabel(ctx.lang)) : ""}</span></label>
+          <textarea id="o-body" class="outreach-body" dir="${dir}" oninput="_outreach._body=this.value;_outreach.bodyDirty=true;">${escapeHtml(body)}</textarea>
+        </div>
+        <div class="outreach-actions">
+          ${ctx.channel==="email" ? `
+            <button class="btn" onclick="outreachOpenGmail()">Open in Gmail</button>
+            <button class="btn secondary" onclick="outreachCopy('body')">Copy message</button>
+            <button class="btn secondary" onclick="outreachCopy('subject')">Copy subject</button>
+          ` : `
+            <button class="btn" onclick="outreachCopy('body')">Copy message</button>
+            <a class="btn secondary" href="https://www.linkedin.com/messaging/" target="_blank" rel="noopener" style="text-decoration:none;">Open LinkedIn</a>
+          `}
+          <button class="btn secondary" onclick="outreachNextUnreached()">Next unreached &rsaquo;</button>
+          <button class="btn secondary" onclick="outreachRebuild()">Rebuild from template</button>
+          <button class="btn secondary" onclick="outreachLogSent()">Log as sent</button>
+        </div>
+        ${ctx.prospectId ? `<div class="outreach-hint" style="margin-top:8px;">Working from the list — "Open in Gmail" marks this company reached (turns green below).</div>` : ``}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="topbar" style="margin:0 0 12px;">
+        <div><h3 style="margin:0;">Prospects</h3><p style="margin:2px 0 0;font-size:12.5px;color:var(--muted);">${prospects.length} in the list${prospects.length ? ` · <b style="color:var(--success);">${reachedCount} reached</b> · ${prospects.length - reachedCount} to go` : ``}</p></div>
+        <div class="outreach-actions">
+          <button class="btn small" onclick="outreachAddProspect()">+ Add prospect</button>
+          <button class="btn small secondary" onclick="document.getElementById('o-file').click()">Upload sheet (Excel/CSV)</button>
+          <input type="file" id="o-file" accept=".xlsx,.xls,.csv" style="display:none;" onchange="outreachHandleFile(this.files[0]); this.value='';">
+          <button class="btn small secondary" onclick="outreachExport()">Export list</button>
+          <button class="btn small secondary" onclick="outreachImportStarter()">Import starter targets</button>
+        </div>
+      </div>
+      <p class="outreach-hint" style="margin:-4px 0 12px;">Sheet columns recognised: <b>Serial</b>, <b>Client Name</b>, <b>Client Member Name</b>, <b>Email ID</b>. Export gives the same columns plus <b>Prospect Reached</b> (Yes/No).</p>
+      ${prospects.length ? `
+      <table>
+        <thead><tr><th>#</th><th>Company</th><th>Contact</th><th>Email</th><th>Status</th><th>Reached</th><th>Last contacted</th><th></th></tr></thead>
+        <tbody>
+          ${prospects.map(p=>`
+          <tr class="${p.reached ? "outreach-reached" : ""}">
+            <td>${escapeHtml(p.serial || "—")}</td>
+            <td><b>${escapeHtml(p.company)}</b>${p.industry ? `<br><span class="outreach-hint" style="display:inline;">${escapeHtml(p.industry)}</span>` : ""}</td>
+            <td>${escapeHtml(p.firstName || "—")}</td>
+            <td>${p.email ? `<span class="mono">${escapeHtml(p.email)}</span>` : "—"}</td>
+            <td><span class="pill ${outreachStatusPill(p.status)}">${escapeHtml(p.status || "New")}</span></td>
+            <td><span class="pill ${p.reached ? "green" : "gray"}">${p.reached ? "Yes" : "No"}</span></td>
+            <td>${p.lastContactedAt ? fmtDateTime(p.lastContactedAt) : "—"}</td>
+            <td class="row-actions">
+              <button class="icon-btn" onclick="outreachUseProspect('${p.id}')">Use</button>
+              <button class="icon-btn" onclick="outreachEditProspect('${p.id}')">Edit</button>
+              <button class="icon-btn" onclick="outreachDeleteProspect('${p.id}')">Delete</button>
+            </td>
+          </tr>`).join("")}
+        </tbody>
+      </table>` : `<p class="empty-row">No prospects yet. Upload a sheet (Serial, Client Name, Client Member Name, Email ID), add one manually, or import the starter list.</p>`}
+    </div>
+
+    <div class="card">
+      <h3 style="margin:0 0 12px;">Sent log</h3>
+      ${log.length ? `
+      <table>
+        <thead><tr><th>When</th><th>By</th><th>Company</th><th>Channel</th><th>Subject</th></tr></thead>
+        <tbody>
+          ${log.slice().reverse().slice(0,120).map(l=>`
+          <tr>
+            <td>${fmtDateTime(l.at)}</td>
+            <td>${escapeHtml(l.senderName || "")}</td>
+            <td>${escapeHtml(l.company || "—")}</td>
+            <td>${escapeHtml(l.channel==="linkedin" ? "LinkedIn" : "Email")}</td>
+            <td>${escapeHtml(l.subject || "—")}</td>
+          </tr>`).join("")}
+        </tbody>
+      </table>` : `<p class="empty-row">Nothing logged yet. Press "Log as sent" after a message goes out to keep a record here.</p>`}
+    </div>
+  `;
+}
+
+function outreachSet(field, val){
+  const ctx = outreachState();
+  ctx[field] = val;
+  if(field==="channel" || field==="senderId" || field==="lang"){
+    if(field==="channel" || field==="lang") ctx.templateId = null;  // built-in switches; a saved message keeps its own text
+    ctx.bodyDirty=false; ctx.subjectDirty=false; renderOutreach(); return;
+  }
+  if(field==="subjectIdx"){ ctx.subjectDirty=false; }
+  const bodyEl = document.getElementById("o-body");
+  if(bodyEl && !ctx.bodyDirty) bodyEl.value = outreachBodyText(ctx);
+  const subEl = document.getElementById("o-subject-text");
+  if(subEl && !ctx.subjectDirty) subEl.value = outreachSubjectText(ctx);
+}
+function outreachRebuild(){
+  const ctx = outreachState();
+  ctx.bodyDirty = false; ctx.subjectDirty = false;
+  renderOutreach();
+  wmToast("Rebuilt from template");
+}
+function outreachOpenGmail(){
+  const ctx = outreachState();
+  const to = (ctx.email || "").trim();
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)){
+    wmToast("Enter the contact's email first.","error");
+    const el = document.getElementById("o-email"); if(el) el.focus();
+    return;
+  }
+  window.open(gmailComposeUrl(to, outreachCurrentSubject(), outreachCurrentBody()), "_blank", "noopener");
+  outreachMarkReached(ctx.prospectId, "email");
+  wmToast("Gmail opened — set From to " + (outreachSender(ctx.senderId).email || "") + ", then Send." + (ctx.prospectId ? " Marked reached." : ""));
+  if(ctx.prospectId) renderOutreach();
+}
+function outreachCopy(what){
+  const text = what==="subject" ? outreachCurrentSubject() : outreachCurrentBody();
+  (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(
+    ()=>wmToast((what==="subject" ? "Subject" : "Message") + " copied"),
+    ()=>wmToast("Couldn't copy — select the text and copy manually.","error")
+  );
+}
+function outreachLogSent(){
+  const ctx = outreachState();
+  if(!(ctx.company || "").trim()){ wmToast("Add a company name before logging.","error"); return; }
+  const s = outreachSender(ctx.senderId);
+  const log = loadKey("outreachLog") || [];
+  log.push({
+    id: uid(), at: new Date().toISOString(),
+    senderId: ctx.senderId, senderName: s.name || "", senderEmail: s.email || "",
+    company: ctx.company.trim(), prospectId: ctx.prospectId || null,
+    channel: ctx.channel,
+    subject: ctx.channel==="email" ? outreachCurrentSubject() : "(LinkedIn message)",
+    to: (ctx.email || "").trim() || null, by: currentActorName()
+  });
+  saveKey("outreachLog", log);
+  if(ctx.prospectId){
+    const list = loadKey("outreachProspects") || [];
+    const p = list.find(x=>x.id===ctx.prospectId);
+    if(p){
+      if(!p.status || p.status==="New") p.status = "Contacted";
+      p.reached = true;
+      p.lastContactedAt = new Date().toISOString();
+      p.lastChannel = ctx.channel;
+      p.lastSenderId = ctx.senderId;
+      saveKey("outreachProspects", list);
+    }
+  }
+  logAudit("Outreach logged","Outreach",(ctx.channel==="email" ? "Email" : "LinkedIn") + " to " + ctx.company.trim() + " as " + (s.name || ""), null, null, null, (getSession()||{}).actingAs);
+  wmToast("Logged.");
+  renderOutreach();
+}
+
+function outreachImportStarter(){
+  const list = loadKey("outreachProspects") || [];
+  const have = new Set(list.map(p=>(p.company||"").toLowerCase().trim()));
+  let added = 0;
+  OUTREACH_STARTER_TARGETS.forEach(t=>{
+    if(have.has(t.company.toLowerCase().trim())) return;
+    list.push({
+      id: uid(), serial: "", company: t.company, industry: t.industry,
+      firstName: "", email: "", linkedin: "",
+      pitch: OUTREACH_PITCH_BY_INDUSTRY[t.industry] || "",
+      status: "New", notes: "", reached: false, lastContactedAt: null
+    });
+    added++;
+  });
+  saveKey("outreachProspects", list);
+  logAudit("Outreach prospects imported","Outreach", added + " starter targets added", null, null, null, (getSession()||{}).actingAs);
+  wmToast(added ? (added + " companies imported" + (added < OUTREACH_STARTER_TARGETS.length ? " (rest already in the list)" : "")) : "All starter targets already in the list");
+  renderOutreach();
+}
+function outreachProspectForm(p){
+  openModal(`
+    <h3 style="margin:0 0 14px;">${p ? "Edit" : "Add"} prospect</h3>
+    <div class="field-row"><div class="field"><label>Serial</label><input type="text" id="op-serial" value="${escapeHtml(p ? (p.serial||"") : "")}"></div><div class="field"><label>Company name *</label><input type="text" id="op-company" value="${escapeHtml(p ? p.company : "")}"></div></div>
+    <div class="field"><label>Industry</label><input type="text" id="op-industry" value="${escapeHtml(p ? (p.industry||"") : "")}" placeholder="Healthcare"></div>
+    <div class="field"><label>Contact / member name</label><input type="text" id="op-firstname" value="${escapeHtml(p ? (p.firstName||"") : "")}"></div>
+    <div class="field"><label>Contact email</label><input type="email" id="op-email" value="${escapeHtml(p ? (p.email||"") : "")}"></div>
+    <div class="field"><label>LinkedIn URL</label><input type="text" id="op-linkedin" value="${escapeHtml(p ? (p.linkedin||"") : "")}"></div>
+    <div class="field"><label>Suggested pitch</label><input type="text" id="op-pitch" value="${escapeHtml(p ? (p.pitch||"") : "")}"></div>
+    <div class="field"><label>Status</label><select id="op-status">${OUTREACH_PROSPECT_STATUSES.map(x=>`<option ${p && p.status===x ? "selected" : ""}>${x}</option>`).join("")}</select></div>
+    <div class="field"><label><input type="checkbox" id="op-reached" ${p && p.reached ? "checked" : ""}> Prospect reached</label></div>
+    <div class="field"><label>Notes</label><textarea id="op-notes">${escapeHtml(p ? (p.notes||"") : "")}</textarea></div>
+    <div class="outreach-actions" style="margin-top:6px;">
+      <button class="btn" onclick="outreachSaveProspect(${p ? `'${p.id}'` : "null"})">Save</button>
+      <button class="btn secondary" onclick="closeModal()">Cancel</button>
+    </div>
+  `);
+}
+function outreachAddProspect(){ outreachProspectForm(null); }
+function outreachEditProspect(id){ const p = (loadKey("outreachProspects")||[]).find(x=>x.id===id); if(p) outreachProspectForm(p); }
+function outreachSaveProspect(id){
+  const company = document.getElementById("op-company").value.trim();
+  if(!company){ wmToast("Company name is required.","error"); return; }
+  const list = loadKey("outreachProspects") || [];
+  const rec = {
+    serial: document.getElementById("op-serial").value.trim(),
+    company,
+    industry: document.getElementById("op-industry").value.trim(),
+    firstName: document.getElementById("op-firstname").value.trim(),
+    email: document.getElementById("op-email").value.trim(),
+    linkedin: document.getElementById("op-linkedin").value.trim(),
+    pitch: document.getElementById("op-pitch").value.trim(),
+    status: document.getElementById("op-status").value,
+    reached: document.getElementById("op-reached").checked,
+    notes: document.getElementById("op-notes").value.trim()
+  };
+  if(id){
+    const p = list.find(x=>x.id===id); if(p) Object.assign(p, rec);
+  } else {
+    list.push(Object.assign({ id: uid(), lastContactedAt: null }, rec));
+  }
+  saveKey("outreachProspects", list);
+  closeModal(); renderOutreach();
+  wmToast("Saved");
+}
+function outreachDeleteProspect(id){
+  if(!confirm("Remove this prospect from the list?")) return;
+  saveKey("outreachProspects", (loadKey("outreachProspects")||[]).filter(x=>x.id!==id));
+  renderOutreach();
+}
+function outreachUseProspect(id){
+  const p = (loadKey("outreachProspects")||[]).find(x=>x.id===id);
+  if(!p) return;
+  const ctx = outreachState();
+  ctx.company = p.company || "";
+  ctx.firstName = p.firstName || "";
+  ctx.email = p.email || "";
+  ctx.prospectId = p.id;
+  ctx.bodyDirty = false; ctx.subjectDirty = false;
+  renderOutreach();
+  wmToast("Loaded " + p.company + (p.email ? "" : " — add the contact email"));
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
 function renderEmployees(){
   document.getElementById("main-content").innerHTML = `
     <div class="topbar"><div><h2>Employees</h2><p>${BRAND} team &amp; access</p></div><button class="btn secondary" onclick="openEmployeeForm()">+ Add Employee</button></div>
