@@ -732,10 +732,6 @@ function ffPropSnippet(id){
 }
 const TRACK_SNIPPET = ffPropSnippet("");
 
-// Static page in this same repo — calls Google Places directly from the browser
-// using a key entered on that page (saved in that page's own localStorage).
-const LEAD_GEN_URL = "leadgen.html";
-
 /* ================= OUTREACH (prospect email drafting) =================
    Drafts a personalised message and opens it in Gmail's web compose,
    pre-filled — you review the From alias and click Send. No API, no
@@ -1192,7 +1188,7 @@ const TECHNICAL_CATEGORIES = ["Technical Issue","Website Issue","Domain / Hostin
 const TICKET_PRIORITIES = ["Low","Medium","High","Urgent"];
 const TICKET_STATUSES = ["New","Assigned","In Progress","Waiting for Client","Resolved","Closed"];
 
-const KEYS = ["clients","clientUsers","tickets","meetings","vault","expenses","audit","employees","customRoles","outreachProspects","outreachLog","outreachCustomSubjects","outreachTemplates"];
+const KEYS = ["clients","clientUsers","tickets","meetings","vault","expenses","audit","employees","customRoles","outreachProspects","outreachLog","outreachCustomSubjects","outreachTemplates","leadgenLeads","leadgenSearchRuns","leadgenCache"];
 const SEED_VERSION = "7";
 
 /* ---------------- Data layer: in-memory cache, localStorage mirror, Supabase sync ----------------
@@ -1639,7 +1635,7 @@ function buildSidebar(){
       <a href="#/meetings" class="nav-item nav-sub" data-tab="meetings" onclick="return navClick(event,'meetings')"><span class="ic">${ICONS.meetings}</span> Meeting Notes</a>
       <a href="#/footfall" class="nav-item nav-sub" data-tab="footfall" onclick="return navClick(event,'footfall')"><span class="ic">${ICONS.footfall}</span> Footfall</a>
       <a href="#/outreach" class="nav-item nav-sub" data-tab="outreach" onclick="return navClick(event,'outreach')"><span class="ic">${ICONS.outreach}</span> Outreach</a>
-      <a class="nav-item nav-sub" href="${LEAD_GEN_URL}" target="_blank" rel="noopener" title="Opens the Lead Gen tool in a new tab"><span class="ic">${ICONS.search}</span> Lead Gen &#8599;</a>
+      <a href="#/leadgen" class="nav-item nav-sub" data-tab="leadgen" onclick="return navClick(event,'leadgen')"><span class="ic">${ICONS.search}</span> Lead Gen</a>
       <a href="#/employees" class="nav-item" data-tab="employees" onclick="return navClick(event,'employees')"><span class="ic">${ICONS.employees}</span> Employees</a>
       <a href="#/history" class="nav-item" data-tab="history" onclick="return navClick(event,'history')"><span class="ic">${ICONS.history}</span> History</a>
       <a href="#/settings" class="nav-item" data-tab="settings" onclick="return navClick(event,'settings')"><span class="ic">${ICONS.settings}</span> Settings</a>
@@ -1674,13 +1670,6 @@ function setMyPresence(val){
   buildSidebar();
 }
 function setActingAs(id){ const s=getSession(); s.actingAs=id; setSession(s); if(currentTab) render(); }
-function openLeadGen(){
-  const win = window.open(LEAD_GEN_URL, "_blank", "noopener");
-  if(!win){
-    alert("Your browser blocked the popup. Allow popups for this site, or open "+LEAD_GEN_URL+" directly.");
-  }
-}
-
 /* ================= TAB ROUTER ================= */
 let currentTab = "dashboard";
 let currentClientId = null, currentClientTab = "overview", currentTicketId = null, currentPriorityFilter = null, currentClientTicketsBack = null;
@@ -1722,7 +1711,7 @@ function goToTicketsFiltered(filter){ pendingTicketFilter = filter; goToTab("tic
 function goToClientsFiltered(status){ pendingClientFilter = status; goToTab("clients"); }
 function render(){
   const s = getSession();
-  const empRenderers = { dashboard:renderDashboard, clients:renderClients, tickets:renderTickets, vault:renderVault, expenses:renderExpenses, meetings:renderMeetings, footfall:renderFootfall, outreach:renderOutreach, employees:renderEmployees, history:renderHistory, settings:renderSettings };
+  const empRenderers = { dashboard:renderDashboard, clients:renderClients, tickets:renderTickets, vault:renderVault, expenses:renderExpenses, meetings:renderMeetings, footfall:renderFootfall, outreach:renderOutreach, leadgen:renderLeadGen, employees:renderEmployees, history:renderHistory, settings:renderSettings };
   const clientRenderers = { cdashboard:renderClientDashboard, cwebsite:renderClientWebsite, "cwebsite-manage":renderManageWebsite, crequests:renderClientRequests, craise:renderClientRaise, cpackage:renderClientPackage, cusers:renderClientUsers, chistory:renderClientHistory, cprofile:renderClientOwnProfile };
   const map = s.type==="employee" ? empRenderers : clientRenderers;
   (map[currentTab]||map[Object.keys(map)[0]])();
@@ -3558,6 +3547,388 @@ function clientEnabledSections(client){
   return client.websiteSections || WEBSITE_SECTIONS.map(s=>s.id);
 }
 function flashSaved(){ wmToast("Saved ✓ — showing here now. Once your database is connected, this publishes straight to the live site."); }
+
+/* ================= LEAD GEN (find prospects, free — OpenStreetMap, no API key) =================
+   Finds local businesses worldwide via OpenStreetMap (Overpass API) + Nominatim geocoding, scores
+   them by opportunity (no website found = hottest lead for a web/app/AI agency), and stores them
+   through the same loadKey/saveKey → Supabase pipeline as every other tab, so all 4 team members
+   share one live list automatically. No separate backend, no per-person setup. */
+const LEADGEN_CATEGORY_PRESETS = {
+  coaching: { label: "coaching/tuition/school", tags: [["amenity","school"],["amenity","language_school"],["amenity","college"],["office","educational_institution"]] },
+  healthcare: { label: "clinic/healthcare", tags: [["amenity","clinic"],["amenity","doctors"],["amenity","hospital"],["amenity","dentist"],["healthcare","clinic"],["healthcare","doctor"]] },
+  retail: { label: "retail shop", tags: [["shop","*"]] },
+  food: { label: "restaurant/cafe", tags: [["amenity","restaurant"],["amenity","cafe"],["amenity","fast_food"]] }
+};
+// Overpass's name-text-search (regex over every named element) is extremely slow and times out
+// at any real radius, so custom searches resolve to real OSM tags too, same as the presets.
+const LEADGEN_KEYWORD_TAG_MAP = {
+  "gym": [["leisure","fitness_centre"]], "fitness": [["leisure","fitness_centre"]], "fitness center": [["leisure","fitness_centre"]], "fitness centre": [["leisure","fitness_centre"]],
+  "salon": [["shop","hairdresser"],["shop","beauty"]], "beauty parlour": [["shop","beauty"]], "beauty salon": [["shop","hairdresser"],["shop","beauty"]],
+  "spa": [["leisure","spa"]],
+  "lawyer": [["office","lawyer"]], "law firm": [["office","lawyer"]], "advocate": [["office","lawyer"]],
+  "accountant": [["office","accountant"]], "ca firm": [["office","accountant"]],
+  "real estate": [["office","estate_agent"]], "realtor": [["office","estate_agent"]], "property dealer": [["office","estate_agent"]],
+  "insurance": [["office","insurance"]],
+  "bakery": [["shop","bakery"]],
+  "supermarket": [["shop","supermarket"]], "grocery": [["shop","convenience"],["shop","supermarket"]],
+  "pharmacy": [["amenity","pharmacy"]], "chemist": [["amenity","pharmacy"]], "medical store": [["amenity","pharmacy"]],
+  "hotel": [["tourism","hotel"]], "guest house": [["tourism","guest_house"]],
+  "dentist": [["amenity","dentist"]],
+  "veterinary": [["amenity","veterinary"]], "vet": [["amenity","veterinary"]],
+  "bank": [["amenity","bank"]],
+  "car repair": [["shop","car_repair"]], "mechanic": [["shop","car_repair"]], "garage": [["shop","car_repair"]],
+  "electronics": [["shop","electronics"]],
+  "furniture": [["shop","furniture"]],
+  "clothing": [["shop","clothes"]], "boutique": [["shop","clothes"]], "garments": [["shop","clothes"]],
+  "jewellery": [["shop","jewelry"]], "jewelry": [["shop","jewelry"]], "jewelers": [["shop","jewelry"]],
+  "photographer": [["craft","photographer"]], "photo studio": [["craft","photographer"]],
+  "tailor": [["craft","tailor"]],
+  "architect": [["office","architect"]],
+  "it company": [["office","it"]], "software company": [["office","it"]], "tech company": [["office","it"]],
+  "marketing agency": [["office","advertising_agency"]], "ad agency": [["office","advertising_agency"]],
+  "travel agency": [["shop","travel_agency"]],
+  "driving school": [["amenity","driving_school"]]
+};
+
+function leadgenBuildQuery(categoryValue, customKeyword, lat, lon, radiusM){
+  const around = `(around:${radiusM},${lat},${lon})`;
+  const clauses = [];
+  let tagPairs;
+  if(categoryValue === "custom"){
+    const kw = customKeyword.trim().toLowerCase();
+    if(!kw) throw new Error("Type a category or keyword to search for.");
+    tagPairs = LEADGEN_KEYWORD_TAG_MAP[kw];
+    if(!tagPairs){
+      tagPairs = ["shop","amenity","office","craft","leisure","tourism"].map(key => [key, kw.replace(/\s+/g,"_")]);
+    }
+  } else {
+    const preset = LEADGEN_CATEGORY_PRESETS[categoryValue];
+    if(!preset) throw new Error("Unknown category.");
+    tagPairs = preset.tags;
+  }
+  for(const [key, val] of tagPairs){
+    const tagFilter = val === "*" ? `["${key}"]` : `["${key}"="${val}"]`;
+    clauses.push(`node${tagFilter}${around};`);
+    clauses.push(`way${tagFilter}${around};`);
+  }
+  return `[out:json][timeout:25];\n(\n${clauses.join("\n")}\n);\nout center tags 150;`;
+}
+
+const LEADGEN_MAX_AREA_DEGREES = 1.5; // ~150km — covers large metro areas, not states/countries
+async function leadgenGeocode(query){
+  const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`;
+  const res = await fetch(url, { headers: { "Accept": "application/json" } });
+  if(!res.ok) throw new Error(`Location lookup failed (${res.status}). Try a more specific place name.`);
+  const results = await res.json();
+  if(!results.length) throw new Error(`Couldn't find "${query}". Try a more specific place name (e.g. add state/country).`);
+  const r = results[0];
+  const [south, north, west, east] = (r.boundingbox || []).map(Number);
+  const tooBroad = Number.isFinite(south) && (Math.abs(north-south) > LEADGEN_MAX_AREA_DEGREES || Math.abs(east-west) > LEADGEN_MAX_AREA_DEGREES);
+  return { lat: parseFloat(r.lat), lon: parseFloat(r.lon), displayName: r.display_name, tooBroad };
+}
+
+const LEADGEN_OVERPASS_ENDPOINTS = ["https://overpass-api.de/api/interpreter","https://overpass.kumi.systems/api/interpreter","https://overpass.openstreetmap.ru/api/interpreter"];
+async function leadgenQueryOverpass(overpassQL){
+  let lastErr;
+  for(const endpoint of LEADGEN_OVERPASS_ENDPOINTS){
+    try{
+      const res = await fetch(endpoint, { method:"POST", headers:{"Content-Type":"text/plain"}, body: overpassQL });
+      if(res.status === 429 || res.status >= 500){ lastErr = new Error(`${endpoint} is busy (${res.status})`); continue; }
+      if(!res.ok){
+        const text = await res.text().catch(()=> "");
+        throw new Error(`Overpass API error ${res.status}: ${text.replace(/<[^>]+>/g," ").trim().slice(0,200) || "request failed"}`);
+      }
+      const json = await res.json();
+      return json.elements || [];
+    }catch(e){ lastErr = e; }
+  }
+  throw new Error("The free map data service is rate-limited or temporarily down (tried 3 servers). Wait a minute and try again.");
+}
+
+function leadgenComposeAddress(tags){
+  const parts = [];
+  if(tags["addr:housenumber"] || tags["addr:street"]) parts.push([tags["addr:housenumber"], tags["addr:street"]].filter(Boolean).join(" "));
+  if(tags["addr:city"]) parts.push(tags["addr:city"]); else if(tags["addr:suburb"]) parts.push(tags["addr:suburb"]);
+  if(tags["addr:postcode"]) parts.push(tags["addr:postcode"]);
+  return parts.join(", ");
+}
+function leadgenElementToRaw(el){
+  const tags = el.tags || {};
+  const lat = el.lat ?? el.center?.lat ?? null;
+  const lon = el.lon ?? el.center?.lon ?? null;
+  const website = tags.website || tags["contact:website"] || null;
+  return {
+    id: `${el.type}/${el.id}`, name: tags.name || "Unnamed business", address: leadgenComposeAddress(tags), lat, lon,
+    phone: tags.phone || tags["contact:phone"] || null, website,
+    category: tags.shop || tags.amenity || tags.office || tags.craft || tags.leisure || tags.healthcare || "—",
+    mapsUrl: (lat!=null && lon!=null) ? `https://www.google.com/maps?q=${lat},${lon}` : null
+  };
+}
+
+const LEADGEN_FREE_PLATFORMS = ["wixsite.com","weebly.com","blogspot.com","wordpress.com","business.site","godaddysites.com","carrd.co"];
+const LEADGEN_JUNK_EMAIL_DOMAINS = ["sentry.io","wixpress.com","example.com","godaddy.com","schema.org","w3.org","yourdomain.com","domain.com"];
+const LEADGEN_EMAIL_REGEX = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+const LEADGEN_IMAGE_EXT = /\.(png|jpe?g|gif|svg|webp|bmp)$/i;
+function leadgenHost(url){ try{ return new URL(url).hostname.replace(/^www\./,""); }catch(e){ return null; } }
+function leadgenIsFreePlatform(url){ const h=leadgenHost(url); if(!h) return false; return LEADGEN_FREE_PLATFORMS.some(d=>h===d||h.endsWith("."+d)); }
+function leadgenExtractEmails(html){
+  const matches = html.match(LEADGEN_EMAIL_REGEX) || [];
+  const seen = new Set(); const out = [];
+  for(const raw of matches){
+    const email = raw.toLowerCase();
+    if(LEADGEN_IMAGE_EXT.test(email)) continue;
+    const domain = email.split("@")[1];
+    if(!domain || LEADGEN_JUNK_EMAIL_DOMAINS.some(d=>domain===d||domain.endsWith("."+d))) continue;
+    if(seen.has(email)) continue;
+    seen.add(email); out.push(email);
+  }
+  return out;
+}
+async function leadgenFindEmail(websiteUrl){
+  let base;
+  try{ base = new URL(/^https?:\/\//i.test(websiteUrl) ? websiteUrl : "https://"+websiteUrl); }catch(e){ return { email:null, status:"blocked" }; }
+  const paths = ["/","/contact","/about"];
+  let sawSuccess = false;
+  for(const p of paths){
+    const url = new URL(p, base).toString();
+    try{
+      const controller = new AbortController();
+      const timer = setTimeout(()=>controller.abort(), 3500);
+      const res = await fetch(url, { signal: controller.signal, mode:"cors" });
+      clearTimeout(timer);
+      if(!res.ok) continue;
+      sawSuccess = true;
+      const html = await res.text();
+      const emails = leadgenExtractEmails(html);
+      if(emails.length > 0) return { email: emails[0], status:"found" };
+    }catch(e){ continue; }
+  }
+  return { email:null, status: sawSuccess ? "not_found" : "blocked" };
+}
+
+function leadgenScore({ hasWebsite, websiteUrl, hasEmail }){
+  if(!hasWebsite) return { score:85, reason:"no website found — strong lead for a web/app agency" };
+  if(websiteUrl && leadgenIsFreePlatform(websiteUrl)) return { score:65, reason:"only a free/template site (Wix, Google Business site, etc.)" };
+  if(hasEmail) return { score:35, reason:"already has a custom website and a public email — mature digital presence" };
+  return { score:45, reason:"has a custom-domain website, no public email found" };
+}
+
+/* ---- Storage: identical loadKey/saveKey pipeline as the rest of the app — this alone is what
+   makes Lead Gen shared across the team, no separate sync mechanism needed. ---- */
+function leadgenGetLeads(){ return loadKey("leadgenLeads") || []; }
+function leadgenUpsert(lead){
+  const leads = leadgenGetLeads();
+  const idx = leads.findIndex(l => l.id === lead.id);
+  const now = new Date().toISOString();
+  if(idx >= 0) leads[idx] = { ...leads[idx], ...lead, updatedAt: now };
+  else leads.push({ ...lead, status:"not_contacted", createdAt: now, updatedAt: now });
+  saveKey("leadgenLeads", leads);
+}
+function leadgenGetRuns(){ return loadKey("leadgenSearchRuns") || []; }
+function leadgenAddRun(run){
+  const runs = leadgenGetRuns();
+  runs.unshift(run);
+  saveKey("leadgenSearchRuns", runs.slice(0,50));
+}
+const LEADGEN_CACHE_TTL_MS = 30*24*60*60*1000;
+function leadgenCacheKey(location, radius, category, keyword){ return [location, radius, category, keyword||""].join("|").toLowerCase(); }
+function leadgenCacheFresh(location, radius, category, keyword){
+  const cache = loadKey("leadgenCache") || {};
+  const entry = cache[leadgenCacheKey(location, radius, category, keyword)];
+  if(!entry) return false;
+  return Date.now() - new Date(entry.fetchedAt).getTime() < LEADGEN_CACHE_TTL_MS;
+}
+function leadgenMarkCached(location, radius, category, keyword, count){
+  const cache = loadKey("leadgenCache") || {};
+  cache[leadgenCacheKey(location, radius, category, keyword)] = { fetchedAt: new Date().toISOString(), count };
+  saveKey("leadgenCache", cache);
+}
+
+async function leadgenEnrichOne(raw, categoryLabel, searchRunId){
+  let website = raw.website, email = null, emailStatus = "blocked";
+  if(website){ const r = await leadgenFindEmail(website); email = r.email; emailStatus = r.status; }
+  const { score, reason } = leadgenScore({ hasWebsite: !!website, websiteUrl: website, hasEmail: !!email });
+  const lead = { id: raw.id, category: categoryLabel, searchRunId, name: raw.name, address: raw.address||"", phone: raw.phone, mapsUrl: raw.mapsUrl, website, email, emailStatus, score, scoreReason: reason };
+  leadgenUpsert(lead);
+  return lead;
+}
+
+async function leadgenRunSearch(location, radiusKm, categoryValue, customKeyword, forceRefresh, onProgress){
+  onProgress("Looking up location…");
+  const geo = await leadgenGeocode(location);
+  if(geo.tooBroad) throw new Error(`"${location}" resolved to a whole state/country/region (${geo.displayName}) — too large to search from one point. Try a specific city or town instead, e.g. "Austin, TX" instead of "Texas".`);
+
+  const categoryLabel = categoryValue === "custom" ? customKeyword.trim() : LEADGEN_CATEGORY_PRESETS[categoryValue].label;
+  if(!forceRefresh && leadgenCacheFresh(location, radiusKm, categoryValue, customKeyword)) return { leads:[], cached:true, geo };
+
+  onProgress(`Searching businesses within ${radiusKm}km of ${geo.displayName.split(",")[0]}…`);
+  const overpassQL = leadgenBuildQuery(categoryValue, customKeyword, geo.lat, geo.lon, radiusKm*1000);
+  const elements = await leadgenQueryOverpass(overpassQL);
+  const raws = elements.map(leadgenElementToRaw).filter(r => r.lat != null);
+  const seen = new Set();
+  const deduped = raws.filter(r => { const k = r.name.toLowerCase()+"|"+r.lat.toFixed(3)+"|"+r.lon.toFixed(3); if(seen.has(k)) return false; seen.add(k); return true; });
+
+  const searchRunId = uid();
+  const CONCURRENCY = 10;
+  const leads = []; let done = 0; let cursor = 0;
+  async function worker(){
+    while(cursor < deduped.length){
+      const item = deduped[cursor++];
+      leads.push(await leadgenEnrichOne(item, categoryLabel, searchRunId));
+      done++; onProgress(`Enriching ${done} of ${deduped.length}…`);
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(CONCURRENCY, deduped.length) }, worker));
+  leadgenMarkCached(location, radiusKm, categoryValue, customKeyword, leads.length);
+  leadgenAddRun({ id: searchRunId, label: `${geo.displayName.split(",")[0]} · ${categoryLabel}`, at: new Date().toISOString(), count: leads.length });
+  return { leads, cached:false, geo, totalFound: deduped.length, searchRunId };
+}
+
+/* ---- UI state (ephemeral, not persisted — resets on tab switch like currentClientId etc.) ---- */
+let leadgenScope = "__all__", leadgenStatusFilter = "", leadgenSearching = false, leadgenLastMsg = "";
+
+function escapeAttr(s){ return escapeHtml(s); }
+function leadgenScoreClass(score){ return score>=70 ? "green" : score>=45 ? "yellow" : "gray"; }
+const LEADGEN_STATUS_LABEL = { not_contacted:"Not contacted", contacted:"Contacted", replied:"Replied", won:"Won", lost:"Lost" };
+
+function renderLeadGen(){
+  document.querySelectorAll(".nav-item").forEach(n => n.classList.toggle("active", n.dataset.tab==="leadgen"));
+  const runs = leadgenGetRuns();
+  let leads = leadgenGetLeads().slice().sort((a,b) => b.score - a.score);
+  if(leadgenScope !== "__all__") leads = leads.filter(l => l.searchRunId === leadgenScope);
+  if(leadgenStatusFilter) leads = leads.filter(l => l.status === leadgenStatusFilter);
+
+  const scopeOptions = `<option value="__all__">All saved leads (${leadgenGetLeads().length})</option>` +
+    runs.map(r => `<option value="${escapeAttr(r.id)}" ${leadgenScope===r.id?"selected":""}>${escapeHtml(r.label)} — ${fmtDateTime(r.at)} (${r.count})</option>`).join("");
+
+  document.getElementById("main-content").innerHTML = `
+    <div class="topbar"><div><h2>Lead Gen</h2><p>Find local businesses anywhere in the world that could use a website, app, or AI tools — free, no API key. Ranked by opportunity; you reach out manually or send them to Outreach.</p></div></div>
+
+    <div class="card">
+      <h3>Search</h3>
+      <div class="field-row">
+        <div class="field" style="flex:2;min-width:240px;"><label>Location (city, town, area, or country — anywhere)</label><input type="text" id="lg-location" placeholder="e.g. Howrah, India / London, UK / Austin, TX"></div>
+        <div class="field" style="max-width:150px;"><label>Radius (km)</label><input type="number" id="lg-radius" value="10" min="1" max="50"></div>
+      </div>
+      <div class="field"><label>Business category</label>
+        <select id="lg-category" onchange="document.getElementById('lg-custom-field').style.display = this.value==='custom' ? '' : 'none';">
+          <option value="coaching">Coaching / tuition centers & schools</option>
+          <option value="healthcare">Clinics & healthcare</option>
+          <option value="retail">Retail & local shops</option>
+          <option value="food">Restaurants & cafes</option>
+          <option value="custom">Custom — type below</option>
+        </select>
+      </div>
+      <div class="field" id="lg-custom-field" style="display:none;">
+        <label>Custom category / keyword</label>
+        <input type="text" id="lg-custom-keyword" placeholder="e.g. gym, salon, lawyer, bakery, dentist, hotel, supermarket">
+        <span class="outreach-hint">Works best with a recognized business type (gym, salon, spa, lawyer, accountant, real estate, insurance, bakery, supermarket, pharmacy, hotel, dentist, veterinary, bank, car repair, electronics, furniture, clothing, jewellery, photographer, tailor, architect, IT company, marketing agency, travel agency, driving school).</span>
+      </div>
+      <div class="field" style="flex-direction:row;align-items:center;gap:8px;"><input type="checkbox" id="lg-force" style="width:auto;"><label for="lg-force" style="margin:0;font-weight:400;">Force refresh (ignore 30-day cache for this exact search)</label></div>
+      <div style="display:flex;align-items:center;gap:12px;margin-top:8px;">
+        <button class="btn" ${leadgenSearching?"disabled":""} onclick="leadgenSubmitSearch()">${leadgenSearching?"Searching…":"Find leads"}</button>
+        <span class="outreach-hint" id="lg-status-text">${escapeHtml(leadgenLastMsg)}</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="toolbar">
+        <div><label style="font-size:13px;">Show: </label><select onchange="leadgenScope=this.value;renderLeadGen();">${scopeOptions}</select></div>
+        <div><label style="font-size:13px;">Status: </label><select onchange="leadgenStatusFilter=this.value;renderLeadGen();">
+          <option value="">All</option>${Object.entries(LEADGEN_STATUS_LABEL).map(([v,l])=>`<option value="${v}" ${leadgenStatusFilter===v?"selected":""}>${l}</option>`).join("")}
+        </select></div>
+        <button class="btn secondary small" onclick="leadgenExportCsv()">Export CSV</button>
+      </div>
+      <div class="table-wrap"><table><thead><tr><th>Score</th><th>Business</th><th>Location</th><th>Contact</th><th>Category</th><th>Web / Email</th><th>Status</th><th></th></tr></thead><tbody>
+        ${leads.length ? leads.map(l => `
+          <tr>
+            <td><span class="pill ${leadgenScoreClass(l.score)}">${l.score}</span><div class="outreach-hint">${escapeHtml(l.scoreReason||"")}</div></td>
+            <td>${l.mapsUrl?`<a href="${escapeAttr(l.mapsUrl)}" target="_blank" rel="noreferrer"><b>${escapeHtml(l.name)}</b></a>`:`<b>${escapeHtml(l.name)}</b>`}</td>
+            <td>${escapeHtml(l.address||"—")}</td>
+            <td>${escapeHtml(l.phone||"—")}</td>
+            <td>${escapeHtml(l.category||"—")}</td>
+            <td>${l.website?`<a href="${escapeAttr(/^https?:\/\//i.test(l.website)?l.website:"https://"+l.website)}" target="_blank" rel="noreferrer">website</a>`:`<span style="color:var(--muted);">no website</span>`}<br>${l.email?`<a href="mailto:${escapeAttr(l.email)}">${escapeHtml(l.email)}</a>`:l.emailStatus==="blocked"?`<span style="color:var(--muted);">couldn't check</span>`:l.website?`<span style="color:var(--muted);">no email found</span>`:`<span style="color:var(--muted);">—</span>`}</td>
+            <td><select onchange="leadgenSetStatus('${escapeAttr(l.id)}', this.value)">${Object.entries(LEADGEN_STATUS_LABEL).map(([v,lbl])=>`<option value="${v}" ${v===l.status?"selected":""}>${lbl}</option>`).join("")}</select>${l.contactedBy?`<div class="outreach-hint">by ${escapeHtml(employeeName(l.contactedBy))}</div>`:""}</td>
+            <td><div class="row-actions">${l.email?`<button class="icon-btn" onclick="leadgenSendToOutreach('${escapeAttr(l.id)}')" title="Send to Outreach">→ Outreach</button>`:""}<button class="icon-btn" onclick="leadgenRemove('${escapeAttr(l.id)}')">Remove</button></div></td>
+          </tr>`).join("") : `<tr><td colspan="8" class="empty-row">No leads yet. Run a search above.</td></tr>`}
+      </tbody></table></div>
+    </div>
+  `;
+}
+
+async function leadgenSubmitSearch(){
+  const location = document.getElementById("lg-location").value.trim();
+  if(!location){ wmToast("Enter a location to search.","error"); return; }
+  const radiusKm = Math.min(50, Math.max(1, parseInt(document.getElementById("lg-radius").value, 10) || 10));
+  const categoryValue = document.getElementById("lg-category").value;
+  const customKeyword = document.getElementById("lg-custom-keyword").value;
+  if(categoryValue === "custom" && !customKeyword.trim()){ wmToast("Type a category or keyword to search for.","error"); return; }
+  const forceRefresh = document.getElementById("lg-force").checked;
+
+  leadgenSearching = true; leadgenLastMsg = "";
+  renderLeadGen();
+  try{
+    const result = await leadgenRunSearch(location, radiusKm, categoryValue, customKeyword, forceRefresh, (msg)=>{
+      leadgenLastMsg = msg;
+      const el = document.getElementById("lg-status-text");
+      if(el) el.textContent = msg; else renderLeadGen();
+    });
+    leadgenSearching = false;
+    if(result.cached){
+      leadgenLastMsg = `This exact search was run in the last 30 days — showing cached results. Tick "Force refresh" to search again.`;
+    } else {
+      leadgenScope = result.searchRunId;
+      leadgenLastMsg = `Found ${result.totalFound} businesses near "${result.geo.displayName}".`;
+      logAudit("Lead Gen search","Lead Gen", `${result.leads.length} leads found near ${result.geo.displayName.split(",")[0]} (${categoryValue==="custom"?customKeyword:LEADGEN_CATEGORY_PRESETS[categoryValue].label})`, null, null, null, (getSession()||{}).actingAs);
+    }
+  }catch(err){
+    leadgenSearching = false;
+    leadgenLastMsg = "";
+    wmToast(err.message || "Search failed — try again.", "error");
+  }
+  renderLeadGen();
+}
+
+function leadgenSetStatus(id, status){
+  const leads = leadgenGetLeads();
+  const l = leads.find(x => x.id === id);
+  if(!l) return;
+  l.status = status; l.updatedAt = new Date().toISOString();
+  if(status !== "not_contacted" && !l.contactedBy){ l.contactedBy = (getSession()||{}).actingAs || ""; l.contactedAt = l.updatedAt; }
+  if(status === "not_contacted"){ l.contactedBy = ""; l.contactedAt = ""; }
+  saveKey("leadgenLeads", leads);
+  logAudit("Lead status updated","Lead Gen", `${l.name} → ${LEADGEN_STATUS_LABEL[status]}`, null, null, null, (getSession()||{}).actingAs);
+  renderLeadGen();
+}
+function leadgenRemove(id){
+  saveKey("leadgenLeads", leadgenGetLeads().filter(l => l.id !== id));
+  renderLeadGen();
+}
+function leadgenSendToOutreach(id){
+  const l = leadgenGetLeads().find(x => x.id === id);
+  if(!l || !l.email){ wmToast("This lead has no email on file.","error"); return; }
+  const list = loadKey("outreachProspects") || [];
+  const existing = list.find(p => (p.email||"").toLowerCase() === l.email.toLowerCase());
+  if(existing){ wmToast(l.name + " is already in Outreach."); return; }
+  list.push({ id: uid(), serial:"", company: l.name, firstName:"", email: l.email, industry: l.category||"", linkedin:"", pitch:"", status:"New", notes:`Found via Lead Gen — ${l.address||""}`.trim(), reached:false, lastContactedAt:null });
+  saveKey("outreachProspects", list);
+  logAudit("Sent to Outreach","Lead Gen", `${l.name} added to Outreach prospects`, null, null, null, (getSession()||{}).actingAs);
+  wmToast(l.name + " sent to Outreach.");
+}
+function leadgenExportCsv(){
+  let leads = leadgenGetLeads().slice().sort((a,b) => b.score - a.score);
+  if(leadgenScope !== "__all__") leads = leads.filter(l => l.searchRunId === leadgenScope);
+  if(leadgenStatusFilter) leads = leads.filter(l => l.status === leadgenStatusFilter);
+  if(!leads.length){ wmToast("Nothing to export yet.","error"); return; }
+  const cols = ["name","category","address","phone","mapsUrl","website","email","score","scoreReason","status"];
+  const esc = v => { const s = v==null?"":String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s; };
+  const rows = [cols.join(","), ...leads.map(l => cols.map(c => esc(l[c])).join(","))];
+  const blob = new Blob(["﻿"+rows.join("\n")], { type:"text/csv;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = `thikaana-leads-${Date.now()}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 1500);
+}
 
 /* ---- Hash routing: keeps the address bar in sync so Ctrl/Cmd/middle-click on any
    nav item opens that exact tab in a new tab (sessionStorage carries over to it). ---- */
