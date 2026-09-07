@@ -339,6 +339,7 @@ window.__logoFallback = function(img){
   .wm-section-toggle{display:flex;align-items:flex-start;gap:8px;border:1px solid var(--border);border-radius:8px;padding:9px 10px;font-size:12.5px;}
   .wm-section-toggle b{display:block;font-size:12.5px;}
   .wm-section-toggle span{display:block;color:var(--muted);font-size:11px;margin-top:1px;line-height:1.4;}
+  .wm-section-toggle .f-section-label-override{display:block;width:100%;margin-top:6px;padding:5px 7px;font-size:11.5px;border:1px solid var(--border);border-radius:6px;color:var(--text);background:#fff;}
   .wm-banner-preview{background:linear-gradient(135deg,var(--dark),var(--dark2));color:#fff;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;}
   .wm-banner-preview.off{background:#eef0f5;color:var(--muted);}
   .wm-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--warn);margin-left:6px;position:relative;top:-1px;}
@@ -2020,8 +2021,8 @@ function openClientForm(id){
     <div class="field"><label>Status</label><select id="f-status">${CLIENT_STATUSES.map(s=>`<option ${s===item.status?"selected":""}>${s}</option>`).join("")}</select></div>
     <div class="field"><label>Notes</label><textarea id="f-notes">${escapeHtml(item.notes||"")}</textarea></div>
     <div class="field"><label>Manage Website — Sections Available to This Client</label>
-      <p style="font-size:11.5px;color:var(--muted);margin:0 0 8px;">Pick what makes sense for this business — e.g. a school usually doesn't need Menu &amp; Prices or Offers. You can change this later.</p>
-      <div class="wm-section-toggle-grid">${WEBSITE_SECTIONS.map(s=>`<label class="wm-section-toggle"><input type="checkbox" class="f-section-check" value="${s.id}" ${enabledSections.includes(s.id)?"checked":""} style="margin-top:2px;"><span><b>${s.icon} ${s.label}</b><span>${s.desc}</span></span></label>`).join("")}</div>
+      <p style="font-size:11.5px;color:var(--muted);margin:0 0 8px;">Pick what makes sense for this business — e.g. a school usually doesn't need Menu &amp; Prices or Offers. You can change this later. Each section's label can be renamed too — e.g. "Menu &amp; Prices" &rarr; "Catalogue &amp; Prices" for a non-food business.</p>
+      <div class="wm-section-toggle-grid">${WEBSITE_SECTIONS.map(s=>`<label class="wm-section-toggle"><input type="checkbox" class="f-section-check" value="${s.id}" ${enabledSections.includes(s.id)?"checked":""} style="margin-top:2px;"><span><b>${s.icon} ${s.label}</b><span>${s.desc}</span><input type="text" class="f-section-label-override" data-section="${s.id}" placeholder="Custom label (optional) — default: ${escapeHtml(s.label)}" value="${escapeHtml((item.sectionLabels&&item.sectionLabels[s.id])||"")}" onclick="event.stopPropagation()"></span></label>`).join("")}</div>
     </div>
     <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveClient('${id||""}')">Save</button></div>
   `, true);
@@ -2032,6 +2033,11 @@ function saveClient(id){
   const items = loadKey("clients")||[];
   const existing = items.find(i=>i.id===id);
   const websiteSections = Array.from(document.querySelectorAll(".f-section-check:checked")).map(c=>c.value);
+  const sectionLabels = {};
+  document.querySelectorAll(".f-section-label-override").forEach(inp=>{
+    const v = inp.value.trim();
+    if(v) sectionLabels[inp.dataset.section] = v;
+  });
   const record = Object.assign({}, existing, {
     id: id || uid(), name,
     company: document.getElementById("f-company").value.trim(),
@@ -2040,7 +2046,7 @@ function saveClient(id){
     website: document.getElementById("f-website").value.trim(),
     status: document.getElementById("f-status").value,
     notes: document.getElementById("f-notes").value.trim(),
-    websiteSections,
+    websiteSections, sectionLabels,
     onboardingDate: existing ? existing.onboardingDate : new Date().toISOString().slice(0,10),
     package: existing ? existing.package : { name:"Not set", price:0, services:[] },
     websiteStatus: existing ? existing.websiteStatus : { url: document.getElementById("f-website").value.trim(), status:"Not checked", hosting:"—", domain:"—", ssl:"—", maintenance:"—", lastChecked:null },
@@ -4146,6 +4152,13 @@ function wmSectionLabel(client, sectionId){
   if(override) return override;
   return (WEBSITE_SECTIONS.find(s=>s.id===sectionId)||{}).label || sectionId;
 }
+// Same override lookup, but for section page headings that intentionally read a little
+// differently from their short nav label (e.g. nav "Text" vs heading "Site Text") — falls
+// back to that section's own default heading text instead of the WEBSITE_SECTIONS label.
+function wmSectionHeading(client, sectionId, defaultHeading){
+  const override = client && client.sectionLabels && client.sectionLabels[sectionId];
+  return override || defaultHeading;
+}
 function renderManageWebsite(){
   const client = currentClientRecord(), me = currentClientUser();
   document.querySelectorAll(".nav-item").forEach(n => n.classList.toggle("active", n.dataset.tab==="cwebsite"));
@@ -4188,8 +4201,9 @@ function goToWebsiteSection(section){ websiteMgmtSection = section; renderManage
 /* ---- Text ---- */
 function renderWmText(){
   const t = currentClientWebsiteContent().text || {};
+  const heading = wmSectionHeading(currentClientRecord(), "text", "Site Text");
   document.getElementById("wm-body").innerHTML = `
-    <div class="wm-section-head"><h3>Site Text</h3><p>The headline and story visitors read first. Keep the hero title short — it's the biggest text on the page.</p></div>
+    <div class="wm-section-head"><h3>${escapeHtml(heading)}</h3><p>The headline and story visitors read first. Keep the hero title short — it's the biggest text on the page.</p></div>
     <div class="card" style="max-width:640px;">
       <div class="field"><label>Hero Title</label><input type="text" id="wm-heroTitle" maxlength="90" oninput="wmCountChars('wm-heroTitle',70)" value="${escapeHtml(t.heroTitle||"")}"></div>
       <div class="wm-field-error" id="wm-heroTitle-error"></div>
@@ -4230,8 +4244,9 @@ function saveWmText(){
 /* ---- Photos ---- */
 function renderWmPhotos(){
   const photos = currentClientWebsiteContent().photos||[];
+  const heading = wmSectionLabel(currentClientRecord(), "photos");
   document.getElementById("wm-body").innerHTML = `
-    <div class="wm-section-head"><h3>Photos</h3><p>Images used in your gallery, hero banner and menu. Large photos are resized automatically when you upload them.</p></div>
+    <div class="wm-section-head"><h3>${escapeHtml(heading)}</h3><p>Images used in your gallery, hero banner and menu. Large photos are resized automatically when you upload them.</p></div>
     <div class="topbar" style="margin-bottom:14px;"><div class="wm-save-msg" id="wm-save-msg"></div><div style="display:flex;gap:8px;">
       <button class="btn secondary small" id="wm-bulk-del-photos" style="display:none;" onclick="bulkDeletePhotos()">Delete Selected</button>
       <button class="btn small" onclick="openPhotoForm()">+ Add Photo</button>
@@ -4440,8 +4455,9 @@ function deleteItem(catId, itemId){
 /* ---- Offers ---- */
 function renderWmOffers(){
   const offers = currentClientWebsiteContent().offers||[];
+  const heading = wmSectionLabel(currentClientRecord(), "offers");
   document.getElementById("wm-body").innerHTML = `
-    <div class="wm-section-head"><h3>Offers</h3><p>Time-bound promotions. Only offers marked active and within their date range should appear on the site.</p></div>
+    <div class="wm-section-head"><h3>${escapeHtml(heading)}</h3><p>Time-bound promotions. Only offers marked active and within their date range should appear on the site.</p></div>
     <div class="topbar" style="margin-bottom:14px;"><div class="wm-save-msg" id="wm-save-msg"></div><div style="display:flex;gap:8px;">
       <button class="btn secondary small" id="wm-bulk-del-offers" style="display:none;" onclick="bulkDeleteOffers()">Delete Selected</button>
       <button class="btn small" onclick="openOfferForm()">+ Add Offer</button>
@@ -4517,8 +4533,9 @@ function deleteOffer(id){
 /* ---- Opening Hours (doubles as Locations for multi-location clients) ---- */
 function renderWmHours(){
   const hours = currentClientWebsiteContent().hours||[];
+  const heading = wmSectionLabel(currentClientRecord(), "hours");
   document.getElementById("wm-body").innerHTML = `
-    <div class="wm-section-head"><h3>Hours &amp; Locations</h3><p>Add one entry per location — this covers businesses with a single address or several.</p></div>
+    <div class="wm-section-head"><h3>${escapeHtml(heading)}</h3><p>Add one entry per location — this covers businesses with a single address or several.</p></div>
     <div class="topbar" style="margin-bottom:14px;"><div class="wm-save-msg" id="wm-save-msg"></div><button class="btn small" onclick="openHoursForm()">+ Add Location / Hours</button></div>
     ${hours.length ? hours.map(h=>`
       <div class="card">
@@ -4576,8 +4593,9 @@ function deleteHours(id){
 /* ---- Contact ---- */
 function renderWmContact(){
   const c = currentClientWebsiteContent().contact || {};
+  const heading = wmSectionLabel(currentClientRecord(), "contact");
   document.getElementById("wm-body").innerHTML = `
-    <div class="wm-section-head"><h3>Contact &amp; Social</h3><p>How visitors reach you, and the social/ordering links shown on your site.</p></div>
+    <div class="wm-section-head"><h3>${escapeHtml(heading)}</h3><p>How visitors reach you, and the social/ordering links shown on your site.</p></div>
     <div class="card" style="max-width:560px;">
       <div class="field"><label>Phone</label><input type="text" id="wm-contact-phone" value="${escapeHtml(c.phone||"")}"></div>
       <div class="field"><label>WhatsApp</label><input type="text" id="wm-contact-whatsapp" value="${escapeHtml(c.whatsapp||"")}"></div>
@@ -4616,8 +4634,9 @@ function saveWmContact(){
 /* ---- Testimonials ---- */
 function renderWmTestimonials(){
   const items = currentClientWebsiteContent().testimonials||[];
+  const heading = wmSectionLabel(currentClientRecord(), "testimonials");
   document.getElementById("wm-body").innerHTML = `
-    <div class="wm-section-head"><h3>Testimonials</h3><p>Quotes you choose to feature — separate from your aggregated Google/Zomato rating, which updates on its own.</p></div>
+    <div class="wm-section-head"><h3>${escapeHtml(heading)}</h3><p>Quotes you choose to feature — separate from your aggregated Google/Zomato rating, which updates on its own.</p></div>
     <div class="topbar" style="margin-bottom:14px;"><div class="wm-save-msg" id="wm-save-msg"></div><div style="display:flex;gap:8px;">
       <button class="btn secondary small" id="wm-bulk-del-testimonials" style="display:none;" onclick="bulkDeleteTestimonials()">Delete Selected</button>
       <button class="btn small" onclick="openTestimonialForm()">+ Add Testimonial</button>
@@ -4687,8 +4706,9 @@ function deleteTestimonial(id){
 /* ---- FAQs ---- */
 function renderWmFaqs(){
   const items = currentClientWebsiteContent().faqs||[];
+  const heading = wmSectionLabel(currentClientRecord(), "faqs");
   document.getElementById("wm-body").innerHTML = `
-    <div class="wm-section-head"><h3>FAQs</h3><p>Answer the questions visitors ask most, so they don't have to message you first.</p></div>
+    <div class="wm-section-head"><h3>${escapeHtml(heading)}</h3><p>Answer the questions visitors ask most, so they don't have to message you first.</p></div>
     <div class="topbar" style="margin-bottom:14px;"><div class="wm-save-msg" id="wm-save-msg"></div><div style="display:flex;gap:8px;">
       <button class="btn secondary small" id="wm-bulk-del-faqs" style="display:none;" onclick="bulkDeleteFaqs()">Delete Selected</button>
       <button class="btn small" onclick="openFaqForm()">+ Add FAQ</button>
@@ -4752,8 +4772,9 @@ function deleteFaq(id){
 /* ---- Announcement Banner (single site-wide strip) ---- */
 function renderWmBanner(){
   const b = currentClientWebsiteContent().banner || {};
+  const heading = wmSectionLabel(currentClientRecord(), "banner");
   document.getElementById("wm-body").innerHTML = `
-    <div class="wm-section-head"><h3>Announcement Banner</h3><p>One strip shown site-wide for urgent, short-lived updates — a closure, a new launch, a festival notice.</p></div>
+    <div class="wm-section-head"><h3>${escapeHtml(heading)}</h3><p>One strip shown site-wide for urgent, short-lived updates — a closure, a new launch, a festival notice.</p></div>
     <div class="wm-banner-preview ${b.enabled?"":"off"}">${b.enabled && b.text ? escapeHtml(b.text) : "Banner is currently off — visitors won't see a strip."}</div>
     <div class="card" style="max-width:560px;">
       <div class="field"><label><input type="checkbox" id="wm-banner-enabled" ${b.enabled?"checked":""}> Show this banner on the website now</label></div>
@@ -4780,8 +4801,9 @@ function saveWmBanner(){
 /* ---- Page Info (SEO) ---- */
 function renderWmSeo(){
   const s = currentClientWebsiteContent().seo || {};
+  const heading = wmSectionLabel(currentClientRecord(), "seo");
   document.getElementById("wm-body").innerHTML = `
-    <div class="wm-section-head"><h3>Page Info (SEO)</h3><p>What shows up as your page title and description in Google search results.</p></div>
+    <div class="wm-section-head"><h3>${escapeHtml(heading)}</h3><p>What shows up as your page title and description in Google search results.</p></div>
     <div class="card" style="max-width:560px;">
       <div class="field"><label>Page Title</label><input type="text" id="wm-seo-title" maxlength="70" oninput="wmCountChars('wm-seo-title',60)" value="${escapeHtml(s.pageTitle||"")}"></div>
       <div class="wm-counter" id="wm-seo-title-counter"></div>
@@ -4828,12 +4850,12 @@ function renderWmSitePreview(client, draft, published, enabled){
   }
   html += `<div class="wm-site-hero"><h1>${escapeHtml(t.heroTitle||client.name)}</h1><p>${escapeHtml(t.heroSubtitle||"")}</p></div>`;
   if(enabled.includes("text") && (t.aboutTitle||t.aboutBody)){
-    html += wmSitePreviewSection("text","About", `<b>${escapeHtml(t.aboutTitle||"")}</b><p style="font-size:13px;color:var(--muted);">${escapeHtml(t.aboutBody||"")}</p>`, draft, published);
+    html += wmSitePreviewSection("text", wmSectionHeading(client,"text","About"), `<b>${escapeHtml(t.aboutTitle||"")}</b><p style="font-size:13px;color:var(--muted);">${escapeHtml(t.aboutBody||"")}</p>`, draft, published);
   }
   if(enabled.includes("photos")){
     const photos = draft.photos||[];
     const inner = photos.length ? `<div class="wm-site-gallery">${photos.map(p=>`<div class="wm-site-photo" style="${p.url?`background-image:url('${p.url}');`:""}">${p.url?"":escapeHtml(p.caption||"Photo")}</div>`).join("")}</div>` : `<p style="font-size:13px;color:var(--muted);">No photos yet.</p>`;
-    html += wmSitePreviewSection("photos","Photos", inner, draft, published);
+    html += wmSitePreviewSection("photos", wmSectionLabel(client,"photos"), inner, draft, published);
   }
   if(enabled.includes("menu")){
     const menu = draft.menu||[];
@@ -4843,27 +4865,27 @@ function renderWmSitePreview(client, draft, published, enabled){
   if(enabled.includes("offers")){
     const offers = (draft.offers||[]).filter(o=>o.active);
     const inner = offers.length ? offers.map(o=>`<div class="wm-site-offer-card"><b>${escapeHtml(o.title)}</b><br>${escapeHtml(o.description||"")}</div>`).join("") : `<p style="font-size:13px;color:var(--muted);">No active offers.</p>`;
-    html += wmSitePreviewSection("offers","Offers", inner, draft, published);
+    html += wmSitePreviewSection("offers", wmSectionLabel(client,"offers"), inner, draft, published);
   }
   if(enabled.includes("testimonials")){
     const items = draft.testimonials||[];
     const inner = items.length ? items.map(x=>`<div class="wm-site-testimonial">&ldquo;${escapeHtml(x.quote)}&rdquo;<br><b style="font-size:12px;">— ${escapeHtml(x.author)}</b></div>`).join("") : `<p style="font-size:13px;color:var(--muted);">No testimonials yet.</p>`;
-    html += wmSitePreviewSection("testimonials","Testimonials", inner, draft, published);
+    html += wmSitePreviewSection("testimonials", wmSectionLabel(client,"testimonials"), inner, draft, published);
   }
   if(enabled.includes("faqs")){
     const items = draft.faqs||[];
     const inner = items.length ? items.map(x=>`<div class="wm-site-faq"><b>${escapeHtml(x.question)}</b><span style="font-size:13px;color:var(--muted);">${escapeHtml(x.answer)}</span></div>`).join("") : `<p style="font-size:13px;color:var(--muted);">No FAQs yet.</p>`;
-    html += wmSitePreviewSection("faqs","FAQs", inner, draft, published);
+    html += wmSitePreviewSection("faqs", wmSectionLabel(client,"faqs"), inner, draft, published);
   }
   if(enabled.includes("hours")){
     const rows = draft.hours||[];
     const inner = rows.length ? rows.map(h=>`<div class="wm-site-hours-row"><span><b>${escapeHtml(h.label)}</b><br><span style="color:var(--muted);">${escapeHtml(h.address||"")}</span></span><span>${escapeHtml(h.open||"—")} – ${escapeHtml(h.close||"—")}</span></div>`).join("") : `<p style="font-size:13px;color:var(--muted);">No hours listed.</p>`;
-    html += wmSitePreviewSection("hours","Hours & Locations", inner, draft, published);
+    html += wmSitePreviewSection("hours", wmSectionLabel(client,"hours"), inner, draft, published);
   }
   if(enabled.includes("contact")){
     const c = draft.contact||{};
     const bits = [c.phone&&("Phone: "+escapeHtml(c.phone)), c.whatsapp&&("WhatsApp: "+escapeHtml(c.whatsapp)), c.email&&("Email: "+escapeHtml(c.email)), c.instagram&&("Instagram: "+escapeHtml(c.instagram))].filter(Boolean).join("<br>") || `<span style="color:var(--muted);">No contact details set.</span>`;
-    html += wmSitePreviewSection("contact","Contact", `<p style="font-size:13px;">${bits}</p>`, draft, published);
+    html += wmSitePreviewSection("contact", wmSectionHeading(client,"contact","Contact"), `<p style="font-size:13px;">${bits}</p>`, draft, published);
   }
   html += `<div class="wm-site-footer">${escapeHtml(t.footerTagline||client.name)}</div>`;
   html += `</div>`;
