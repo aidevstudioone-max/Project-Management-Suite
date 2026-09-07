@@ -1513,7 +1513,21 @@ function countUp(el, target, opts){
 }
 
 /* ---------------- Seed data ---------------- */
+// One-off, idempotent fix-up for clients seeded before a field existed — runs every load,
+// safe to call regardless of SEED_VERSION so it doesn't require (and risk) a full reseed.
+function patchLegacyClientData(){
+  const clients = loadKey("clients");
+  if(!clients) return;
+  let changed = false;
+  const apoorva = clients.find(c=>c.id==="c-apoorva");
+  if(apoorva && (!apoorva.sectionLabels || apoorva.sectionLabels.menu !== "Catalogue & Prices")){
+    apoorva.sectionLabels = { ...(apoorva.sectionLabels||{}), menu: "Catalogue & Prices" };
+    changed = true;
+  }
+  if(changed) saveKey("clients", clients);
+}
 function seedIfEmpty(){
+  patchLegacyClientData();
   if(loadKey("clients") && loadKey("seedVersion")===SEED_VERSION){
     EMPLOYEES = loadKey("employees") || SEED_EMPLOYEES.slice();
     return;
@@ -1533,7 +1547,8 @@ function seedIfEmpty(){
     { id:"c-apoorva", name:"Apoorva Auto Parts", company:"Apoorva Auto Parts Pvt Ltd", website:"apoorvaauto.com", email:"sales@apoorvaauto.com", phone:"+91 98110 44552", status:"Active", onboardingDate:"2026-02-18", notes:"Auto parts supplier — catalogue, coverage area, enquiries.",
       package:{ name:"Website + Maintenance", price:52000, services:["Website Development","Hosting","Monthly Maintenance"] },
       websiteStatus:{ url:"apoorvaauto.com", status:"Online", hosting:"Active", domain:"Active", ssl:"Valid", maintenance:"Up to date", lastChecked:"2026-08-20T09:00:00" },
-      assignedTeam: ALL_TEAM.slice(), websiteSections: ALL_WEB_SECTIONS.filter(s=>s!=="testimonials" && s!=="banner") },
+      assignedTeam: ALL_TEAM.slice(), websiteSections: ALL_WEB_SECTIONS.filter(s=>s!=="testimonials" && s!=="banner"),
+      sectionLabels: { menu: "Catalogue & Prices" } },
     { id:"c-hangout", name:"Hangout Cafe", company:"Hangout Cafe & Restaurant", website:"hangoutcafe.in", email:"contact@hangoutcafe.in", phone:"+91 90040 77332", status:"Active", onboardingDate:"2026-04-02", notes:"Cafe & restaurant site — menu, location, dine-in info.",
       package:{ name:"Website", price:38000, services:["Website Development","Hosting"] },
       websiteStatus:{ url:"hangoutcafe.in", status:"Online", hosting:"Active", domain:"Active", ssl:"Valid", maintenance:"Up to date", lastChecked:"2026-08-19T18:00:00" },
@@ -4126,6 +4141,11 @@ function toggleWmDarkMode(){
      until the next repaint trigger. Fresh nodes always compute their style correctly. */
   renderManageWebsite();
 }
+function wmSectionLabel(client, sectionId){
+  const override = client && client.sectionLabels && client.sectionLabels[sectionId];
+  if(override) return override;
+  return (WEBSITE_SECTIONS.find(s=>s.id===sectionId)||{}).label || sectionId;
+}
 function renderManageWebsite(){
   const client = currentClientRecord(), me = currentClientUser();
   document.querySelectorAll(".nav-item").forEach(n => n.classList.toggle("active", n.dataset.tab==="cwebsite"));
@@ -4145,7 +4165,7 @@ function renderManageWebsite(){
   const navHtml = WEBSITE_SECTION_GROUPS.map(group=>{
     const items = visibleSections.filter(s=>s.group===group);
     if(!items.length) return "";
-    return `<div class="wm-nav-label">${group}</div>` + items.map(s=>`<a href="#/cwebsite-manage/${s.id}" class="wm-nav-item ${websiteMgmtSection===s.id?"active":""}" onclick="return wmNavClick(event,'${s.id}')"><span class="ic">${s.icon}</span> ${s.label}${sectionHasPendingChanges(client.id,s.id)?`<span class="wm-dot" title="Unpublished changes"></span>`:""}</a>`).join("");
+    return `<div class="wm-nav-label">${group}</div>` + items.map(s=>`<a href="#/cwebsite-manage/${s.id}" class="wm-nav-item ${websiteMgmtSection===s.id?"active":""}" onclick="return wmNavClick(event,'${s.id}')"><span class="ic">${s.icon}</span> ${escapeHtml(wmSectionLabel(client,s.id))}${sectionHasPendingChanges(client.id,s.id)?`<span class="wm-dot" title="Unpublished changes"></span>`:""}</a>`).join("");
   }).join("")
     + `<div class="wm-nav-label">Review</div><a href="#/cwebsite-manage/preview" class="wm-nav-item ${websiteMgmtSection==="preview"?"active":""}" onclick="return wmNavClick(event,'preview')"><span class="ic">${ICONS.eye}</span> Preview${pending?` <span class="wm-dot" title="Unpublished changes"></span>`:""}</a>`
     + (me.isAdmin ? `<div class="wm-nav-label">Admin</div><a href="#/cwebsite-manage/access" class="wm-nav-item ${websiteMgmtSection==="access"?"active":""}" onclick="return wmNavClick(event,'access')"><span class="ic">${ICONS.lock}</span> Access</a><a href="#/cwebsite" class="wm-nav-item" onclick="return navClick(event,'cwebsite')"><span class="ic">${ICONS.back}</span> Website Overview</a>` : "");
@@ -4304,8 +4324,9 @@ function deletePhoto(id){
 /* ---- Menu & Prices ---- */
 function renderWmMenu(){
   const menu = currentClientWebsiteContent().menu||[];
+  const label = wmSectionLabel(currentClientRecord(), "menu");
   document.getElementById("wm-body").innerHTML = `
-    <div class="wm-section-head"><h3>Menu &amp; Prices</h3><p>Organize items into categories. Leave a price blank to show "Enquire" instead of a number.</p></div>
+    <div class="wm-section-head"><h3>${escapeHtml(label)}</h3><p>Organize items into categories. Leave a price blank to show "Enquire" instead of a number.</p></div>
     <div class="topbar" style="margin-bottom:14px;"><div class="wm-save-msg" id="wm-save-msg"></div><button class="btn small" onclick="openCategoryForm()">+ Add Category</button></div>
     ${menu.length ? menu.map(cat=>`
       <div class="card">
@@ -4817,7 +4838,7 @@ function renderWmSitePreview(client, draft, published, enabled){
   if(enabled.includes("menu")){
     const menu = draft.menu||[];
     const inner = menu.length ? menu.map(c=>`<div class="wm-site-menu-cat"><h4>${escapeHtml(c.name)}</h4>${c.items.map(it=>`<div class="wm-site-menu-item"><span>${escapeHtml(it.name)}</span><span>${it.price!=null?("₹"+it.price):"Enquire"}</span></div>`).join("")}</div>`).join("") : `<p style="font-size:13px;color:var(--muted);">No menu yet.</p>`;
-    html += wmSitePreviewSection("menu","Menu & Prices", inner, draft, published);
+    html += wmSitePreviewSection("menu", wmSectionLabel(client,"menu"), inner, draft, published);
   }
   if(enabled.includes("offers")){
     const offers = (draft.offers||[]).filter(o=>o.active);
