@@ -1941,7 +1941,14 @@ function openModal(html, wide){
   if(!prefersReducedMotion()){ document.getElementById("modal-body").classList.add("modal-pop"); }
 }
 function closeModal(){ document.getElementById("overlay").classList.remove("open"); document.getElementById("modal-body").innerHTML=""; }
-document.getElementById("overlay").addEventListener("click", e => { if(e.target.id==="overlay") closeModal(); });
+/* Close-on-backdrop-click must require BOTH the mousedown and the mouseup/click to land on the
+   backdrop itself — otherwise selecting text inside a long textarea (Discussion Notes, Decisions)
+   and releasing the mouse a little past the modal's edge fires a "click" on the overlay and wipes
+   out everything the user just typed. Requiring the press to have started on the backdrop too
+   means a genuine "click outside to close" still works, but a drag that merely ends outside does not. */
+let _overlayMouseDownOnBackdrop = false;
+document.getElementById("overlay").addEventListener("mousedown", e => { _overlayMouseDownOnBackdrop = (e.target.id==="overlay"); });
+document.getElementById("overlay").addEventListener("click", e => { if(e.target.id==="overlay" && _overlayMouseDownOnBackdrop) closeModal(); _overlayMouseDownOnBackdrop = false; });
 
 /* ================= EMPLOYEE: DASHBOARD ================= */
 function renderDashboard(){
@@ -2568,14 +2575,45 @@ function saveExpense(id){
 }
 
 /* ================= EMPLOYEE: MEETINGS ================= */
+let expandedMeetings = new Set(); // card ids currently showing their full discussion/decisions/action items
+function meetingClientLabel(m, clients){
+  if(m.meetingContext==="new" && m.newClientName) return escapeHtml(m.newClientName) + " (New Client)";
+  const client = clients.find(c=>c.id===m.clientId);
+  if(client) return escapeHtml(client.name);
+  return "Internal";
+}
+function toggleMeetingDetails(id){
+  if(expandedMeetings.has(id)) expandedMeetings.delete(id); else expandedMeetings.add(id);
+  renderMeetings();
+}
 function renderMeetings(){
   const items = (loadKey("meetings")||[]).slice().sort((a,b)=> (b.date||"").localeCompare(a.date||""));
   const clients = loadKey("clients")||[];
   document.getElementById("main-content").innerHTML = `
     <div class="topbar"><div><h2>Meeting Notes</h2><p>What we discussed and decided</p></div><button class="btn" onclick="openMeetingForm()">+ Log Meeting</button></div>
     ${items.some(isDummy) ? sampleNote() : ""}
-    ${items.length ? items.map(m => { const client = clients.find(c=>c.id===m.clientId);
-      return `<div class="card ${isDummy(m)?"dummy-card":""}"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;"><h3 style="margin-bottom:4px;">${escapeHtml(m.title)} ${isDummy(m)?SAMPLE_PILL:""}</h3><div class="row-actions" style="flex-shrink:0;"><button class="icon-btn" onclick="openMeetingForm('${m.id}')">Edit</button><button class="icon-btn" onclick="deleteMeeting('${m.id}')">Delete</button></div></div><p style="margin:0 0 10px;color:var(--muted);font-size:12.5px;">${fmtDate(m.date)}${client?" · "+escapeHtml(client.name):""}${(m.attendees&&m.attendees.length)?" · "+(m.attendees||[]).map(employeeName).join(", "):""}</p>${m.notes?`<p style="font-size:13.5px;white-space:pre-wrap;margin:0 0 10px;"><b>Discussion:</b><br>${escapeHtml(m.notes)}</p>`:""}${m.decisions?`<p style="font-size:13.5px;white-space:pre-wrap;margin:0 0 10px;"><b>Decisions:</b><br>${escapeHtml(m.decisions)}</p>`:""}${(m.actionItems&&m.actionItems.length)?`<b style="font-size:13.5px;">Action Items:</b><table style="margin-top:6px;"><thead><tr><th>Task</th><th>Owner</th><th>Due</th><th>Status</th></tr></thead><tbody>${m.actionItems.map(a=>`<tr><td>${escapeHtml(a.task)}</td><td>${employeeName(a.owner)}</td><td>${a.due?fmtDate(a.due):"—"}</td><td><span class="pill ${a.done?"green":"yellow"}">${a.done?"Done":"Pending"}</span></td></tr>`).join("")}</tbody></table>`:""}</div>`;
+    ${items.length ? items.map(m => {
+      const attendeesStr = (m.attendees&&m.attendees.length) ? (m.attendees||[]).map(employeeName).join(", ") : "—";
+      const hasBody = !!(m.notes || m.decisions || (m.actionItems&&m.actionItems.length));
+      const expanded = expandedMeetings.has(m.id);
+      return `<div class="card ${isDummy(m)?"dummy-card":""}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
+          <div style="min-width:0;">
+            <h3 style="margin-bottom:4px;">${escapeHtml(m.title)} ${isDummy(m)?SAMPLE_PILL:""}</h3>
+            <p style="margin:0;color:var(--muted);font-size:12.5px;">${fmtDate(m.date)} · ${meetingClientLabel(m,clients)} · ${attendeesStr}</p>
+          </div>
+          <div class="row-actions" style="flex-shrink:0;">
+            ${hasBody?`<button class="icon-btn" onclick="toggleMeetingDetails('${m.id}')">${expanded?"Hide details":"View details"}</button>`:""}
+            <button class="icon-btn" onclick="openMeetingForm('${m.id}')">Edit</button>
+            <button class="icon-btn" onclick="deleteMeeting('${m.id}')">Delete</button>
+          </div>
+        </div>
+        ${expanded ? `
+          ${m.notes?`<p style="font-size:13.5px;white-space:pre-wrap;margin:10px 0 10px;"><b>Discussion:</b><br>${escapeHtml(m.notes)}</p>`:""}
+          ${m.decisions?`<p style="font-size:13.5px;white-space:pre-wrap;margin:0 0 10px;"><b>Decisions:</b><br>${escapeHtml(m.decisions)}</p>`:""}
+          ${(m.actionItems&&m.actionItems.length)?`<b style="font-size:13.5px;">Action Items:</b><table style="margin-top:6px;"><thead><tr><th>Task</th><th>Owner</th><th>Due</th><th>Status</th></tr></thead><tbody>${m.actionItems.map(a=>`<tr><td>${escapeHtml(a.task)}</td><td>${employeeName(a.owner)}</td><td>${a.due?fmtDate(a.due):"—"}</td><td><span class="pill ${a.done?"green":"yellow"}">${a.done?"Done":"Pending"}</span></td></tr>`).join("")}</tbody></table>`:""}
+        ` : ""}
+      </div>`;
     }).join("") : `<div class="card"><p class="empty-row">No meetings logged yet.</p></div>`}
   `;
 }
@@ -2587,14 +2625,27 @@ function openMeetingForm(id){
   openModal(`
     <h3>${m?"Edit":"Log"} Meeting</h3>
     <div class="field-row"><div class="field"><label>Date *</label><input type="date" id="f-date" value="${m?escapeHtml(m.date||""):new Date().toISOString().slice(0,10)}"></div><div class="field"><label>Title *</label><input type="text" id="f-title" value="${m?escapeHtml(m.title||""):""}"></div></div>
-    <div class="field"><label>Client (optional)</label><select id="f-client"><option value="">Internal only</option>${clients.map(c=>`<option value="${c.id}" ${m&&m.clientId===c.id?"selected":""}>${escapeHtml(c.name)}</option>`).join("")}</select></div>
-    <div class="field"><label>Attendees</label><div class="checkbox-group">${EMPLOYEES.map(e=>`<label><input type="checkbox" value="${e.id}" class="attendee-check" ${m&&(m.attendees||[]).includes(e.id)?"checked":""}> ${e.name}</label>`).join("")}</div></div>
+    <div class="field"><label>Meeting Type</label>
+      <select id="f-client" onchange="onMeetingTypeChange(this.value)">
+        <option value="internal" ${m&&m.meetingContext==="new"?"":(m&&m.clientId?"":"selected")}>Internal — Thikaana team only</option>
+        <option value="new" ${m&&m.meetingContext==="new"?"selected":""}>New / Prospective Client</option>
+        <optgroup label="Existing Clients">${clients.map(c=>`<option value="${c.id}" ${m&&m.clientId===c.id?"selected":""}>${escapeHtml(c.name)}</option>`).join("")}</optgroup>
+      </select>
+    </div>
+    <div class="field" id="f-newclient-wrap" style="display:${m&&m.meetingContext==="new"?"block":"none"};"><label>New Client / Company Name</label><input type="text" id="f-newclient" value="${m?escapeHtml(m.newClientName||""):""}" placeholder="e.g. Sharma Textiles"></div>
+    <div class="field"><label>Attendees</label><div class="checkbox-group"><label><input type="checkbox" id="attendee-all" onclick="toggleAllAttendees(this.checked)"> <b>All</b></label>${EMPLOYEES.map(e=>`<label><input type="checkbox" value="${e.id}" class="attendee-check" ${m&&(m.attendees||[]).includes(e.id)?"checked":""}> ${e.name}</label>`).join("")}</div></div>
     <div class="field"><label>Discussion Notes</label><textarea id="f-notes">${m?escapeHtml(m.notes||""):""}</textarea></div>
     <div class="field"><label>Decisions Made</label><textarea id="f-decisions">${m?escapeHtml(m.decisions||""):""}</textarea></div>
     <div class="field"><label>Action Items</label><div id="action-items-container"></div><button type="button" class="btn secondary small" onclick="addActionItemRow()">+ Add Action Item</button></div>
     <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveMeeting(${m?`'${m.id}'`:"null"})">Save</button></div>
   `);
   renderActionItemRows();
+}
+function onMeetingTypeChange(val){
+  document.getElementById("f-newclient-wrap").style.display = (val==="new") ? "block" : "none";
+}
+function toggleAllAttendees(checked){
+  document.querySelectorAll(".attendee-check").forEach(c=>c.checked=checked);
 }
 function deleteMeeting(id){
   const m = (loadKey("meetings")||[]).find(x=>x.id===id);
@@ -2612,8 +2663,17 @@ function removeActionItemRow(idx){ tempActionItems.splice(idx,1); renderActionIt
 function saveMeeting(id){
   const title = document.getElementById("f-title").value.trim(), date = document.getElementById("f-date").value;
   if(!title || !date){ alert("Date and title are required."); return; }
+  const typeVal = document.getElementById("f-client").value;
+  let clientId = null, meetingContext = "internal", newClientName = "";
+  if(typeVal === "new"){
+    newClientName = document.getElementById("f-newclient").value.trim();
+    if(!newClientName){ alert("Enter the new client's name."); return; }
+    meetingContext = "new";
+  } else if(typeVal && typeVal !== "internal"){
+    clientId = typeVal; meetingContext = "existing";
+  }
   const items = loadKey("meetings")||[];
-  const fields = { date, title, clientId: document.getElementById("f-client").value || null, attendees: Array.from(document.querySelectorAll(".attendee-check:checked")).map(el=>el.value), notes: document.getElementById("f-notes").value.trim(), decisions: document.getElementById("f-decisions").value.trim(), actionItems: tempActionItems.filter(a=>a.task && a.task.trim()) };
+  const fields = { date, title, clientId, meetingContext, newClientName, attendees: Array.from(document.querySelectorAll(".attendee-check:checked")).map(el=>el.value), notes: document.getElementById("f-notes").value.trim(), decisions: document.getElementById("f-decisions").value.trim(), actionItems: tempActionItems.filter(a=>a.task && a.task.trim()) };
   const idx = id ? items.findIndex(m=>m.id===id) : -1;
   if(idx > -1){ items[idx] = Object.assign({}, items[idx], fields); }
   else { items.push(Object.assign({ id: uid() }, fields)); }
