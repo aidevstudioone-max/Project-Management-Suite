@@ -1527,8 +1527,24 @@ function patchLegacyClientData(){
   }
   if(changed) saveKey("clients", clients);
 }
+// Leads found before the maps-link fix stored a raw "?q=lat,lon" link, which opens Google
+// Maps on a generic coordinate pin instead of the actual business listing. Rewrites any of
+// those (by name/address, the same way a fresh search builds the link) to the fixed format.
+function patchLegacyLeadMapsUrls(){
+  const leads = loadKey("leadgenLeads");
+  if(!leads || !leads.length) return;
+  let changed = false;
+  leads.forEach(l=>{
+    if(l.mapsUrl && l.mapsUrl.includes("maps?q=") && l.name && l.name !== "Unnamed business"){
+      l.mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(l.address ? `${l.name}, ${l.address}` : l.name)}`;
+      changed = true;
+    }
+  });
+  if(changed) saveKey("leadgenLeads", leads);
+}
 function seedIfEmpty(){
   patchLegacyClientData();
+  patchLegacyLeadMapsUrls();
   if(loadKey("clients") && loadKey("seedVersion")===SEED_VERSION){
     EMPLOYEES = loadKey("employees") || SEED_EMPLOYEES.slice();
     return;
@@ -3893,11 +3909,18 @@ function leadgenElementToRaw(el){
   const lat = el.lat ?? el.center?.lat ?? null;
   const lon = el.lon ?? el.center?.lon ?? null;
   const website = tags.website || tags["contact:website"] || null;
+  const name = tags.name || "Unnamed business";
+  const address = leadgenComposeAddress(tags);
   return {
-    id: `${el.type}/${el.id}`, name: tags.name || "Unnamed business", address: leadgenComposeAddress(tags), lat, lon,
+    id: `${el.type}/${el.id}`, name, address, lat, lon,
     phone: tags.phone || tags["contact:phone"] || null, website,
     category: tags.shop || tags.amenity || tags.office || tags.craft || tags.leisure || tags.healthcare || "—",
-    mapsUrl: (lat!=null && lon!=null) ? `https://www.google.com/maps?q=${lat},${lon}` : null
+    // A bare "?q=lat,lon" makes Google Maps show a generic coordinate pin instead of the
+    // business listing. Searching by name (+ address, as a location hint) reliably lands
+    // on the actual place page — falls back to the coordinate only if we have nothing else.
+    mapsUrl: name !== "Unnamed business"
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address ? `${name}, ${address}` : name)}`
+      : (lat!=null && lon!=null) ? `https://www.google.com/maps?q=${lat},${lon}` : null
   };
 }
 
@@ -4041,6 +4064,7 @@ function leadgenSortCompare(a,b){
     case "category": av=(a.category||"").toLowerCase(); bv=(b.category||"").toLowerCase(); break;
     case "website": av=a.website?1:0; bv=b.website?1:0; break;
     case "status": av=LEADGEN_STATUS_LABEL[a.status]||""; bv=LEADGEN_STATUS_LABEL[b.status]||""; break;
+    case "outreach": av=a.email?1:0; bv=b.email?1:0; break;
     case "score": default: av=a.score||0; bv=b.score||0;
   }
   const cmp = av<bv ? -1 : av>bv ? 1 : 0;
@@ -4082,8 +4106,9 @@ function leadgenTableRowsHtml(leads){
             <td>${escapeHtml(l.category||"—")}</td>
             <td>${l.website?`<a href="${escapeAttr(/^https?:\/\//i.test(l.website)?l.website:"https://"+l.website)}" target="_blank" rel="noreferrer">website</a>`:`<span style="color:var(--muted);">no website</span>`}<br>${l.email?`<a href="mailto:${escapeAttr(l.email)}">${escapeHtml(l.email)}</a>`:l.emailStatus==="blocked"?`<span style="color:var(--muted);">couldn't check</span>`:l.website?`<span style="color:var(--muted);">no email found</span>`:`<span style="color:var(--muted);">—</span>`}</td>
             <td><select onchange="leadgenSetStatus('${escapeAttr(l.id)}', this.value)">${Object.entries(LEADGEN_STATUS_LABEL).map(([v,lbl])=>`<option value="${v}" ${v===l.status?"selected":""}>${lbl}</option>`).join("")}</select>${l.contactedBy?`<div class="outreach-hint">by ${escapeHtml(employeeName(l.contactedBy))}</div>`:""}</td>
-            <td><div class="row-actions">${l.email?`<button class="icon-btn" onclick="leadgenSendToOutreach('${escapeAttr(l.id)}')" title="Send to Outreach">→ Outreach</button>`:""}<button class="icon-btn" onclick="leadgenRemove('${escapeAttr(l.id)}')">Remove</button></div></td>
-          </tr>`).join("") : `<tr><td colspan="8" class="empty-row">No leads match these filters.</td></tr>`;
+            <td>${l.email?`<button class="icon-btn" onclick="leadgenSendToOutreach('${escapeAttr(l.id)}')" title="Open in Outreach and email this lead">→ Outreach</button>`:`<span style="color:var(--muted);">N/A</span>`}</td>
+            <td><button class="icon-btn" onclick="leadgenRemove('${escapeAttr(l.id)}')">Remove</button></td>
+          </tr>`).join("") : `<tr><td colspan="9" class="empty-row">No leads match these filters.</td></tr>`;
 }
 function leadgenRefreshTable(){
   const tbody = document.getElementById("lg-tbody");
@@ -4167,6 +4192,7 @@ function renderLeadGen(){
         <th onclick="leadgenSetSort('category')" style="cursor:pointer;user-select:none;">Category${leadgenSortArrow("category")}</th>
         <th onclick="leadgenSetSort('website')" style="cursor:pointer;user-select:none;">Web / Email${leadgenSortArrow("website")}</th>
         <th onclick="leadgenSetSort('status')" style="cursor:pointer;user-select:none;">Status${leadgenSortArrow("status")}</th>
+        <th onclick="leadgenSetSort('outreach')" style="cursor:pointer;user-select:none;">Outreach${leadgenSortArrow("outreach")}</th>
         <th></th>
       </tr></thead><tbody id="lg-tbody">
         ${leadgenTableRowsHtml(leads)}
