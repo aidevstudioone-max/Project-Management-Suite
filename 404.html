@@ -8,9 +8,17 @@
      path it doesn't recognize (e.g. /Project-Management-Suite/demo). It stashes the
      requested path and hands off to portal.html, which restores it via replaceState. */
   try{ sessionStorage.setItem("pms_redirect", location.pathname + location.search + location.hash); }catch(e){}
-  var seg = (location.pathname.split("/").filter(Boolean)[1] || "").toLowerCase();
+  /* The "/Project-Management-Suite" path prefix only exists on the raw
+     github.io project-page URL. On a custom domain (e.g. portal.thikaana.co)
+     GitHub Pages serves the whole repo from the domain root, so that prefix
+     must NOT be preserved there or every redirect 404s again (infinite loop). */
+  var onGithubIo = location.hostname.toLowerCase().indexOf("github.io") !== -1;
+  var parts = location.pathname.split("/").filter(Boolean);
+  var base = "";
+  if(onGithubIo && parts[0] && parts[0].toLowerCase() === "project-management-suite"){ base = "/" + parts[0]; parts = parts.slice(1); }
+  var seg = (parts[0] || "").toLowerCase();
   var target = (seg === "thikaana_ops") ? "thikaana-ops.html" : "portal.html";
-  location.replace("/Project-Management-Suite/" + target);
+  location.replace(base + "/" + target);
 </script>
 </head>
 <body></body>
