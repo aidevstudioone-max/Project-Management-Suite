@@ -6,6 +6,19 @@
 <title>ठिkaana Ops</title>
 <link rel="icon" href="thikaana-logo.png">
 <script>
+/* Where thikaana-logo.* actually lives: repo root on any custom domain, but
+   under "/Project-Management-Suite" on the raw github.io project-page URL.
+   Pretty-path routing (see 404.html) rewrites the address bar to cosmetic
+   paths like "/PMS/Thikaana_ops" via history.replaceState, which also shifts
+   document.baseURI — so any bare relative "thikaana-logo.png" resolves
+   against that cosmetic depth instead of the real file location once JS runs
+   after the rewrite. Route every logo reference through this instead. */
+window.__assetBase = function(){
+  var onGithubIo = location.hostname.toLowerCase().indexOf("github.io") !== -1;
+  if(!onGithubIo) return "";
+  var parts = location.pathname.split("/").filter(Boolean);
+  return (parts[0] && parts[0].toLowerCase() === "project-management-suite") ? "/" + parts[0] : "";
+};
 /* Brand mark loader: try a few extensions, then fall back to the ठ glyph.
    Defined before <body> so the static <img onerror> handlers can use it. */
 window.__logoFallback = function(img){
@@ -13,7 +26,7 @@ window.__logoFallback = function(img){
   if(left.length){
     var ext = left.shift();
     img.setAttribute("data-try", left.join(","));
-    img.src = "thikaana-logo." + ext;
+    img.src = window.__assetBase() + "/thikaana-logo." + ext;
   } else {
     var span = img.parentNode; if(span){ span.textContent = "ठ"; }
   }
@@ -780,7 +793,7 @@ const ICONS = {
 const BRAND = "ठिkaana";
 /* Brand mark: an <img> that tries several extensions then falls back to the ठ glyph.
    __logoFallback is defined in a <head> script. */
-const LOGO_IMG = '<img src="thikaana-logo.png" alt="' + BRAND + ' Ops" class="brand-logo" data-try="svg,jpg,jpeg,webp" onerror="__logoFallback(this)">';
+const LOGO_IMG = '<img src="' + window.__assetBase() + '/thikaana-logo.png" alt="' + BRAND + ' Ops" class="brand-logo" data-try="svg,jpg,jpeg,webp" onerror="__logoFallback(this)">';
 const SHARED_LOGIN = { email: "support@thikaana.co", password: "Findmenow@123" };
 const DEMO_PASSWORD = "demo123";
 
